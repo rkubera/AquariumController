@@ -1,3 +1,12 @@
+/**************************************************
+ *                                                *
+ * AquaController by Radek Kubera (rkubera)       *
+ * all rights reserved                            *
+ * free of charge for non-commercial use only     *
+ * https://github.com/rkubera/AquariumController  *
+ *                                                *
+ * ************************************************/
+ 
 class sensorClass {
   public:
 
@@ -50,7 +59,7 @@ class sensorClass {
             break;
     }
     pinMode(analogPin, INPUT);
-    sensorPin = pin;
+    sensorPin = pin+1;
   
     for (int i=0; i<numReadings; i++) {
       readings[i] = -1;
@@ -78,17 +87,9 @@ class sensorClass {
     for (int i=0; i<300; i++) {
       analog = analogRead(analogPin);
       myValue = (a*analog)+b;
-      bool okReading = true;
-      if (sensorType==SENSOR_TYPE_PH) {
-        if (myValue<0 || myValue>14) {
-          okReading = false;
-        }
-      }
-      if (okReading==true) {
-        ValuesSum = ValuesSum+myValue;
-        rawReading = rawReading+analog;
-        count++;
-      }
+      ValuesSum = ValuesSum+myValue;
+      rawReading = rawReading+analog;
+      count++;
     }
   
     myValue = ValuesSum/count;
@@ -110,11 +111,19 @@ class sensorClass {
   
     readings[0] = myValue;
     rawReadings[0] = rawReading;
-  
-    rawReading = ValuesRawSum/realNumReadings;
+
+    if (realNumReadings>0) {
+      rawReading = ValuesRawSum/realNumReadings;
+      Value = ValuesSum/realNumReadings;
+      Value = (float)round(Value*precision)/precision;
+    }
+    else {
+      rawReading = 0;
+      Value = 0;
+    }
+    
     rawValue = rawReading;
-    Value = ValuesSum/realNumReadings;
-    Value = (float)round(Value*precision)/precision;
+    
     
     if (lastRawReading!=rawReading) {
       lastRawReading = rawReading;
@@ -130,27 +139,27 @@ class sensorClass {
   }
 
   void loadConfig(int EEPROM_addr) {
-    sensorType = configGetValue(EEPROM_addr);
-    minValue = configGetFloatValue(EEPROM_addr+1);
-    maxValue = configGetFloatValue(EEPROM_addr+5);
-    criticalMinValue = configGetFloatValue(EEPROM_addr+9);
-    criticalMaxValue = configGetFloatValue(EEPROM_addr+13);
-    calibValue1 = configGetFloatValue(EEPROM_addr+17);
-    calibRawRead1 = configGetFloatValue(EEPROM_addr+21);
-    calibValue2 = configGetFloatValue(EEPROM_addr+25);
-    calibRawRead2 = configGetFloatValue(EEPROM_addr+29);
+    sensorType = configGetValue(EEPROM_addr+11);
+    minValue = configGetFloatValue(EEPROM_addr+12);
+    maxValue = configGetFloatValue(EEPROM_addr+16);
+    criticalMinValue = configGetFloatValue(EEPROM_addr+20);
+    criticalMaxValue = configGetFloatValue(EEPROM_addr+24);
+    calibValue1 = configGetFloatValue(EEPROM_addr+28);
+    calibRawRead1 = configGetFloatValue(EEPROM_addr+32);
+    calibValue2 = configGetFloatValue(EEPROM_addr+36);
+    calibRawRead2 = configGetFloatValue(EEPROM_addr+40);
   }
 
   void saveConfig(int EEPROM_addr) {
-    EEPROM.write(EEPROM_addr,sensorType);
-    EEPROM.put(EEPROM_addr+1,minValue);
-    EEPROM.put(EEPROM_addr+5,maxValue);
-    EEPROM.put(EEPROM_addr+9,criticalMinValue);
-    EEPROM.put(EEPROM_addr+13,criticalMaxValue);
-    EEPROM.put(EEPROM_addr+17,calibValue1);
-    EEPROM.put(EEPROM_addr+21,calibRawRead1);
-    EEPROM.put(EEPROM_addr+15,calibValue2);
-    EEPROM.put(EEPROM_addr+29,calibRawRead2);
+    EEPROM.write(EEPROM_addr+11,sensorType);
+    EEPROM.put(EEPROM_addr+12,minValue);
+    EEPROM.put(EEPROM_addr+16,maxValue);
+    EEPROM.put(EEPROM_addr+20,criticalMinValue);
+    EEPROM.put(EEPROM_addr+24,criticalMaxValue);
+    EEPROM.put(EEPROM_addr+28,calibValue1);
+    EEPROM.put(EEPROM_addr+32,calibRawRead1);
+    EEPROM.put(EEPROM_addr+36,calibValue2);
+    EEPROM.put(EEPROM_addr+40,calibRawRead2);
   }
 
   void publishAll() {
@@ -159,20 +168,9 @@ class sensorClass {
       case SENSOR_TYPE_NONE:
         sType = setBufferFromFlash(charSensornone);
         break;
-      case SENSOR_TYPE_PH:
-         sType = setBufferFromFlash(charPhsensor);
-        break;
-      case SENSOR_TYPE_THERMOMETER:
-        sType = setBufferFromFlash(charThermometer);
-        break;
-      case SENSOR_TYPE_AQUA_WATER_LEVEL:
-        sType = setBufferFromFlash(charAquawaterlevel);
-        break;
-      case SENSOR_TYPE_TANK_WATER_LEVEL:
-        sType = setBufferFromFlash(charTankwaterlevel);
-        break;
     }
-    
+
+    mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charName),setBufferFromEeprom(EEPROM_sensors_addr+((sensorPin-1)*SENSORS_SENSOR_EEPROM_BYTES),10));
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorValue),floatToString(Value));
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorRawValue),intToString(rawValue));
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorType),sType);
@@ -183,7 +181,7 @@ class sensorClass {
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorMinValue),floatToString(minValue));
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorMaxValue),floatToString(maxValue));
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorCriticalMinValue),floatToString(criticalMinValue));
-    mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorCriticalMaxValue),floatToString(criticalMaxValue));
+    mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorCriticalMaxValue),floatToString(criticalMaxValue));    
   }
 };
 
@@ -202,16 +200,22 @@ void sensorsMqttPublishAll() {
 }
 
 void sensorsLoadConfig() {
-  for (byte i=0; i<SENSORS_COUNT; i++) {
-    mySensors[i].loadConfig(EEPROM_sensors_addr+(i*33));
+  for (byte sensorNumber=0; sensorNumber<SENSORS_COUNT; sensorNumber++) {
+    mySensors[sensorNumber].loadConfig(EEPROM_sensors_addr+(sensorNumber*SENSORS_SENSOR_EEPROM_BYTES));
   }
 }
 
 void sensorsSaveConfig(byte sensorNumber) {
-  mySensors[sensorNumber].saveConfig(EEPROM_sensors_addr+(sensorNumber*33));
+  mySensors[sensorNumber].saveConfig(EEPROM_sensors_addr+(sensorNumber*SENSORS_SENSOR_EEPROM_BYTES));
 }
 
-void sensorsSetSensor(byte sensorNumber, byte valueType, float Value) {
+void sensorsSaveSensorName(byte sensorNr, String Value) {
+  byte sensorNumber= sensorNr-1;
+  configSaveString(Value,EEPROM_sensors_addr+(sensorNumber*SENSORS_SENSOR_EEPROM_BYTES),10);
+}
+
+void sensorsSetSensor(byte sensorNr, byte valueType, float Value) {
+  byte sensorNumber= sensorNr-1;
   switch (valueType) {
       case SENSORS_VALUE_TYPE:
         mySensors[sensorNumber].sensorType = (byte)Value;
@@ -244,7 +248,8 @@ void sensorsSetSensor(byte sensorNumber, byte valueType, float Value) {
   sensorsSaveConfig(sensorNumber);
 }
 
-float sensorsGetSensor(byte sensorNumber, byte valueType) {
+float sensorsGetSensor(byte sensorNr, byte valueType) {
+  byte sensorNumber= sensorNr-1;
   switch (valueType) {
       case SENSORS_VALUE:
         return (mySensors[sensorNumber].Value);
@@ -284,7 +289,7 @@ float sensorsGetSensor(byte sensorNumber, byte valueType) {
 
 void sensorsSecondEvent() {
   for (byte i=0; i<SENSORS_COUNT; i++) {
-    if (mySensors[i].sensorType!=SENSOR_TYPE_NONE) {
+    if (mySensors[i].sensorType!=SENSOR_TYPE_NONE && mySensors[i].sensorType!=255) {
       mySensors[i].secondEvent();
     }
   }

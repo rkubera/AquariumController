@@ -1,3 +1,12 @@
+/**************************************************
+ *                                                *
+ * AquaController by Radek Kubera (rkubera)       *
+ * all rights reserved                            *
+ * free of charge for non-commercial use only     *
+ * https://github.com/rkubera/AquariumController  *
+ *                                                *
+ * ************************************************/
+
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
 #include <Wire.h>
@@ -15,6 +24,9 @@
 //PINS
 //********************************
 #define BUZZER_PIN 6
+
+#define DIGITAL_PWM_12V_OUT_PIN_1 4
+#define DIGITAL_PWM_12V_OUT_PIN_2 5
 
 #define DIGITAL_PWM_OUT_PIN_1  7
 #define DIGITAL_PWM_OUT_PIN_2  8
@@ -39,9 +51,6 @@
 #define LCD_PIN_SDIN  36
 #define LCD_PIN_SCLK  37
 #define LCD_PIN_LED   9 //Must be PWM Output
-
-#define PUMP_PIN_1 5
-#define PUMP_PIN_2 4
 
 #define RELAY_PIN_1 44
 #define RELAY_PIN_2 45
@@ -71,6 +80,12 @@ const char monthsOfYear[12][10] PROGMEM = {"January", "February", "March", "Apri
 const char charSetSensor[] PROGMEM = "set/Sensor";
 const char charGetSensor[] PROGMEM = "get/Sensor";
 
+const char charSetRelay[] PROGMEM = "set/Relay";
+const char charGetRelay[] PROGMEM = "get/Relay";
+
+const char charSetPwmOutput[] PROGMEM = "set/PWMOutput";
+const char charGetPwmOutput[] PROGMEM = "get/PWMOutput";
+
 const char charOn[] PROGMEM = "on";
 const char charOff[] PROGMEM = "off";
 
@@ -86,24 +101,12 @@ const char charWave[] PROGMEM = "wave";
 
 const char charManual[] PROGMEM = "manual";
 const char charPartofday[] PROGMEM = "partofday";
-const char charTemperature[] PROGMEM = "temperature";
-const char charPh[] PROGMEM = "ph";
-//const char charAquawaterlevel[] PROGMEM = "aquawaterlevel";
-//const char charTankwaterlevel[] PROGMEM = "tankwaterlevel";
-const char charPhsensor1[] PROGMEM = "phsensor1";
-const char charPhsensor2[] PROGMEM = "phsensor2";
-const char charThermometer1[] PROGMEM = "thermometer1";
-const char charThermometer2[] PROGMEM = "thermometer2";
-const char charWaterlevelsensor1[] PROGMEM = "waterlevelsensor1";
-const char charWaterlevelsensor2[] PROGMEM = "waterlevelsensor2";
-const char charWaterlevelsensor3[] PROGMEM = "waterlevelsensor3";
-const char charWaterlevelsensor4[] PROGMEM = "waterlevelsensor4";
+const char charHysteresis[] PROGMEM = "hysteresis";
+const char charPid[] PROGMEM = "pid";
 
 const char charSensornone[] PROGMEM = "notconnected";
-const char charPhsensor[] PROGMEM = "phsensor";
-const char charThermometer[] PROGMEM = "thermometer";
-const char charAquawaterlevel[] PROGMEM = "aquawaterlevel";
-const char charTankwaterlevel[] PROGMEM = "tankwaterlevel";
+const char charRelay[] PROGMEM = "relay";
+const char charPWMOutput[] PROGMEM = "pwmoutput";
 
 const char charSensorValue[] PROGMEM = "Value";
 const char charSensorRawValue[] PROGMEM = "RawValue";
@@ -116,32 +119,20 @@ const char charSensorMinValue[] PROGMEM = "MinValue";
 const char charSensorMaxValue[] PROGMEM = "MaxValue";
 const char charSensorCriticalMinValue[] PROGMEM = "CriticalMinValue";
 const char charSensorCriticalMaxValue[] PROGMEM = "CriticalMaxValue";
+const char charName[] PROGMEM = "Name";
+
+const char charControlMode[] PROGMEM = "ControlMode";
+const char charMorningMode[] PROGMEM = "MorningMode";
+const char charAfternoonMode[] PROGMEM = "AfternoonMode";
+const char charEveningMode[] PROGMEM = "EveningMode";
+const char charNightMode[] PROGMEM = "NightMode";
+
+const char charState[] PROGMEM = "State";
 
 #define CONTROL_MODE_MANUAL             0
 #define CONTROL_MODE_PART_OF_DAY        1
-#define CONTROL_MODE_TEMPERATURE        2
-#define CONTROL_MODE_PH                 3
-/*
-#define CONTROL_MODE_SENSOR1            4
-#define CONTROL_MODE_SENSOR2            5
-#define CONTROL_MODE_SENSOR3            6
-#define CONTROL_MODE_SENSOR4            7
-#define CONTROL_MODE_SENSOR5            8
-#define CONTROL_MODE_SENSOR6            9
-#define CONTROL_MODE_SENSOR7            10
-#define CONTROL_MODE_SENSOR8            11
-*/
-
-#define CONTROL_MODE_AQUAWATERLEVEL     4
-#define CONTROL_MODE_TANKWATERLEVEL     5
-#define CONTROL_MODE_PHSENSOR1          6
-#define CONTROL_MODE_PHSENSOR2          7
-#define CONTROL_MODE_THERMOMETER1       8
-#define CONTROL_MODE_THERMOMETER2       9
-#define CONTROL_MODE_WATERLEVELSENSOR1  10
-#define CONTROL_MODE_WATERLEVELSENSOR2  11
-#define CONTROL_MODE_WATERLEVELSENSOR3  12
-#define CONTROL_MODE_WATERLEVELSENSOR4  13
+#define CONTROL_MODE_HYSTERESIS         2
+#define CONTROL_MODE_PID                3
 
 byte fanStartTemperature = 30;
 byte fanMaxSpeedTemperature = 35;
@@ -157,15 +148,57 @@ uint32_t boot_time = 0;
 QuickStats stats;
 
 //********************************
+//RWMOutputs
+//********************************
+#define PWMOUTPUTS_PWMOUTPUT_EEPROM_BYTES  20
+#define PWMOUTPUTS_COUNT                   5
+
+#define PWMOUTPUT_MODE_OFF                 0
+#define PWMOUTPUT_MODE_ON                  1
+#define PWMOUTPUT_MODE_NONE                3
+
+#define PWMOUTPUT_MANUAL_ONOFF_AUTO        0
+#define PWMOUTPUT_MANUAL_ONOFF_OFF         1
+#define PWMOUTPUT_MANUAL_ONOFF_ON          2
+
+#define PWMOUTPUT_STATE                    1
+#define PWMOUTPUT_CONTROL_MODE             2
+#define PWMOUTPUT_MODE_MORNING             3
+#define PWMOUTPUT_MODE_AFTERNOON           4
+#define PWMOUTPUT_MODE_EVENING             5
+#define PWMOUTPUT_MODE_NIGHT               6
+#define PWMOUTPUT_MANUAL_ONOFF             7
+
+//********************************
+//Relays
+//********************************
+#define RELAYS_RELAY_EEPROM_BYTES         20
+#define RELAYS_COUNT                      4
+
+#define RELAY_MODE_OFF                    0
+#define RELAY_MODE_ON                     1
+#define RELAY_MODE_NONE                   3
+
+#define RELAY_MANUAL_ONOFF_AUTO           0
+#define RELAY_MANUAL_ONOFF_OFF            1
+#define RELAY_MANUAL_ONOFF_ON             2
+
+#define RELAY_STATE                       1
+#define RELAY_CONTROL_MODE                2
+#define RELAY_MODE_MORNING                3
+#define RELAY_MODE_AFTERNOON              4
+#define RELAY_MODE_EVENING                5
+#define RELAY_MODE_NIGHT                  6
+#define RELAY_MANUAL_ONOFF                7
+
+//********************************
 //Sensors
 //********************************
+#define SENSORS_SENSOR_EEPROM_BYTES       50
+
 #define SENSORS_COUNT                     8
 
 #define SENSOR_TYPE_NONE                  0
-#define SENSOR_TYPE_PH                    1
-#define SENSOR_TYPE_THERMOMETER           2
-#define SENSOR_TYPE_AQUA_WATER_LEVEL      3
-#define SENSOR_TYPE_TANK_WATER_LEVEL      4
 
 #define SENSORS_VALUE                     1
 #define SENSORS_VALUE_RAW                 2
@@ -189,14 +222,10 @@ char wifiStatus = 0;
 //********************************
 //Errors
 //********************************
-bool errorClock = false;
-bool errorTemperature = false;
-bool errorPH = false;
 
-byte errorsCount = 0;
-
-int errorsNumReadings = 20;
-float errorsTemparature[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int errorsCount = 0;
+int errorsReportStatus;
+int errorsLastReportStatus;
 
 //********************************
 //TimeZone
@@ -303,45 +332,6 @@ byte buzzerOnStart = 1;
 byte buzzerOnErrors = 1;
 
 //********************************
-//PH
-//********************************
-float phAqua = 7.0;
-
-float phValue1 = 7.0;
-float phRawRead1 = 520;
-
-float phValue2 = 4.0;
-float phRawRead2 = 647;
-
-int phNumReadings = 20;
-float phReadings[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-float phRawReadings[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
-float phMin = 5.2;
-float phMax = 8.8;
-
-int phLastPhRawReading;
-float phLastPhAqua;
-
-//********************************
-//Temperature
-//********************************
-float tempAqua = 0;
-
-float tempValue1 = 27;
-float tempRawRead1 = 748;
-
-float tempValue2 = 20;
-float tempRawRead2 = 510;
-
-int tempNumReadings = 20;
-float tempReadings[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-float tempRawReadings[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
-float tempMin = 26;
-float tempMax = 28;
-
-//********************************
 //LED
 //********************************
 #define LED_MODE_NONE    0
@@ -442,24 +432,6 @@ const char setMorningTime[] PROGMEM = "set/MorningTime";                        
 const char setAfternoonTime[] PROGMEM = "set/AfternoonTime";                     //HH:mm in 24 hours format
 const char setEveningTime[] PROGMEM = "set/EveningTime";                         //HH:mm in 24 hours format
 const char setNightTime[] PROGMEM = "set/NightTime";                             //HH:mm in 24 hours format
-const char setRelay1State[] PROGMEM = "set/Relay1State";                         //ON,OFF
-const char setRelay2State[] PROGMEM = "set/Relay2State";                         //ON,OFF
-const char setRelay1ControlMode[] PROGMEM = "set/Relay1ControlMode";             //manual, partofday, temperature, ph, aquawaterlevel, tankwaterlevel, phsensor1, phsensor2, thermometer1, thermometer2, waterlevelsensor1, waterlevelsensor2, waterlevelsensor3, waterlevelsensor4
-const char setRelay2ControlMode[] PROGMEM = "set/Relay2ControlMode";             //manual, partofday, temperature, ph, aquawaterlevel, tankwaterlevel, phsensor1, phsensor2, thermometer1, thermometer2, waterlevelsensor1, waterlevelsensor2, waterlevelsensor3, waterlevelsensor4
-const char setRelay1MorningMode[] PROGMEM = "set/Relay1MorningMode";             //ON,OFF,AUTO
-const char setRelay1AfternoonMode[] PROGMEM = "set/Relay1AfternoonMode";         //ON,OFF,AUTO
-const char setRelay1EveningMode[] PROGMEM = "set/Relay1EveningMode";             //ON,OFF,AUTO
-const char setRelay1NightMode[] PROGMEM = "set/Relay1NightMode";                 //ON,OFF,AUTO
-const char setRelay2MorningMode[] PROGMEM = "set/Relay2MorningMode";             //ON,OFF,AUTO
-const char setRelay2AfternoonMode[] PROGMEM = "set/Relay2AfternoonMode";         //ON,OFF,AUTO
-const char setRelay2EveningMode[] PROGMEM = "set/Relay2EveningMode";             //ON,OFF,AUTO
-const char setRelay2NightMode[] PROGMEM = "set/Relay2NightMode";                 //ON,OFF,AUTO
-const char setPHMin[] PROGMEM="set/PHMin";                                       //Float value 0.0..14.0
-const char setPHMax[] PROGMEM="set/PHMax";                                       //Float value 0.0..14.0
-const char setPH1Calib[] PROGMEM="set/PH1Calib";                                 //Float value 0.0..14.0
-const char setPH2Calib[] PROGMEM="set/PH2Calib";                                 //Float value 0.0..14.0
-const char setPH1RawCalib[] PROGMEM="set/PH1RawCalib";                           //integer 0..1023
-const char setPH2RawCalib[] PROGMEM="set/PH2RawCalib";                           //integer 0..1023
 const char setFanStartTemperature[] PROGMEM="set/FanStartTemp";                  //integer value
 const char setFanMaxSpeedTemperature[] PROGMEM="set/FanMaxSpeedTemp";            //integer value
 const char setMaxInternalTemperature[] PROGMEM="set/MaxIntTemp";                 //integer value
@@ -467,12 +439,6 @@ const char setLedControlMode[] PROGMEM = "set/LedControlMode";                  
 const char setLedManualMode[] PROGMEM = "set/LedManualMode";                     //red, green, blue, white, cyan, magenta, yellow, white, wave, black
 const char setBuzzerOnStart[] PROGMEM = "set/BuzzerOnStart";                     //on, off
 const char setBuzzerOnErrors[] PROGMEM = "set/BuzzerOnErrors";                   //on, off
-const char setTempMin[] PROGMEM="set/TempMin";                                   //Float value
-const char setTempMax[] PROGMEM="set/TempMax";                                   //Float value
-const char setTemp1Calib[] PROGMEM="set/Temp1Calib";                             //Float value
-const char setTemp2Calib[] PROGMEM="set/Temp2Calib";                             //Float value
-const char setTemp1RawCalib[] PROGMEM="set/Temp1RawCalib";                       //integer 0..1023
-const char setTemp2RawCalib[] PROGMEM="set/Temp2RawCalib";                       //integer 0..1023
 const char setTimezoneRule1Week[] PROGMEM="set/TimezoneRule1Week";               //first, second, third, fourth, last
 const char setTimezoneRule2Week[] PROGMEM="set/TimezoneRule2Week";               //first, second, third, fourth, last
 const char setTimezoneRule1DayOfWeek[] PROGMEM="set/TimezoneRule1DayOfWeek";     //sunday, monday, tuesday, wednesday, thursday, friday, saturday
@@ -496,18 +462,6 @@ const char getMorningTime[] PROGMEM = "get/MorningTime";
 const char getAfternoonTime[] PROGMEM = "get/AfternoonTime";
 const char getEveningTime[] PROGMEM = "get/EveningTime";
 const char getNightTime[] PROGMEM = "get/NightTime";
-const char getRelay1State[] PROGMEM = "get/Relay1State";
-const char getRelay2State[] PROGMEM = "get/Relay2State";
-const char getRelay1ControlMode[] PROGMEM = "get/Relay1ControlMode";
-const char getRelay2ControlMode[] PROGMEM = "get/Relay2ControlMode";
-const char getRelay1MorningMode[] PROGMEM = "get/Relay1MorningMode";
-const char getRelay1AfternoonMode[] PROGMEM = "get/Relay1AfternoonMode";
-const char getRelay1EveningMode[] PROGMEM = "get/Relay1EveningMode";
-const char getRelay1NightMode[] PROGMEM = "get/Relay1NightMode";
-const char getRelay2MorningMode[] PROGMEM = "get/Relay2MorningMode";
-const char getRelay2AfternoonMode[] PROGMEM = "get/Relay2AfternoonMode";
-const char getRelay2EveningMode[] PROGMEM = "get/Relay2EveningMode";
-const char getRelay2NightMode[] PROGMEM = "get/Relay2NightMode";
 const char getLedColorMorning[] PROGMEM = "get/LedColorMorning";
 const char getLedColorAfternoon[] PROGMEM = "get/LedColorAfternoon";
 const char getLedColorEvening[] PROGMEM = "get/LedColorEvening";
@@ -515,14 +469,6 @@ const char getLedColorNight[] PROGMEM = "get/LedColorNight";
 const char getLedControlMode[] PROGMEM = "get/LedControlMode";
 const char getLedManualMode[] PROGMEM = "get/LedManualMode";
 const char getActualPartOfDay[] PROGMEM = "get/ActualPartOfDay";
-const char getPH[] PROGMEM="get/PH";
-const char getRawPH[] PROGMEM="get/RawPH";
-const char getPH1Calib[] PROGMEM="get/PH1Calib";
-const char getPH2Calib[] PROGMEM="get/PH2Calib";
-const char getPH1RawCalib[] PROGMEM="get/PH1RawCalib";
-const char getPH2RawCalib[] PROGMEM="get/PH2RawCalib";
-const char getPHMin[] PROGMEM="get/PHMin";
-const char getPHMax[] PROGMEM="get/PHMax";
 const char getStatus[] PROGMEM="get/Status";
 const char getFanStartTemperature[] PROGMEM="get/FanStartTemp";
 const char getFanMaxSpeedTemperature[] PROGMEM="get/FanMaxSpeedTemp";
@@ -530,14 +476,6 @@ const char getFanPWMValue[] PROGMEM="get/FanPWMValue";
 const char getMaxInternalTemperature[] PROGMEM="get/MaxIntTemp";
 const char getBuzzerOnStart[] PROGMEM = "get/BuzzerOnStart";
 const char getBuzzerOnErrors[] PROGMEM = "get/BuzzerOnErrors";
-const char getTempMin[] PROGMEM="get/TempMin";
-const char getTempMax[] PROGMEM="get/TempMax";
-const char getTemp1Calib[] PROGMEM="get/Temp1Calib";
-const char getTemp2Calib[] PROGMEM="get/Temp2Calib";
-const char getTemp1RawCalib[] PROGMEM="get/Temp1RawCalib";
-const char getTemp2RawCalib[] PROGMEM="get/Temp2RawCalib";
-const char getTemperature[] PROGMEM="get/Temperature";
-const char getRawTemperature[] PROGMEM="get/RawTemperature";
 const char getTimezoneRule1Week[] PROGMEM="get/TimezoneRule1Week";
 const char getTimezoneRule2Week[] PROGMEM="get/TimezoneRule2Week";
 const char getTimezoneRule1DayOfWeek[] PROGMEM="get/TimezoneRule1DayOfWeek";
@@ -575,16 +513,6 @@ const char getLedState[] PROGMEM="get/LedState";
 #define EEPROM_ledNightBrightness_addr                      17
 #define EEPROM_ledManualBrightness_addr                     18
 
-#define EEPROM_relay1ModeMorning_addr                       22
-#define EEPROM_relay1ModeAfternoon_addr                     23
-#define EEPROM_relay1ModeEvening_addr                       24
-#define EEPROM_relay1ModeNight_addr                         25
-
-#define EEPROM_relay2ModeMorning_addr                       26
-#define EEPROM_relay2ModeAfternoon_addr                     27
-#define EEPROM_relay2ModeEvening_addr                       28
-#define EEPROM_relay2ModeNight_addr                         29
-
 #define EEPROM_ledControlMode_addr                          57
 #define EEPROM_ledManualMode_addr                           58
 
@@ -594,23 +522,8 @@ const char getLedState[] PROGMEM="get/LedState";
 //Global values
 #define EEPROM_maxInternalTemperature_addr                  31
 
-#define EEPROM_phMin_addr                                   32    //float - 4 bytes
-#define EEPROM_phMax_addr                                   36    //float - 4 bytes
-
 #define EEPROM_fanStartTemperature_addr                     30
 #define EEPROM_fanMaxSpeedTemperature_addr                  40
-
-#define EEPROM_phValue1_addr                                41    //float - 4 bytes
-#define EEPROM_phRawRead1_addr                              45    //float - 4 bytes
-#define EEPROM_phValue2_addr                                49    //float - 4 bytes
-#define EEPROM_phRawRead2_addr                              53    //float - 4 bytes
-
-#define EEPROM_tempMin_addr                                 61    //float - 4 bytes
-#define EEPROM_tempMax_addr                                 65    //float - 4 bytes
-#define EEPROM_tempValue1_addr                              69    //float - 4 bytes
-#define EEPROM_tempRawRead1_addr                            73    //float - 4 bytes
-#define EEPROM_tempValue2_addr                              77    //float - 4 bytes
-#define EEPROM_tempRawRead2_addr                            81    //float - 4 bytes
 
 #define EEPROM_timezoneRule1Week_addr                       85
 #define EEPROM_timezoneRule2Week_addr                       86
@@ -623,10 +536,9 @@ const char getLedState[] PROGMEM="get/LedState";
 #define EEPROM_timezoneRule1Month_addr                      93
 #define EEPROM_timezoneRule2Month_addr                      94
 
-#define EEPROM_relay1ControlMode_addr                       95
-#define EEPROM_relay2ControlMode_addr                       96
-
-#define EEPROM_sensors_addr                                 97      //8*33 = 264
+#define EEPROM_sensors_addr                                 2048      //8*50 = 400
+#define EEPROM_relays_addr                                  EEPROM_sensors_addr+(SENSORS_SENSOR_EEPROM_BYTES*SENSORS_COUNT) //4*20 = 80
+#define EEPROM_pwm_outputs_addr                             EEPROM_relays_addr+(RELAYS_RELAY_EEPROM_BYTES*RELAYS_COUNT)
 
 //********************************
 //Keyboard
@@ -635,51 +547,11 @@ char lastKey;
 Keypad keypad = Keypad(makeKeymap(keys), KBD_ROW_PINS, KBD_COL_PINS, KBD_ROWS, KBD_COLS);
 
 //********************************
-//Pumps
-//********************************
-
-//********************************
 //Watchdog
 //********************************
 time_t watchdogStartTime;
 time_t watchdogupTime;
 
-//********************************
-//Relays
-//********************************
-#define RELAY_MODE_OFF 0
-#define RELAY_MODE_ON 1
-#define RELAY_MODE_NONE 3
-
-bool relay1State = false;
-bool relay2State = false;
-
-byte relay1ControlMode = CONTROL_MODE_MANUAL;
-byte relay2ControlMode = CONTROL_MODE_MANUAL;
-
-byte relay1ModeMorning = RELAY_MODE_NONE;
-byte relay1ModeAfternoon = RELAY_MODE_NONE;
-byte relay1ModeEvening = RELAY_MODE_NONE;
-byte relay1ModeNight = RELAY_MODE_NONE;
-
-byte relay2ModeMorning = RELAY_MODE_NONE;
-byte relay2ModeAfternoon = RELAY_MODE_NONE;
-byte relay2ModeEvening = RELAY_MODE_NONE;
-byte relay2ModeNight = RELAY_MODE_NONE;
-
-#define RELAY_MANUAL_ONOFF_AUTO 0
-#define RELAY_MANUAL_ONOFF_OFF 1
-#define RELAY_MANUAL_ONOFF_ON 2
-
-byte relay1ManualOnOff = RELAY_MANUAL_ONOFF_AUTO;
-byte relay2ManualOnOff = RELAY_MANUAL_ONOFF_AUTO;
-
-byte relay1LastMode, relay2LastMode;
-byte relayLastPartOfDay1, relayLastPartOfDay2;
-byte relay1Mode, relay2Mode;
-
-bool relayLastRelay2State;
-bool relayLastRelay1State;
 //********************************
 //DHT
 //********************************
@@ -741,17 +613,11 @@ void setup() {
   //Relays
   relaysInit();
 
-  //Pumps
-  pumpsInit();
+  //PWMOutputs
+  pwmOutputsInit();
   
   lcdClear();  
   //clockSetLocalTime();
-
-  //PH
-  phInit();
-
-  //Thermometer
-  thermometerInit();
 
   //Sensors
   sensorsInit();

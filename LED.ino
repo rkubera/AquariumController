@@ -1,3 +1,18 @@
+/**************************************************
+ *                                                *
+ * AquaController by Radek Kubera (rkubera)       *
+ * all rights reserved                            *
+ * free of charge for non-commercial use only     *
+ * https://github.com/rkubera/AquariumController  *
+ *                                                *
+ * ************************************************/
+
+//based on:
+ // Nicu Florica (aka niq_ro) from http://www.tehnic.go.ro made a small change for nice display for low frequence (bellow 100MHz)
+// it use info from http://full-chip.net/arduino-proekty/97-cifrovoy-fm-priemnik-na-arduino-i-module-rda5807-s-graficheskim-displeem-i-funkciey-rds.html
+// original look like is from http://seta43.hol.es/radiofm.html
+// version 1 - store frequency and volume step in EEPROM memory
+
 void ledInit () {
   ledWaveIdx = 0;
   pinMode(LED_RED_PIN, OUTPUT);
@@ -480,12 +495,14 @@ void letSetColor (int r, int g, int b) {
   ledGreenLevel = (double)g*ledAutoBrightness*ledActualBrightness/255/255;
   ledBlueLevel = (double)b*ledAutoBrightness*ledActualBrightness/255/255;
 
+/*
   if (errorTemperature==true) {
     ledRedLevel = 0;
     ledGreenLevel = 0;
     ledBlueLevel = 0;
   }
-    
+*/
+  
   analogWrite (LED_RED_PIN, ledRedLevel);
   analogWrite (LED_GREEN_PIN, ledGreenLevel);
   analogWrite (LED_BLUE_PIN, ledBlueLevel);

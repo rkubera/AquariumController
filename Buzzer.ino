@@ -1,3 +1,14 @@
+/**************************************************
+ *                                                *
+ * AquaController by Radek Kubera (rkubera)       *
+ * all rights reserved                            *
+ * free of charge for non-commercial use only     *
+ * https://github.com/rkubera/AquariumController  *
+ *                                                *
+ * ************************************************/
+//based on:
+//https://www.arduino.cc/en/Tutorial/toneMelody
+ 
 /*************************************************
  * Public Constants
  *************************************************/

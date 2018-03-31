@@ -1,16 +1,24 @@
+/**************************************************
+ *                                                *
+ * AquaController by Radek Kubera (rkubera)       *
+ * all rights reserved                            *
+ * free of charge for non-commercial use only     *
+ * https://github.com/rkubera/AquariumController  *
+ *                                                *
+ * ************************************************/
+ 
 void eventTimerMillis() {
   clockMillisEvent();
   ledMillisEvent();
   relaysMillisEvent();
+  pwmOutputsMillisEvent();
   watchdogMillisEvent();
   fanMillisEvent();
 }
 
 void eventTimerSecond() {
-  thermometerSecondEvent(); 
   errorsSecondEvent();
   beepErrors();
-  phSecondEvent();
   sensorsSecondEvent();
 }
 
@@ -39,10 +47,9 @@ void eventMqttConnected() {
   errorsMqttPublishAll();
   fanMqttPublishAll();
   ledMqttPublishAll();
-  phMqttPublishAll();
   relaysMqttPublishAll();
+  pwmOutputsMqttPublishAll();
   schedulerMqttPublishAll();
-  thermometerMqttPublishAll();
   sensorsMqttPublishAll();
 }
 
