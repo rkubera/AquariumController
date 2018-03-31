@@ -10,6 +10,8 @@
 void configLoad() {
 
   sensorsLoadConfig();
+  relaysLoadConfig();
+  pwmOutputsLoadConfig();
   
   ledModeMorning = configGetValue(EEPROM_ledModeMorning_addr);
   ledModeAfternoon = configGetValue(EEPROM_ledModeAfternoon_addr);

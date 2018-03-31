@@ -59,36 +59,16 @@ class relayClass {
       
     if (relayControlMode == CONTROL_MODE_PART_OF_DAY) {
       if (actualPartOfDay==SCHEDULER_MODE_MORNING) {
-        if (relayModeMorning==RELAY_MODE_ON) {
-          relayMode = relayModeMorning;
-        }
-        else if (relayModeMorning==RELAY_MODE_OFF) {
-          relayMode = relayModeMorning;
-        }
+        relayMode = relayModeMorning;
       }
       else if (actualPartOfDay==SCHEDULER_MODE_AFTERNOON) {
-        if (relayModeAfternoon==RELAY_MODE_ON) {
-          relayMode = relayModeAfternoon;
-        }
-        else if (relayModeAfternoon==RELAY_MODE_OFF) {
-          relayMode = relayModeAfternoon;
-        }
+        relayMode = relayModeAfternoon;
       }
       else if (actualPartOfDay==SCHEDULER_MODE_EVENING) {
-        if (relayModeEvening==RELAY_MODE_ON) {
-          relayMode = relayModeEvening;
-        }
-        else if (relayModeEvening==RELAY_MODE_OFF) {
-          relayMode = relayModeEvening;
-        }
+        relayMode = relayModeEvening;
       }
       else {
-        if (relayModeNight==RELAY_MODE_ON) {
-          relayMode = relayModeNight;
-        }
-        else if (relayModeNight==RELAY_MODE_OFF) {
-          relayMode = relayModeNight;
-        }
+        relayMode = relayModeNight;
       }
   
       if (relayMode == RELAY_MODE_ON) {
@@ -97,15 +77,13 @@ class relayClass {
       else if (relayMode == RELAY_MODE_OFF) {
         relayUpDown = false;
       }
-    }
-  
-    if (relayControlMode != CONTROL_MODE_MANUAL) {
+
       if (relayLastPartOfDay!=actualPartOfDay) {
         relayLastPartOfDay = actualPartOfDay;
         relayManualOnOff=RELAY_MANUAL_ONOFF_AUTO;
       }
     }
-    
+  
     if (relayManualOnOff == RELAY_MANUAL_ONOFF_ON) {
       relayUpDown = true;
     }
@@ -118,12 +96,10 @@ class relayClass {
       relayLastRelayState = relayUpDown;
       if (relayUpDown == true) {
         relayUp();
-        //mqttElPublish(setBufferFromFlash(getRelay2State), setBufferFromFlash(charOn));
         mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charState),setBufferFromFlash(charOn));
       }
       else {
         relayDown();
-        //mqttElPublish(setBufferFromFlash(getRelay2State), setBufferFromFlash(charOff));
         mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charState),setBufferFromFlash(charOff));
       }
     }
@@ -149,37 +125,27 @@ class relayClass {
   }
 
   void relayUp() {
-    switch (relayPin) {
-      case 0: pinMode(digitalPin,HIGH);
-            break;
-      case 1: pinMode(digitalPin,HIGH);
-            break;
-    }
+    pinMode(digitalPin,HIGH);
   }
   
   void relayDown() {
-    switch (relayPin) {
-      case 0: pinMode(digitalPin,LOW);
-            break;
-      case 1: pinMode(digitalPin,LOW);
-            break;
-    }
+    pinMode(digitalPin,LOW);
   }
   
   void saveConfig(int EEPROM_addr) {
-    EEPROM.write(EEPROM_addr+11,relayControlMode);
-    EEPROM.write(EEPROM_addr+12,relayModeMorning);
-    EEPROM.write(EEPROM_addr+13,relayModeAfternoon);
-    EEPROM.write(EEPROM_addr+14,relayModeEvening);
-    EEPROM.write(EEPROM_addr+15,relayModeNight);
+    EEPROM.write(EEPROM_addr+NAME_LENGHTH+1,relayControlMode);
+    EEPROM.write(EEPROM_addr+NAME_LENGHTH+2,relayModeMorning);
+    EEPROM.write(EEPROM_addr+NAME_LENGHTH+3,relayModeAfternoon);
+    EEPROM.write(EEPROM_addr+NAME_LENGHTH+4,relayModeEvening);
+    EEPROM.write(EEPROM_addr+NAME_LENGHTH+5,relayModeNight);
   }
   
   void loadConfig(int EEPROM_addr) {
-    relayControlMode = configGetValue(EEPROM_addr+11);
-    relayModeMorning = configGetValue(EEPROM_addr+12);
-    relayModeAfternoon = configGetValue(EEPROM_addr+13);
-    relayModeEvening = configGetValue(EEPROM_addr+14);
-    relayModeNight = configGetValue(EEPROM_addr+15);
+    relayControlMode = configGetValue(EEPROM_addr+NAME_LENGHTH+1);
+    relayModeMorning = configGetValue(EEPROM_addr+NAME_LENGHTH+2);
+    relayModeAfternoon = configGetValue(EEPROM_addr+NAME_LENGHTH+3);
+    relayModeEvening = configGetValue(EEPROM_addr+NAME_LENGHTH+4);
+    relayModeNight = configGetValue(EEPROM_addr+NAME_LENGHTH+5);
   }
 };
 

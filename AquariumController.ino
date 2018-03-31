@@ -108,8 +108,8 @@ const char charSensornone[] PROGMEM = "notconnected";
 const char charRelay[] PROGMEM = "relay";
 const char charPWMOutput[] PROGMEM = "pwmoutput";
 
-const char charSensorValue[] PROGMEM = "Value";
-const char charSensorRawValue[] PROGMEM = "RawValue";
+const char charValue[] PROGMEM = "Value";
+const char charRawValue[] PROGMEM = "RawValue";
 const char charSensorType[] PROGMEM = "Type";
 const char charSensorCalibValue1[] PROGMEM = "CalibValue1";
 const char charSensorCalibRawValue1[] PROGMEM = "CalibRawValue1";
@@ -126,6 +126,7 @@ const char charMorningMode[] PROGMEM = "MorningMode";
 const char charAfternoonMode[] PROGMEM = "AfternoonMode";
 const char charEveningMode[] PROGMEM = "EveningMode";
 const char charNightMode[] PROGMEM = "NightMode";
+const char charManualMode[] PROGMEM = "ManualMode";
 
 const char charState[] PROGMEM = "State";
 
@@ -133,6 +134,8 @@ const char charState[] PROGMEM = "State";
 #define CONTROL_MODE_PART_OF_DAY        1
 #define CONTROL_MODE_HYSTERESIS         2
 #define CONTROL_MODE_PID                3
+
+#define NAME_LENGHTH                    15
 
 byte fanStartTemperature = 30;
 byte fanMaxSpeedTemperature = 35;
@@ -168,12 +171,13 @@ QuickStats stats;
 #define PWMOUTPUT_MODE_EVENING             5
 #define PWMOUTPUT_MODE_NIGHT               6
 #define PWMOUTPUT_MANUAL_ONOFF             7
+#define PWMOUTPUT_MANUAL_MODE              8
 
 //********************************
 //Relays
 //********************************
 #define RELAYS_RELAY_EEPROM_BYTES         20
-#define RELAYS_COUNT                      4
+#define RELAYS_COUNT                      2
 
 #define RELAY_MODE_OFF                    0
 #define RELAY_MODE_ON                     1

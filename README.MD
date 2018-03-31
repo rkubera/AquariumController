@@ -5,12 +5,16 @@ Alfa release, not for production/test usage
 # Features
 ## Main components:
 - LCD display
-- Keypad
-- 2 relays outputs
-- 2 12V PWM outputs
-- 3 5V PWM outputs
-- LED strips controller
+- keypad
 - up to 8 5V analog sensors (eg. PH sensor, thermometer, aqua level sensor etc)
+- watchdog
+- 2 x phisical relays outputs
+- 3 x 5V PWM outputs
+- 2 x 12V PWM outputs (optional)
+- LED strips controller (optional)
+- internal fan with pwm and temperature control (optional)
+- buzzer (optional)
+- real time clock (optional)
 
 ## Integration and networking:
 - MQTT integration

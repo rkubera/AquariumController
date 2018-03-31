@@ -12,53 +12,54 @@ class pwmOutputClass {
 
   byte pwmOutputPin;
   byte digitalPin;
-  
+
   bool pwmOutputState = false;
+    
   byte pwmOutputControlMode = CONTROL_MODE_MANUAL;
 
-  byte pwmOutputModeMorning = PWMOUTPUT_MODE_NONE;
-  byte pwmOutputModeAfternoon = PWMOUTPUT_MODE_NONE;
-  byte pwmOutputModeEvening = PWMOUTPUT_MODE_NONE;
-  byte pwmOutputModeNight = PWMOUTPUT_MODE_NONE;
+  byte pwmOutputModeMorning = 0;
+  byte pwmOutputModeAfternoon = 0;
+  byte pwmOutputModeEvening = 0;
+  byte pwmOutputModeNight = 0;
+  byte pwmOutputManualMode = 0;
 
   byte pwmOutputManualOnOff = PWMOUTPUT_MANUAL_ONOFF_AUTO;
   
   byte pwmOutputLastMode;
   byte pwmOutputLastPartOfDay;
-  byte pwmOutputMode;
+  byte pwmOutputValue;
   
   bool pwmOutputLastpwmOutputState;
+  byte pwmOutputLastpwmOutputValue;
 
   void Init(byte pin) {
     switch (pin) {
-      case 0: digitalPin = DIGITAL_PWM_12V_OUT_PIN_1;
-            pinMode(digitalPin, LOW);
+      case 0: digitalPin = DIGITAL_PWM_OUT_PIN_1;
             break;
-      case 1: digitalPin = DIGITAL_PWM_12V_OUT_PIN_2;
-            pinMode(digitalPin, LOW);
+      case 1: digitalPin = DIGITAL_PWM_OUT_PIN_2;
             break;
-      case 2: digitalPin = DIGITAL_PWM_OUT_PIN_1;
-            pinMode(digitalPin, LOW);
+      case 2: digitalPin = DIGITAL_PWM_OUT_PIN_3;
             break;
-      case 3: digitalPin = DIGITAL_PWM_OUT_PIN_2;
-            pinMode(digitalPin, LOW);
+      case 3: digitalPin = DIGITAL_PWM_12V_OUT_PIN_1;
             break;
-      case 4: digitalPin = DIGITAL_PWM_OUT_PIN_3;
-            pinMode(digitalPin, LOW);
+      case 4: digitalPin = DIGITAL_PWM_12V_OUT_PIN_2;
             break;
     }
+    pinMode(digitalPin, OUTPUT);
+    analogWrite(digitalPin,0);
     pwmOutputPin = pin+1;
   }
 
   void pwmOutputMqttPublishAll() {
 
-    mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charMorningMode),pwmOutputGetStringValue(pwmOutputModeMorning));
-    mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charAfternoonMode),pwmOutputGetStringValue(pwmOutputModeAfternoon));
-    mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charEveningMode),pwmOutputGetStringValue(pwmOutputModeEvening));
-    mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charNightMode),pwmOutputGetStringValue(pwmOutputModeNight));
+    mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charMorningMode),intToString(pwmOutputModeMorning));
+    mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charAfternoonMode),intToString(pwmOutputModeAfternoon));
+    mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charEveningMode),intToString(pwmOutputModeEvening));
+    mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charNightMode),intToString(pwmOutputModeNight));
+    mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charManualMode),intToString(pwmOutputManualMode));
     mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charState),pwmOutputGetStringValueFromBool(pwmOutputLastpwmOutputState));
     mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charControlMode),getStringControlModeFromValue(pwmOutputControlMode));
-    
+    mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charValue),intToString(pwmOutputValue));
     pwmOutputSetState();
   }
 
@@ -68,71 +69,54 @@ class pwmOutputClass {
       
     if (pwmOutputControlMode == CONTROL_MODE_PART_OF_DAY) {
       if (actualPartOfDay==SCHEDULER_MODE_MORNING) {
-        if (pwmOutputModeMorning==PWMOUTPUT_MODE_ON) {
-          pwmOutputMode = pwmOutputModeMorning;
-        }
-        else if (pwmOutputModeMorning==PWMOUTPUT_MODE_OFF) {
-          pwmOutputMode = pwmOutputModeMorning;
-        }
+        pwmOutputValue = pwmOutputModeMorning;
       }
       else if (actualPartOfDay==SCHEDULER_MODE_AFTERNOON) {
-        if (pwmOutputModeAfternoon==PWMOUTPUT_MODE_ON) {
-          pwmOutputMode = pwmOutputModeAfternoon;
-        }
-        else if (pwmOutputModeAfternoon==PWMOUTPUT_MODE_OFF) {
-          pwmOutputMode = pwmOutputModeAfternoon;
-        }
+        pwmOutputValue = pwmOutputModeAfternoon;
       }
       else if (actualPartOfDay==SCHEDULER_MODE_EVENING) {
-        if (pwmOutputModeEvening==PWMOUTPUT_MODE_ON) {
-          pwmOutputMode = pwmOutputModeEvening;
-        }
-        else if (pwmOutputModeEvening==PWMOUTPUT_MODE_OFF) {
-          pwmOutputMode = pwmOutputModeEvening;
-        }
+        pwmOutputValue = pwmOutputModeEvening;
       }
       else {
-        if (pwmOutputModeNight==PWMOUTPUT_MODE_ON) {
-          pwmOutputMode = pwmOutputModeNight;
-        }
-        else if (pwmOutputModeNight==PWMOUTPUT_MODE_OFF) {
-          pwmOutputMode = pwmOutputModeNight;
-        }
+        pwmOutputValue = pwmOutputModeNight;
       }
-  
-      if (pwmOutputMode == PWMOUTPUT_MODE_ON) {
-        pwmOutputUpDown = true;
-      }
-      else if (pwmOutputMode == PWMOUTPUT_MODE_OFF) {
-        pwmOutputUpDown = false;
-      }
-    }
-  
-    if (pwmOutputControlMode != CONTROL_MODE_MANUAL) {
+
       if (pwmOutputLastPartOfDay!=actualPartOfDay) {
         pwmOutputLastPartOfDay = actualPartOfDay;
         pwmOutputManualOnOff=PWMOUTPUT_MANUAL_ONOFF_AUTO;
       }
     }
-    
+    else if (pwmOutputControlMode == CONTROL_MODE_MANUAL) {
+      pwmOutputValue = pwmOutputManualMode;
+    }
+
     if (pwmOutputManualOnOff == PWMOUTPUT_MANUAL_ONOFF_ON) {
+      //pwmOutputValue = pwmOutputLastpwmOutputValue;
       pwmOutputUpDown = true;
     }
-    else if (pwmOutputManualOnOff == PWMOUTPUT_MANUAL_ONOFF_OFF){
+    
+    if (pwmOutputManualOnOff == PWMOUTPUT_MANUAL_ONOFF_OFF) {
+      pwmOutputValue = 0;
       pwmOutputUpDown = false;
     }
 
-    pwmOutputState = pwmOutputUpDown;
-    if (pwmOutputLastpwmOutputState!=pwmOutputUpDown) {
-      pwmOutputLastpwmOutputState = pwmOutputUpDown;
-      if (pwmOutputUpDown == true) {
-        pwmOutputUp();
+    if (pwmOutputValue>0) {
+      pwmOutputUpDown = true;
+    }
+    else {
+      pwmOutputUpDown = false;
+    }
+    
+    if (pwmOutputLastpwmOutputValue!=pwmOutputValue) {
+      pwmOutputLastpwmOutputValue = pwmOutputValue;
+      pwmOutputSetValue(pwmOutputValue);
+      if (pwmOutputUpDown==true) {
         mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charState),setBufferFromFlash(charOn));
       }
       else {
-        pwmOutputDown();
         mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charState),setBufferFromFlash(charOff));
       }
+      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charValue),intToString(pwmOutputValue));
     }
   }
 
@@ -155,38 +139,26 @@ class pwmOutputClass {
     return "";
   }
 
-  void pwmOutputUp() {
-    switch (pwmOutputPin) {
-      case 0: pinMode(digitalPin,HIGH);
-            break;
-      case 1: pinMode(digitalPin,HIGH);
-            break;
-    }
-  }
-  
-  void pwmOutputDown() {
-    switch (pwmOutputPin) {
-      case 0: pinMode(digitalPin,LOW);
-            break;
-      case 1: pinMode(digitalPin,LOW);
-            break;
-    }
+  void pwmOutputSetValue(byte pwmOutputMode) {
+    analogWrite(digitalPin,pwmOutputMode);
   }
   
   void saveConfig(int EEPROM_addr) {
-    EEPROM.write(EEPROM_addr+11,pwmOutputControlMode);
-    EEPROM.write(EEPROM_addr+12,pwmOutputModeMorning);
-    EEPROM.write(EEPROM_addr+13,pwmOutputModeAfternoon);
-    EEPROM.write(EEPROM_addr+14,pwmOutputModeEvening);
-    EEPROM.write(EEPROM_addr+15,pwmOutputModeNight);
+    EEPROM.write(EEPROM_addr+NAME_LENGHTH+1,pwmOutputControlMode);
+    EEPROM.write(EEPROM_addr+NAME_LENGHTH+2,pwmOutputModeMorning);
+    EEPROM.write(EEPROM_addr+NAME_LENGHTH+3,pwmOutputModeAfternoon);
+    EEPROM.write(EEPROM_addr+NAME_LENGHTH+4,pwmOutputModeEvening);
+    EEPROM.write(EEPROM_addr+NAME_LENGHTH+5,pwmOutputModeNight);
+    EEPROM.write(EEPROM_addr+NAME_LENGHTH+6,pwmOutputManualMode);
   }
   
   void loadConfig(int EEPROM_addr) {
-    pwmOutputControlMode = configGetValue(EEPROM_addr+11);
-    pwmOutputModeMorning = configGetValue(EEPROM_addr+12);
-    pwmOutputModeAfternoon = configGetValue(EEPROM_addr+13);
-    pwmOutputModeEvening = configGetValue(EEPROM_addr+14);
-    pwmOutputModeNight = configGetValue(EEPROM_addr+15);
+    pwmOutputControlMode = configGetValue(EEPROM_addr+NAME_LENGHTH+1);
+    pwmOutputModeMorning = configGetValue(EEPROM_addr+NAME_LENGHTH+2);
+    pwmOutputModeAfternoon = configGetValue(EEPROM_addr+NAME_LENGHTH+3);
+    pwmOutputModeEvening = configGetValue(EEPROM_addr+NAME_LENGHTH+4);
+    pwmOutputModeNight = configGetValue(EEPROM_addr+NAME_LENGHTH+5);
+    pwmOutputManualMode = configGetValue(EEPROM_addr+NAME_LENGHTH+6);
   }
 };
 
@@ -243,6 +215,9 @@ void pwmOutputsSetPwmOutput(byte pwmOutputNr, byte valueType, byte Value) {
       case PWMOUTPUT_MODE_NIGHT:
         myPwmOutputs[pwmOutputNumber].pwmOutputModeNight = Value;
         break;
+      case PWMOUTPUT_MANUAL_MODE:
+        myPwmOutputs[pwmOutputNumber].pwmOutputManualMode = Value;
+        break;      
       case PWMOUTPUT_MANUAL_ONOFF:
         myPwmOutputs[pwmOutputNumber].pwmOutputManualOnOff = Value;
         break;
@@ -254,12 +229,7 @@ byte pwmOutputsGetPwmOutput(byte pwmOutputNr, byte valueType) {
   byte pwmOutputNumber= pwmOutputNr-1;
   switch (valueType) {
       case PWMOUTPUT_STATE:
-        if (myPwmOutputs[pwmOutputNumber].pwmOutputState) {
-          return (1);
-        }
-        else {
-          return (0);
-        }
+        return (myPwmOutputs[pwmOutputNumber].pwmOutputValue);
         break;
       case PWMOUTPUT_CONTROL_MODE:
         return (myPwmOutputs[pwmOutputNumber].pwmOutputControlMode);
@@ -275,6 +245,9 @@ byte pwmOutputsGetPwmOutput(byte pwmOutputNr, byte valueType) {
         break;
       case PWMOUTPUT_MODE_NIGHT:
         return (myPwmOutputs[pwmOutputNumber].pwmOutputModeNight);
+        break;
+      case PWMOUTPUT_MANUAL_MODE:
+        return (myPwmOutputs[pwmOutputNumber].pwmOutputManualMode);
         break;
       case PWMOUTPUT_MANUAL_ONOFF:
         return (myPwmOutputs[pwmOutputNumber].pwmOutputManualOnOff);

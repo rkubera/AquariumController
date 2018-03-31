@@ -127,39 +127,39 @@ class sensorClass {
     
     if (lastRawReading!=rawReading) {
       lastRawReading = rawReading;
-      mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorRawValue),intToString(rawReading));
+      mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charRawValue),intToString(rawReading));
       //mqttElPublish(setBufferFromFlash(getRawPH), intToString(rawReading));
     }
   
     if (lastValue!=Value) {
       lastValue = Value;
       //mqttElPublish(setBufferFromFlash(getPH), floatToString(Value));
-      mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorValue),floatToString(Value));
+      mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charValue),floatToString(Value));
     }
   }
 
   void loadConfig(int EEPROM_addr) {
-    sensorType = configGetValue(EEPROM_addr+11);
-    minValue = configGetFloatValue(EEPROM_addr+12);
-    maxValue = configGetFloatValue(EEPROM_addr+16);
-    criticalMinValue = configGetFloatValue(EEPROM_addr+20);
-    criticalMaxValue = configGetFloatValue(EEPROM_addr+24);
-    calibValue1 = configGetFloatValue(EEPROM_addr+28);
-    calibRawRead1 = configGetFloatValue(EEPROM_addr+32);
-    calibValue2 = configGetFloatValue(EEPROM_addr+36);
-    calibRawRead2 = configGetFloatValue(EEPROM_addr+40);
+    sensorType = configGetValue(EEPROM_addr+NAME_LENGHTH+1);
+    minValue = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+2);
+    maxValue = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+6);
+    criticalMinValue = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+10);
+    criticalMaxValue = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+14);
+    calibValue1 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+18);
+    calibRawRead1 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+22);
+    calibValue2 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+26);
+    calibRawRead2 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+30);
   }
 
   void saveConfig(int EEPROM_addr) {
-    EEPROM.write(EEPROM_addr+11,sensorType);
-    EEPROM.put(EEPROM_addr+12,minValue);
-    EEPROM.put(EEPROM_addr+16,maxValue);
-    EEPROM.put(EEPROM_addr+20,criticalMinValue);
-    EEPROM.put(EEPROM_addr+24,criticalMaxValue);
-    EEPROM.put(EEPROM_addr+28,calibValue1);
-    EEPROM.put(EEPROM_addr+32,calibRawRead1);
-    EEPROM.put(EEPROM_addr+36,calibValue2);
-    EEPROM.put(EEPROM_addr+40,calibRawRead2);
+    EEPROM.write(EEPROM_addr+NAME_LENGHTH+1,sensorType);
+    EEPROM.put(EEPROM_addr+NAME_LENGHTH+2,minValue);
+    EEPROM.put(EEPROM_addr+NAME_LENGHTH+6,maxValue);
+    EEPROM.put(EEPROM_addr+NAME_LENGHTH+10,criticalMinValue);
+    EEPROM.put(EEPROM_addr+NAME_LENGHTH+14,criticalMaxValue);
+    EEPROM.put(EEPROM_addr+NAME_LENGHTH+18,calibValue1);
+    EEPROM.put(EEPROM_addr+NAME_LENGHTH+22,calibRawRead1);
+    EEPROM.put(EEPROM_addr+NAME_LENGHTH+26,calibValue2);
+    EEPROM.put(EEPROM_addr+NAME_LENGHTH+30,calibRawRead2);
   }
 
   void publishAll() {
@@ -171,8 +171,8 @@ class sensorClass {
     }
 
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charName),setBufferFromEeprom(EEPROM_sensors_addr+((sensorPin-1)*SENSORS_SENSOR_EEPROM_BYTES),10));
-    mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorValue),floatToString(Value));
-    mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorRawValue),intToString(rawValue));
+    mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charValue),floatToString(Value));
+    mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charRawValue),intToString(rawValue));
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorType),sType);
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorCalibValue1),floatToString(calibValue1));
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorCalibRawValue1),intToString(calibRawRead1));
