@@ -3,7 +3,7 @@ Aquarium controller based on Arduino Mega 2560 and ESP8266 microcontrollers.
 Alfa release, not for production/test usage
 
 # Features
-## main components:
+## Main components:
 - LCD display
 - Keypad
 - 2 relays outputs
@@ -12,11 +12,12 @@ Alfa release, not for production/test usage
 - LED strips controller
 - up to 8 5V analog sensors (eg. PH sensor, thermometer, aqua level sensor etc)
 
-## integration and networking:
+## Integration and networking:
 - MQTT integration
 - NTP integration
+- OTA update
 
-## control methods for LED, relays and PWM outputs:
+## Control methods for LED, relays and PWM outputs:
 - manual
 - part of day
 - hysteresis
