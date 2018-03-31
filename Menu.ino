@@ -1,3 +1,12 @@
+/**************************************************
+ *                                                *
+ * AquaController by Radek Kubera (rkubera)       *
+ * all rights reserved                            *
+ * free of charge for non-commercial use only     *
+ * https://github.com/rkubera/AquariumController  *
+ *                                                *
+ * ************************************************/
+ 
 void menuInit() {
   
 }
@@ -24,35 +33,6 @@ void menuStatsuWindow() {
     }
     lcdString(buffer);
   //}
-  
-  //Aquarium
-  gotoXY(0,2);
-  lcdStringX("AQUA:");
-  
-  //Temperature
-  gotoXY(0,3);
-  lcdDegree();
-  lcdString("C=");
-  int tmpInt1 = round(tempAqua);
-  if (tempAqua==0) {
-    sprintf (buffer, "-- ");
-  }
-  else {
-    sprintf (buffer, "%02d ", tmpInt1);
-  }
-  lcdString(buffer);
-  
-  //PH
-  tmpInt1 = phAqua;                  // Get the integer (678).
-  float tmpFrac = phAqua - tmpInt1;      // Get fraction (0.12).
-  int tmpInt2 = trunc(tmpFrac * 10);  // Turn into integer (12)
-  if (phAqua==0) {
-    sprintf (buffer, "PH=-.-");
-  }
-  else {
-    sprintf (buffer, "PH=%d.%01d", tmpInt1, tmpInt2);
-  }
-  lcdString(buffer);
 
   //Aquarium
   gotoXY(0,4);
@@ -61,6 +41,8 @@ void menuStatsuWindow() {
   gotoXY(0,5);
   lcdDegree();
   lcdString("C=");
+
+  int tmpInt1;
   if (dhtTemperature==0) {
     sprintf (buffer, "-- ", tmpInt1);    
   }

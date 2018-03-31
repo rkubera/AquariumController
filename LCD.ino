@@ -1,3 +1,12 @@
+/**************************************************
+ *                                                *
+ * AquaController by Radek Kubera (rkubera)       *
+ * all rights reserved                            *
+ * free of charge for non-commercial use only     *
+ * https://github.com/rkubera/AquariumController  *
+ *                                                *
+ * ************************************************/
+ 
 static const byte DEGREE[][5] PROGMEM = {
    {B00000000, B00000110, B00001001, B00001001, B00000110}
 };

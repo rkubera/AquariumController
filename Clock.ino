@@ -1,4 +1,11 @@
-#include <Timezone.h>
+/**************************************************
+ *                                                *
+ * AquaController by Radek Kubera (rkubera)       *
+ * all rights reserved                            *
+ * free of charge for non-commercial use only     *
+ * https://github.com/rkubera/AquariumController  *
+ *                                                *
+ * ************************************************/
 
 static uint32_t clockDelta = 0;
 

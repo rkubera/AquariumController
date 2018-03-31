@@ -1,218 +1,277 @@
-void relaysInit() {
-  //relay1Up();
-  //relay2Up();
-}
+/**************************************************
+ *                                                *
+ * AquaController by Radek Kubera (rkubera)       *
+ * all rights reserved                            *
+ * free of charge for non-commercial use only     *
+ * https://github.com/rkubera/AquariumController  *
+ *                                                *
+ * ************************************************/
+ 
+class relayClass {
+  public:
 
-String relaysGetStringValueFromBool (bool Value) {
-  if (Value) {    
+  byte relayPin;
+  byte digitalPin;
+  
+  bool relayState = false;
+  byte relayControlMode = CONTROL_MODE_MANUAL;
+
+  byte relayModeMorning = RELAY_MODE_NONE;
+  byte relayModeAfternoon = RELAY_MODE_NONE;
+  byte relayModeEvening = RELAY_MODE_NONE;
+  byte relayModeNight = RELAY_MODE_NONE;
+
+  byte relayManualOnOff = RELAY_MANUAL_ONOFF_AUTO;
+  
+  byte relayLastMode;
+  byte relayLastPartOfDay;
+  byte relayMode;
+  
+  bool relayLastRelayState;
+
+  void Init(byte pin) {
+    switch (pin) {
+      case 0: digitalPin = RELAY_PIN_1;
+            pinMode(digitalPin, LOW);
+            break;
+      case 1: digitalPin = RELAY_PIN_2;
+            pinMode(digitalPin, LOW);
+            break;
+    }
+    relayPin = pin+1;
+  }
+
+  void relayMqttPublishAll() {
+
+    mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charMorningMode),relayGetStringValue(relayModeMorning));
+    mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charAfternoonMode),relayGetStringValue(relayModeAfternoon));
+    mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charEveningMode),relayGetStringValue(relayModeEvening));
+    mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charNightMode),relayGetStringValue(relayModeNight));
+    mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charState),relayGetStringValueFromBool(relayLastRelayState));
+    mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charControlMode),getStringControlModeFromValue(relayControlMode));
+    
+    relaySetState();
+  }
+
+  void relaySetState() {
+    byte actualPartOfDay = schedulerGetActualPartOfDay();
+    bool relayUpDown = relayLastRelayState;
+      
+    if (relayControlMode == CONTROL_MODE_PART_OF_DAY) {
+      if (actualPartOfDay==SCHEDULER_MODE_MORNING) {
+        if (relayModeMorning==RELAY_MODE_ON) {
+          relayMode = relayModeMorning;
+        }
+        else if (relayModeMorning==RELAY_MODE_OFF) {
+          relayMode = relayModeMorning;
+        }
+      }
+      else if (actualPartOfDay==SCHEDULER_MODE_AFTERNOON) {
+        if (relayModeAfternoon==RELAY_MODE_ON) {
+          relayMode = relayModeAfternoon;
+        }
+        else if (relayModeAfternoon==RELAY_MODE_OFF) {
+          relayMode = relayModeAfternoon;
+        }
+      }
+      else if (actualPartOfDay==SCHEDULER_MODE_EVENING) {
+        if (relayModeEvening==RELAY_MODE_ON) {
+          relayMode = relayModeEvening;
+        }
+        else if (relayModeEvening==RELAY_MODE_OFF) {
+          relayMode = relayModeEvening;
+        }
+      }
+      else {
+        if (relayModeNight==RELAY_MODE_ON) {
+          relayMode = relayModeNight;
+        }
+        else if (relayModeNight==RELAY_MODE_OFF) {
+          relayMode = relayModeNight;
+        }
+      }
+  
+      if (relayMode == RELAY_MODE_ON) {
+        relayUpDown = true;
+      }
+      else if (relayMode == RELAY_MODE_OFF) {
+        relayUpDown = false;
+      }
+    }
+  
+    if (relayControlMode != CONTROL_MODE_MANUAL) {
+      if (relayLastPartOfDay!=actualPartOfDay) {
+        relayLastPartOfDay = actualPartOfDay;
+        relayManualOnOff=RELAY_MANUAL_ONOFF_AUTO;
+      }
+    }
+    
+    if (relayManualOnOff == RELAY_MANUAL_ONOFF_ON) {
+      relayUpDown = true;
+    }
+    else if (relayManualOnOff == RELAY_MANUAL_ONOFF_OFF){
+      relayUpDown = false;
+    }
+
+    relayState = relayUpDown;
+    if (relayLastRelayState!=relayUpDown) {
+      relayLastRelayState = relayUpDown;
+      if (relayUpDown == true) {
+        relayUp();
+        //mqttElPublish(setBufferFromFlash(getRelay2State), setBufferFromFlash(charOn));
+        mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charState),setBufferFromFlash(charOn));
+      }
+      else {
+        relayDown();
+        //mqttElPublish(setBufferFromFlash(getRelay2State), setBufferFromFlash(charOff));
+        mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charState),setBufferFromFlash(charOff));
+      }
+    }
+  }
+
+  String relayGetStringValueFromBool (bool Value) {
+    if (Value) {    
       return setBufferFromFlash(charOn);
     }
     else {  
       return setBufferFromFlash(charOff);
     }
-}
+  }
 
-String relaysGetStringValue (byte Value) {
-  if (Value == RELAY_MODE_ON) {    
+  String relayGetStringValue (byte Value) {
+    if (Value == RELAY_MODE_ON) {    
       return setBufferFromFlash(charOn);
     }
     else if (Value == RELAY_MODE_OFF) {  
       return setBufferFromFlash(charOff);
     }
     return "";
+  }
+
+  void relayUp() {
+    switch (relayPin) {
+      case 0: pinMode(digitalPin,HIGH);
+            break;
+      case 1: pinMode(digitalPin,HIGH);
+            break;
+    }
+  }
+  
+  void relayDown() {
+    switch (relayPin) {
+      case 0: pinMode(digitalPin,LOW);
+            break;
+      case 1: pinMode(digitalPin,LOW);
+            break;
+    }
+  }
+  
+  void saveConfig(int EEPROM_addr) {
+    EEPROM.write(EEPROM_addr+11,relayControlMode);
+    EEPROM.write(EEPROM_addr+12,relayModeMorning);
+    EEPROM.write(EEPROM_addr+13,relayModeAfternoon);
+    EEPROM.write(EEPROM_addr+14,relayModeEvening);
+    EEPROM.write(EEPROM_addr+15,relayModeNight);
+  }
+  
+  void loadConfig(int EEPROM_addr) {
+    relayControlMode = configGetValue(EEPROM_addr+11);
+    relayModeMorning = configGetValue(EEPROM_addr+12);
+    relayModeAfternoon = configGetValue(EEPROM_addr+13);
+    relayModeEvening = configGetValue(EEPROM_addr+14);
+    relayModeNight = configGetValue(EEPROM_addr+15);
+  }
+};
+
+static relayClass myRelays[RELAYS_COUNT];
+
+void relaysInit() {
+ for (byte i=0; i<RELAYS_COUNT; i++) {
+    myRelays[i].Init(i);
+  }
 }
 
 void relaysMqttPublishAll() {
-  mqttElPublish( setBufferFromFlash(getRelay1MorningMode), relaysGetStringValue(relay1ModeMorning));
-  mqttElPublish( setBufferFromFlash(getRelay1AfternoonMode), relaysGetStringValue(relay1ModeAfternoon));
-  mqttElPublish( setBufferFromFlash(getRelay1EveningMode), relaysGetStringValue(relay1ModeEvening));
-  mqttElPublish( setBufferFromFlash(getRelay1NightMode), relaysGetStringValue(relay1ModeNight));
-
-  mqttElPublish( setBufferFromFlash(getRelay2MorningMode), relaysGetStringValue(relay2ModeMorning));
-  mqttElPublish( setBufferFromFlash(getRelay2AfternoonMode), relaysGetStringValue(relay2ModeAfternoon));
-  mqttElPublish( setBufferFromFlash(getRelay2EveningMode), relaysGetStringValue(relay2ModeEvening));
-  mqttElPublish( setBufferFromFlash(getRelay2NightMode), relaysGetStringValue(relay2ModeNight));
-
-  mqttElPublish( setBufferFromFlash(getRelay1State), relaysGetStringValueFromBool(relayLastRelay1State));
-  mqttElPublish( setBufferFromFlash(getRelay2State), relaysGetStringValueFromBool(relayLastRelay2State));
-
-  mqttElPublish(setBufferFromFlash(getRelay1ControlMode), getStringControlModeFromValue(relay1ControlMode));
-  mqttElPublish(setBufferFromFlash(getRelay2ControlMode), getStringControlModeFromValue(relay2ControlMode));
-
-  relaysRelay1SetState();
-  relaysRelay2SetState();
-}
-
-void relaysRelay1SetState() {
-  
-  byte actualPartOfDay = schedulerGetActualPartOfDay();
-  bool relay1UpDown = relayLastRelay1State;
-    
-  if (relay1ControlMode == CONTROL_MODE_PART_OF_DAY) {
-    if (actualPartOfDay==SCHEDULER_MODE_MORNING) {
-      if (relay1ModeMorning==RELAY_MODE_ON) {
-        relay1Mode = relay1ModeMorning;
-      }
-      else if (relay1ModeMorning==RELAY_MODE_OFF) {
-        relay1Mode = relay1ModeMorning;
-      }
-    }
-    else if (actualPartOfDay==SCHEDULER_MODE_AFTERNOON) {
-      if (relay1ModeAfternoon==RELAY_MODE_ON) {
-        relay1Mode = relay1ModeAfternoon;
-      }
-      else if (relay1ModeAfternoon==RELAY_MODE_OFF) {
-        relay1Mode = relay1ModeAfternoon;
-      }
-    }
-    else if (actualPartOfDay==SCHEDULER_MODE_EVENING) {
-      if (relay1ModeEvening==RELAY_MODE_ON) {
-        relay1Mode = relay1ModeEvening;
-      }
-      else if (relay1ModeEvening==RELAY_MODE_OFF) {
-        relay1Mode = relay1ModeEvening;
-      }
-    }
-    else {
-      if (relay1ModeNight==RELAY_MODE_ON) {
-        relay1Mode = relay1ModeNight;
-      }
-      else if (relay1ModeNight==RELAY_MODE_OFF) {
-        relay1Mode = relay1ModeNight;
-      }
-    }
-
-    if (relay1Mode == RELAY_MODE_ON) {
-      relay1UpDown = true;
-    }
-    else if (relay1Mode == RELAY_MODE_OFF) {
-      relay1UpDown = false;
-    }
-  }
-
-  if (relay1ControlMode != CONTROL_MODE_MANUAL) {
-    if (relayLastPartOfDay1!=actualPartOfDay) {
-      relayLastPartOfDay1 = actualPartOfDay;
-      relay1ManualOnOff=RELAY_MANUAL_ONOFF_AUTO;
-    }
-  }
-  
-  if (relay1ManualOnOff == RELAY_MANUAL_ONOFF_ON) {
-    relay1UpDown = true;
-  }
-  else if (relay1ManualOnOff == RELAY_MANUAL_ONOFF_OFF){
-    relay1UpDown = false;
-  }
-  
-  if (relayLastRelay1State!=relay1UpDown) {
-    relayLastRelay1State = relay1UpDown;
-    if (relay1UpDown == true) { 
-      mqttElPublishFull("cmnd/sonoff/POWER2","ON");
-      relay1Up();
-      mqttElPublish(setBufferFromFlash(getRelay1State), setBufferFromFlash(charOn));
-    }
-    else {
-      mqttElPublishFull("cmnd/sonoff/POWER2","OFF");
-      relay1Down();
-      mqttElPublish(setBufferFromFlash(getRelay1State), setBufferFromFlash(charOff));
-    }
+  for (byte i=0; i<RELAYS_COUNT; i++) {
+    myRelays[i].relayMqttPublishAll();
   }
 }
-
-void relaysRelay2SetState() {
-  
-  byte actualPartOfDay = schedulerGetActualPartOfDay();
-  bool relay2UpDown = relayLastRelay2State;
-    
-  if (relay2ControlMode == CONTROL_MODE_PART_OF_DAY) {
-    if (actualPartOfDay==SCHEDULER_MODE_MORNING) {
-      if (relay2ModeMorning==RELAY_MODE_ON) {
-        relay2Mode = relay2ModeMorning;
-      }
-      else if (relay2ModeMorning==RELAY_MODE_OFF) {
-        relay2Mode = relay2ModeMorning;
-      }
-    }
-    else if (actualPartOfDay==SCHEDULER_MODE_AFTERNOON) {
-      if (relay2ModeAfternoon==RELAY_MODE_ON) {
-        relay2Mode = relay2ModeAfternoon;
-      }
-      else if (relay2ModeAfternoon==RELAY_MODE_OFF) {
-        relay2Mode = relay2ModeAfternoon;
-      }
-    }
-    else if (actualPartOfDay==SCHEDULER_MODE_EVENING) {
-      if (relay2ModeEvening==RELAY_MODE_ON) {
-        relay2Mode = relay2ModeEvening;
-      }
-      else if (relay2ModeEvening==RELAY_MODE_OFF) {
-        relay2Mode = relay2ModeEvening;
-      }
-    }
-    else {
-      if (relay2ModeNight==RELAY_MODE_ON) {
-        relay2Mode = relay2ModeNight;
-      }
-      else if (relay2ModeNight==RELAY_MODE_OFF) {
-        relay2Mode = relay2ModeNight;
-      }
-    }
-
-    if (relay2Mode == RELAY_MODE_ON) {
-      relay2UpDown = true;
-    }
-    else if (relay2Mode == RELAY_MODE_OFF) {
-      relay2UpDown = false;
-    }
-  }
-
-  if (relay2ControlMode != CONTROL_MODE_MANUAL) {
-    if (relayLastPartOfDay2!=actualPartOfDay) {
-      relayLastPartOfDay2 = actualPartOfDay;
-      relay2ManualOnOff=RELAY_MANUAL_ONOFF_AUTO;
-    }
-  }
-  
-  if (relay2ManualOnOff == RELAY_MANUAL_ONOFF_ON) {
-    relay2UpDown = true;
-  }
-  else if (relay2ManualOnOff == RELAY_MANUAL_ONOFF_OFF){
-    relay2UpDown = false;
-  }
-  
-  if (relayLastRelay2State!=relay2UpDown) {
-    relayLastRelay2State = relay2UpDown;
-    if (relay2UpDown == true) { 
-      relay2Up();
-      mqttElPublish(setBufferFromFlash(getRelay2State), setBufferFromFlash(charOn));
-    }
-    else {
-      relay2Down();
-      mqttElPublish(setBufferFromFlash(getRelay2State), setBufferFromFlash(charOff));
-    }
-  }
-}
-
 
 void relaysMillisEvent() {
-  relaysRelay1SetState();
-  relaysRelay2SetState();
+  for (byte i=0; i<RELAYS_COUNT; i++) {
+    myRelays[i].relaySetState();
+  }
 }
 
-void relay1Up() {
-  pinMode(RELAY_PIN_1,HIGH);
+void relaysLoadConfig() {
+  for (byte relayNumber=0; relayNumber<RELAYS_COUNT; relayNumber++) {
+    myRelays[relayNumber].loadConfig(EEPROM_relays_addr+(relayNumber*RELAYS_RELAY_EEPROM_BYTES));
+  }
 }
 
-void relay1Down() {
-  pinMode(RELAY_PIN_1,LOW);
+void relaysSaveConfig(byte relayNumber) {
+  myRelays[relayNumber].saveConfig(EEPROM_relays_addr+(relayNumber*RELAYS_RELAY_EEPROM_BYTES));
 }
 
-void relay2Up() {
-  pinMode(RELAY_PIN_2,HIGH);
+void relaysSaveRelayName(byte relayNr, String Value) {
+  byte relayNumber = relayNr-1;
+  configSaveString(Value,EEPROM_relays_addr+(relayNumber*RELAYS_RELAY_EEPROM_BYTES),10);
 }
 
-void relay2Down() {
-  pinMode(RELAY_PIN_2,LOW);
+void relaysSetRelay(byte relayNr, byte valueType, byte Value) {
+  byte relayNumber = relayNr-1;
+  switch (valueType) {
+    case RELAY_CONTROL_MODE:
+        myRelays[relayNumber].relayControlMode = Value;
+        break;
+      case RELAY_MODE_MORNING:
+        myRelays[relayNumber].relayModeMorning = Value;
+        break;
+      case RELAY_MODE_AFTERNOON:
+        myRelays[relayNumber].relayModeAfternoon = Value;
+        break;
+      case RELAY_MODE_EVENING:
+        myRelays[relayNumber].relayModeEvening = Value;
+        break;
+      case RELAY_MODE_NIGHT:
+        myRelays[relayNumber].relayModeNight = Value;
+        break;
+      case RELAY_MANUAL_ONOFF:
+        myRelays[relayNumber].relayManualOnOff = Value;
+        break;
+  }
+  relaysSaveConfig(relayNumber);
 }
 
+byte relaysGetRelay(byte relayNr, byte valueType) {
+  byte relayNumber= relayNr-1;
+  switch (valueType) {
+      case RELAY_STATE:
+        if (myRelays[relayNumber].relayState) {
+          return (1);
+        }
+        else {
+          return (0);
+        }
+        break;
+      case RELAY_CONTROL_MODE:
+        return (myRelays[relayNumber].relayControlMode);
+        break;
+      case RELAY_MODE_MORNING:
+        return (myRelays[relayNumber].relayModeMorning);
+        break;
+      case RELAY_MODE_AFTERNOON:
+        return (myRelays[relayNumber].relayModeAfternoon);
+        break;
+      case RELAY_MODE_EVENING:
+        return (myRelays[relayNumber].relayModeEvening);
+        break;
+      case RELAY_MODE_NIGHT:
+        return (myRelays[relayNumber].relayModeNight);
+        break;
+      case RELAY_MANUAL_ONOFF:
+        return (myRelays[relayNumber].relayManualOnOff);
+        break;
+  }
+}
 

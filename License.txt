@@ -1,4 +1,8 @@
-Linense agreement
+Author:
+Radek Kubera (rkubera)
+https://github.com/rkubera
+All rights reserved
 
+Linense agreement:
 You can use, modify, fork and redistribute this code free of charge with no restrictions for non-commercial use only.
-For commercial use please contatct with the author.
+For commercial use please contact with the author.

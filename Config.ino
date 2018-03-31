@@ -1,3 +1,12 @@
+/**************************************************
+ *                                                *
+ * AquaController by Radek Kubera (rkubera)       *
+ * all rights reserved                            *
+ * free of charge for non-commercial use only     *
+ * https://github.com/rkubera/AquariumController  *
+ *                                                *
+ * ************************************************/
+ 
 void configLoad() {
 
   sensorsLoadConfig();
@@ -22,40 +31,16 @@ void configLoad() {
   ledNightBrightness = configGetValue(EEPROM_ledNightBrightness_addr);
   ledManualBrightness = configGetValue(EEPROM_ledManualBrightness_addr);
 
-  relay1ModeMorning = configGetValue(EEPROM_relay1ModeMorning_addr);
-  relay1ModeAfternoon = configGetValue(EEPROM_relay1ModeAfternoon_addr);
-  relay1ModeEvening = configGetValue(EEPROM_relay1ModeEvening_addr);
-  relay1ModeNight = configGetValue(EEPROM_relay1ModeNight_addr);
-
-  relay2ModeMorning = configGetValue(EEPROM_relay2ModeMorning_addr);
-  relay2ModeAfternoon = configGetValue(EEPROM_relay2ModeAfternoon_addr);
-  relay2ModeEvening = configGetValue(EEPROM_relay2ModeEvening_addr);
-  relay2ModeNight = configGetValue(EEPROM_relay2ModeNight_addr);
-
   fanStartTemperature = configGetValue(EEPROM_fanStartTemperature_addr);
   fanMaxSpeedTemperature = configGetValue(EEPROM_fanMaxSpeedTemperature_addr);
   
   maxInternalTemperature = configGetValue(EEPROM_maxInternalTemperature_addr);
-
-  phMin = configGetFloatValue(EEPROM_phMin_addr);
-  phMax = configGetFloatValue(EEPROM_phMax_addr);
-  phValue1 = configGetFloatValue(EEPROM_phValue1_addr);
-  phRawRead1 = configGetFloatValue(EEPROM_phRawRead1_addr);
-  phValue2 = configGetFloatValue(EEPROM_phValue2_addr);
-  phRawRead2 = configGetFloatValue(EEPROM_phRawRead2_addr);
 
   ledControlMode = configGetValue(EEPROM_ledControlMode_addr);
   ledManualMode = configGetValue(EEPROM_ledManualMode_addr);
 
   buzzerOnStart = configGetValue(EEPROM_buzzerOnStart_addr);
   buzzerOnErrors = configGetValue(EEPROM_buzzerOnErrors_addr);
-
-  tempMin = configGetFloatValue(EEPROM_tempMin_addr);
-  tempMax = configGetFloatValue(EEPROM_tempMax_addr);
-  tempValue1 = configGetFloatValue(EEPROM_tempValue1_addr);
-  tempRawRead1 = configGetFloatValue(EEPROM_tempRawRead1_addr);
-  tempValue2 = configGetFloatValue(EEPROM_tempValue2_addr);
-  tempRawRead2 = configGetFloatValue(EEPROM_tempRawRead2_addr);
 
   timezoneRule1Week = configGetValue(EEPROM_timezoneRule1Week_addr);
   timezoneRule2Week = configGetValue(EEPROM_timezoneRule2Week_addr);
@@ -68,8 +53,6 @@ void configLoad() {
   timezoneRule1Month = configGetValue(EEPROM_timezoneRule1Month_addr);
   timezoneRule2Month = configGetValue(EEPROM_timezoneRule2Month_addr);
 
-  relay1ControlMode = configGetValue(EEPROM_relay1ControlMode_addr);
-  relay2ControlMode = configGetValue(EEPROM_relay2ControlMode_addr);
 }
 
 byte configGetValue(int addr) {

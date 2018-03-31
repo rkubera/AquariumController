@@ -1,3 +1,12 @@
+/**************************************************
+ *                                                *
+ * AquaController by Radek Kubera (rkubera)       *
+ * all rights reserved                            *
+ * free of charge for non-commercial use only     *
+ * https://github.com/rkubera/AquariumController  *
+ *                                                *
+ * ************************************************/
+ 
 void initFan() {
   pinMode(FAN_PIN, OUTPUT);
   analogWrite (FAN_PIN, 255);
