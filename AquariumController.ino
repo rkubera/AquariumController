@@ -19,6 +19,7 @@
 #include <RTClib.h>         // https://github.com/adafruit/RTClib
 #include <QuickStats.h>     // https://github.com/dndubins/QuickStats
 #include <dht.h>            // https://github.com/RobTillaart/Arduino/tree/master/libraries/DHTlib/
+//#include <PID_v1.h>         // https://github.com/br3ttb/Arduino-PID-Library/
 
 //********************************
 //PINS
@@ -115,10 +116,6 @@ const char charSensorCalibValue1[] PROGMEM = "CalibValue1";
 const char charSensorCalibRawValue1[] PROGMEM = "CalibRawValue1";
 const char charSensorCalibValue2[] PROGMEM = "CalibValue2";
 const char charSensorCalibRawValue2[] PROGMEM = "CalibRawValue2";
-const char charSensorMinValue[] PROGMEM = "MinValue";
-const char charSensorMaxValue[] PROGMEM = "MaxValue";
-const char charSensorCriticalMinValue[] PROGMEM = "CriticalMinValue";
-const char charSensorCriticalMaxValue[] PROGMEM = "CriticalMaxValue";
 const char charName[] PROGMEM = "Name";
 
 const char charControlMode[] PROGMEM = "ControlMode";
@@ -150,6 +147,9 @@ char buffer[bufferSize];
 uint32_t boot_time = 0;
 QuickStats stats;
 
+
+int publishValue = -1;
+ 
 //********************************
 //RWMOutputs
 //********************************
@@ -198,7 +198,7 @@ QuickStats stats;
 //********************************
 //Sensors
 //********************************
-#define SENSORS_SENSOR_EEPROM_BYTES       50
+#define SENSORS_SENSOR_EEPROM_BYTES       30
 
 #define SENSORS_COUNT                     8
 
@@ -207,10 +207,6 @@ QuickStats stats;
 #define SENSORS_VALUE                     1
 #define SENSORS_VALUE_RAW                 2
 #define SENSORS_VALUE_TYPE                3
-#define SENSORS_VALUE_MIN                 4
-#define SENSORS_VALUE_MAX                 5
-#define SENSORS_VALUE_CRITICAL_MIN        6
-#define SENSORS_VALUE_CRITICAL_MAX        7
 #define SENSORS_VALUE_CALIB_VALUE1        8
 #define SENSORS_VALUE_CALIB_RAW_VALUE1    9
 #define SENSORS_VALUE_CALIB_VALUE2        10
@@ -619,6 +615,9 @@ void setup() {
 
   //PWMOutputs
   pwmOutputsInit();
+
+  //Control
+  controlInit();
   
   lcdClear();  
   //clockSetLocalTime();
@@ -640,6 +639,7 @@ void setup() {
 
   //Buzzer
   buzzerInit();
+
 }
 
 void loop() {

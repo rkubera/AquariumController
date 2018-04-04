@@ -28,7 +28,7 @@ void fanMinuteEvent() {
 }
 
 void fanEvent(bool stopFan) {
-  static uint32_t fanStartTime;
+  static double fanStartTime;
   static int fanLastPWM;
 
   byte mytemp = dhtTemperature;
@@ -45,7 +45,7 @@ void fanEvent(bool stopFan) {
     }
   }
   analogWrite (FAN_PIN, fanPWM);
-  if (abs(fanStartTime-millis())>1000) {
+  if (abs(fanStartTime-millis())>5000) {
     fanStartTime = millis();
     if (fanLastPWM!=fanPWM) {
       mqttElPublish(setBufferFromFlash(getFanPWMValue), intToString(fanPWM));
