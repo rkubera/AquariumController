@@ -128,47 +128,32 @@ class sensorClass {
     if (lastRawReading!=rawReading) {
       lastRawReading = rawReading;
       mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charRawValue),intToString(rawReading));
-      //mqttElPublish(setBufferFromFlash(getRawPH), intToString(rawReading));
     }
   
     if (lastValue!=Value) {
       lastValue = Value;
-      //mqttElPublish(setBufferFromFlash(getPH), floatToString(Value));
       mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charValue),floatToString(Value));
     }
   }
 
   void loadConfig(int EEPROM_addr) {
     sensorType = configGetValue(EEPROM_addr+NAME_LENGHTH+1);
-    minValue = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+2);
-    maxValue = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+6);
-    criticalMinValue = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+10);
-    criticalMaxValue = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+14);
-    calibValue1 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+18);
-    calibRawRead1 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+22);
-    calibValue2 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+26);
-    calibRawRead2 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+30);
+    calibValue1 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+2);
+    calibRawRead1 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+6);
+    calibValue2 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+10);
+    calibRawRead2 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+14);
   }
 
   void saveConfig(int EEPROM_addr) {
     EEPROM.write(EEPROM_addr+NAME_LENGHTH+1,sensorType);
-    EEPROM.put(EEPROM_addr+NAME_LENGHTH+2,minValue);
-    EEPROM.put(EEPROM_addr+NAME_LENGHTH+6,maxValue);
-    EEPROM.put(EEPROM_addr+NAME_LENGHTH+10,criticalMinValue);
-    EEPROM.put(EEPROM_addr+NAME_LENGHTH+14,criticalMaxValue);
-    EEPROM.put(EEPROM_addr+NAME_LENGHTH+18,calibValue1);
-    EEPROM.put(EEPROM_addr+NAME_LENGHTH+22,calibRawRead1);
-    EEPROM.put(EEPROM_addr+NAME_LENGHTH+26,calibValue2);
-    EEPROM.put(EEPROM_addr+NAME_LENGHTH+30,calibRawRead2);
+    EEPROM.put(EEPROM_addr+NAME_LENGHTH+2,calibValue1);
+    EEPROM.put(EEPROM_addr+NAME_LENGHTH+6,calibRawRead1);
+    EEPROM.put(EEPROM_addr+NAME_LENGHTH+10,calibValue2);
+    EEPROM.put(EEPROM_addr+NAME_LENGHTH+14,calibRawRead2);
   }
 
   void publishAll() {
-    String sType;
-    switch (sensorType) {
-      case SENSOR_TYPE_NONE:
-        sType = setBufferFromFlash(charSensornone);
-        break;
-    }
+    String sType = sensorsGetStringSensorType(sensorType);
 
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charName),setBufferFromEeprom(EEPROM_sensors_addr+((sensorPin-1)*SENSORS_SENSOR_EEPROM_BYTES),10));
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charValue),floatToString(Value));
@@ -177,11 +162,7 @@ class sensorClass {
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorCalibValue1),floatToString(calibValue1));
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorCalibRawValue1),intToString(calibRawRead1));
     mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorCalibValue2),floatToString(calibValue2));
-    mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorCalibRawValue2),intToString(calibRawRead2));
-    mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorMinValue),floatToString(minValue));
-    mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorMaxValue),floatToString(maxValue));
-    mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorCriticalMinValue),floatToString(criticalMinValue));
-    mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorCriticalMaxValue),floatToString(criticalMaxValue));    
+    mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charSensorCalibRawValue2),intToString(calibRawRead2)); 
   }
 };
 
@@ -197,6 +178,45 @@ void sensorsMqttPublishAll() {
   for (byte i=0; i<SENSORS_COUNT; i++) {
     mySensors[i].publishAll();
   }
+}
+
+byte sensorsGetByteSensorType (String sensorType) {
+  byte i;
+  if (sensorType==setBufferFromFlash(charSensornone)) {
+    return SENSOR_TYPE_NONE;
+  }
+  String strTemp;
+  for (i=0; i<RELAYS_COUNT; i++) {
+    strTemp = setBufferFromFlash(charRelay)+intToString(i+1);
+    if (sensorType==strTemp) {
+      return(i);
+    }
+  }
+  for (i=RELAYS_COUNT; i<PWMOUTPUTS_COUNT+RELAYS_COUNT; i++) {
+    strTemp = setBufferFromFlash(charPWMOutput)+intToString(i+1-RELAYS_COUNT);
+    if (sensorType==strTemp) {
+      return(i-RELAYS_COUNT);
+    }
+  }
+  return 255;
+}
+
+String sensorsGetStringSensorType (byte sensorType) {
+  byte i;
+  if (sensorType==SENSOR_TYPE_NONE) {
+    return(setBufferFromFlash(charSensornone));
+  }
+  for (i=0; i<RELAYS_COUNT; i++) {
+    if (sensorType==i) {
+      return(setBufferFromFlash(charRelay)+intToString(i+1));
+    }
+  }
+  for (i=RELAYS_COUNT; i<PWMOUTPUTS_COUNT+RELAYS_COUNT; i++) {
+    if (sensorType==i) {
+      return(setBufferFromFlash(charPWMOutput)+intToString(i+1-RELAYS_COUNT));
+    }
+  }
+  return(setBufferFromFlash(charSensornone));
 }
 
 void sensorsLoadConfig() {
@@ -219,18 +239,6 @@ void sensorsSetSensor(byte sensorNr, byte valueType, float Value) {
   switch (valueType) {
       case SENSORS_VALUE_TYPE:
         mySensors[sensorNumber].sensorType = (byte)Value;
-        break;
-      case SENSORS_VALUE_MIN:
-        mySensors[sensorNumber].minValue = Value;
-        break;
-      case SENSORS_VALUE_MAX:
-        mySensors[sensorNumber].maxValue = Value;
-        break;
-      case SENSORS_VALUE_CRITICAL_MIN:
-        mySensors[sensorNumber].criticalMinValue = Value;
-        break;
-      case SENSORS_VALUE_CRITICAL_MAX:
-        mySensors[sensorNumber].criticalMaxValue = Value;
         break;
       case SENSORS_VALUE_CALIB_VALUE1:
         mySensors[sensorNumber].calibValue1 = Value;
@@ -259,18 +267,6 @@ float sensorsGetSensor(byte sensorNr, byte valueType) {
         break;
       case SENSORS_VALUE_TYPE:
         return (mySensors[sensorNumber].sensorType);
-        break;
-      case SENSORS_VALUE_MIN:
-        return (mySensors[sensorNumber].minValue);
-        break;
-      case SENSORS_VALUE_MAX:
-        return (mySensors[sensorNumber].maxValue);
-        break;
-      case SENSORS_VALUE_CRITICAL_MIN:
-        return (mySensors[sensorNumber].criticalMinValue);
-        break;
-      case SENSORS_VALUE_CRITICAL_MAX:
-        return (mySensors[sensorNumber].criticalMaxValue);
         break;
       case SENSORS_VALUE_CALIB_VALUE1:
         return (mySensors[sensorNumber].calibValue1);

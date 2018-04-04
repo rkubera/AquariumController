@@ -69,6 +69,7 @@ void mqttElPublish(String topic, String value) {
     char ebuffer[100];
     value.toCharArray( ebuffer, 100 );
     mqttEl.publish( buffer, ebuffer, strlen(ebuffer), true );
+    wdt_reset();
   }
 }
 
@@ -83,6 +84,7 @@ void mqttElPublishFull (String topic, String value) {
     Serial.print(topic);
     Serial.print(F(" "));
     Serial.println(value);
+    wdt_reset();
   }
 }
 
@@ -528,14 +530,9 @@ void mqttElData(void* response) {
       sensorsSaveSensorName(i,RawValue);
       mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(i)+setBufferFromFlash(charName),RawValue.substring(0,NAME_LENGHTH));
     }
-    
     sensorsEndpoint = setBufferFromFlash(charSetSensor)+intToString(i)+setBufferFromFlash(charSensorType);
     if (endpoint == sensorsEndpoint) {
-      byte bValue = 255;
-      if (Value==setBufferFromFlash(charSensornone)) {
-        bValue = SENSOR_TYPE_NONE;
-      }
-      
+      byte bValue = sensorsGetByteSensorType(Value);
       if (bValue!=255) {
         sensorsSetSensor(i, SENSORS_VALUE_TYPE, bValue);
         mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(i)+setBufferFromFlash(charSensorType),Value);
@@ -564,30 +561,6 @@ void mqttElData(void* response) {
       sensorsSetSensor(i, SENSORS_VALUE_CALIB_RAW_VALUE2, stringToFloat(Value));
       int myValue = sensorsGetSensor(i, SENSORS_VALUE_CALIB_RAW_VALUE2);
       mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(i)+setBufferFromFlash(charSensorCalibRawValue2),intToString(myValue));
-    }
-    sensorsEndpoint = setBufferFromFlash(charSetSensor)+intToString(i)+setBufferFromFlash(charSensorMinValue);
-    if (endpoint == sensorsEndpoint) {
-      sensorsSetSensor(i, SENSORS_VALUE_MIN, stringToFloat(Value));
-      float myValue = sensorsGetSensor(i, SENSORS_VALUE_MIN);
-      mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(i)+setBufferFromFlash(charSensorMinValue),floatToString(myValue));
-    }
-    sensorsEndpoint = setBufferFromFlash(charSetSensor)+intToString(i)+setBufferFromFlash(charSensorMaxValue);
-    if (endpoint == sensorsEndpoint) {
-      sensorsSetSensor(i, SENSORS_VALUE_MAX, stringToFloat(Value));
-      float myValue = sensorsGetSensor(i, SENSORS_VALUE_MAX);
-      mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(i)+setBufferFromFlash(charSensorMaxValue),floatToString(myValue));
-    }
-    sensorsEndpoint = setBufferFromFlash(charSetSensor)+intToString(i)+setBufferFromFlash(charSensorCriticalMinValue);
-    if (endpoint == sensorsEndpoint) {
-      sensorsSetSensor(i, SENSORS_VALUE_CRITICAL_MIN, stringToFloat(Value));
-      float myValue = sensorsGetSensor(i, SENSORS_VALUE_CRITICAL_MIN);
-      mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(i)+setBufferFromFlash(charSensorCriticalMinValue),floatToString(myValue));
-    }
-    sensorsEndpoint = setBufferFromFlash(charSetSensor)+intToString(i)+setBufferFromFlash(charSensorCriticalMaxValue);
-    if (endpoint == sensorsEndpoint) {
-      sensorsSetSensor(i, SENSORS_VALUE_CRITICAL_MAX, stringToFloat(Value));
-      float myValue = sensorsGetSensor(i, SENSORS_VALUE_CRITICAL_MAX);
-      mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(i)+setBufferFromFlash(charSensorCriticalMaxValue),floatToString(myValue));
     }
   }
   

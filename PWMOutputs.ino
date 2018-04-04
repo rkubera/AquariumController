@@ -6,7 +6,11 @@
  * https://github.com/rkubera/AquariumController  *
  *                                                *
  * ************************************************/
- 
+
+//static double Setpoint, Input, Output;
+//static double Kp=2, Ki=5, Kd=1;
+//static PID myPID[1] = {{&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT}};
+
 class pwmOutputClass {
   public:
 
@@ -32,6 +36,10 @@ class pwmOutputClass {
   bool pwmOutputLastpwmOutputState;
   byte pwmOutputLastpwmOutputValue;
 
+  //Controls
+
+  //PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
+  
   void Init(byte pin) {
     switch (pin) {
       case 0: digitalPin = DIGITAL_PWM_OUT_PIN_1;
@@ -51,7 +59,6 @@ class pwmOutputClass {
   }
 
   void pwmOutputMqttPublishAll() {
-
     mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charMorningMode),intToString(pwmOutputModeMorning));
     mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charAfternoonMode),intToString(pwmOutputModeAfternoon));
     mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charEveningMode),intToString(pwmOutputModeEvening));
@@ -254,4 +261,3 @@ byte pwmOutputsGetPwmOutput(byte pwmOutputNr, byte valueType) {
         break;
   }
 }
-
