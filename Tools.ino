@@ -96,8 +96,22 @@ String floatToString (float value) {
   return (String) buffer;   
 }
 
+String doubleToString (double value) {
+  int tmpInt1 = value;
+  double tmpFrac = value - tmpInt1;
+  int tmpInt2 = round(tmpFrac * 10000);
+  
+  value = (double)tmpInt1+((double)tmpInt2/10000);
+  sprintf (buffer, "%d.%04d", tmpInt1, tmpInt2); 
+  return (String) buffer;   
+}
+
 float stringToFloat(String str) {
   return str.toFloat();
+}
+
+double stringToDouble (String str) {
+  return str.toDouble();
 }
 
 int stringToInt(String str) {

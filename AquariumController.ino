@@ -19,7 +19,6 @@
 #include <RTClib.h>         // https://github.com/adafruit/RTClib
 #include <QuickStats.h>     // https://github.com/dndubins/QuickStats
 #include <dht.h>            // https://github.com/RobTillaart/Arduino/tree/master/libraries/DHTlib/
-//#include <PID_v1.h>         // https://github.com/br3ttb/Arduino-PID-Library/
 
 //********************************
 //PINS
@@ -44,7 +43,7 @@
 
 #define LED_RED_PIN 11
 #define LED_GREEN_PIN 12
-#define LED_BLUE_PIN 10
+#define LED_BLUE_PIN 13
 
 #define LCD_PIN_SCE   33
 #define LCD_PIN_RESET 34
@@ -125,6 +124,16 @@ const char charEveningMode[] PROGMEM = "EveningMode";
 const char charNightMode[] PROGMEM = "NightMode";
 const char charManualMode[] PROGMEM = "ManualMode";
 
+const char charPidKp[] PROGMEM = "PidKp";
+const char charPidKi[] PROGMEM = "PidKi";
+const char charPidKd[] PROGMEM = "PidKd";
+const char charPidSetpoint[] PROGMEM = "Setpoint";
+
+const char charDirection[] PROGMEM = "Direction";
+const char charDirect[] PROGMEM = "Direct";
+const char charReverse[] PROGMEM = "Reverse";
+
+
 const char charState[] PROGMEM = "State";
 
 #define CONTROL_MODE_MANUAL             0
@@ -147,13 +156,12 @@ char buffer[bufferSize];
 uint32_t boot_time = 0;
 QuickStats stats;
 
-
 int publishValue = -1;
  
 //********************************
 //RWMOutputs
 //********************************
-#define PWMOUTPUTS_PWMOUTPUT_EEPROM_BYTES  20
+#define PWMOUTPUTS_PWMOUTPUT_EEPROM_BYTES  40
 #define PWMOUTPUTS_COUNT                   5
 
 #define PWMOUTPUT_MODE_OFF                 0
@@ -172,6 +180,19 @@ int publishValue = -1;
 #define PWMOUTPUT_MODE_NIGHT               6
 #define PWMOUTPUT_MANUAL_ONOFF             7
 #define PWMOUTPUT_MANUAL_MODE              8
+
+#define PWMOUTPUT_PID_DIRECTION            9
+#define PWMOUTPUT_PID_SETPOINT             10
+#define PWMOUTPUT_PID_KP                   11
+#define PWMOUTPUT_PID_KI                   12
+#define PWMOUTPUT_PID_KD                   13
+
+#define PID_AUTOMATIC                      1
+#define PID_MANUAL                         0
+#define PID_DIRECT                         0
+#define PID_REVERSE                        1
+#define PID_P_ON_M                         0
+#define PID_P_ON_E                         1
 
 //********************************
 //Relays
@@ -615,9 +636,6 @@ void setup() {
 
   //PWMOutputs
   pwmOutputsInit();
-
-  //Control
-  controlInit();
   
   lcdClear();  
   //clockSetLocalTime();

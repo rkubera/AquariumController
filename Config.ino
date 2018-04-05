@@ -67,8 +67,17 @@ float configGetFloatValue(int addr) {
   return ret;
 }
 
+float configGetDoubleValue(int addr) {
+  double ret;
+  EEPROM.get(addr,ret);
+  return ret;
+}
 void configSaveFloatValue (float value, int addr) {
   EEPROM.put(addr,value); 
+}
+
+void configSaveDoubleValue (double value, int addr) {
+  EEPROM.put(addr,value);
 }
 
 void configSaveValue (int value, int addr) {

@@ -23,14 +23,6 @@
  class PID {
   public:
 
-  //Constants used in some of the functions below
-  #define AUTOMATIC 1
-  #define MANUAL  0
-  #define DIRECT  0
-  #define REVERSE  1
-  #define P_ON_M 0
-  #define P_ON_E 1
-
 /*Constructor (...)*********************************************************
  *    The parameters specified here are those for for which we can't set up
  *    reliable defaults, so we need to have the user set them.
@@ -58,7 +50,7 @@
  * automatically initialized
  ******************************************************************************/
   void SetMode(int Mode) {
-    bool newAuto = (Mode == AUTOMATIC);
+    bool newAuto = (Mode == PID_AUTOMATIC);
     if(newAuto && !inAuto) {  /*we just went from manual to auto*/
       PID::Initialize();
     }
@@ -147,7 +139,7 @@
     if (Kp<0 || Ki<0 || Kd<0) return;
     
     pOn = POn;
-    pOnE = POn == P_ON_E;
+    pOnE = POn == PID_P_ON_E;
     
     dispKp = Kp; dispKi = Ki; dispKd = Kd;
     
@@ -156,7 +148,7 @@
     ki = Ki * SampleTimeInSec;
     kd = Kd / SampleTimeInSec;
     
-    if(controllerDirection ==REVERSE)
+    if(controllerDirection ==PID_REVERSE)
     {
       kp = (0 - kp);
       ki = (0 - ki);
@@ -200,7 +192,7 @@
   double GetKp(){ return  dispKp; }
   double GetKi(){ return  dispKi;}
   double GetKd(){ return  dispKd;}
-  int GetMode(){ return  inAuto ? AUTOMATIC : MANUAL;}
+  int GetMode(){ return  inAuto ? PID_AUTOMATIC : PID_MANUAL;}
   int GetDirection(){ return controllerDirection;}
 
   private:
@@ -242,20 +234,4 @@
 /**********************************************************************************************
 /End of PID Class based on: https://github.com/br3ttb/Arduino-PID-Library/
  **********************************************************************************************/
-static PID myControlPIDs[PWMOUTPUTS_COUNT];
-
-static double controlPIDInput[PWMOUTPUTS_COUNT];
-static double controlPIDOutput[PWMOUTPUTS_COUNT];
-static double controlPIDSetpoint[PWMOUTPUTS_COUNT];
-static double controlPIDKp[PWMOUTPUTS_COUNT];
-static double controlPIDKi[PWMOUTPUTS_COUNT];
-static double controlPIDKd[PWMOUTPUTS_COUNT];
-static int controlPIDPOn[PWMOUTPUTS_COUNT];
-static int controlPIDControllerDirection[PWMOUTPUTS_COUNT];
-
-void controlInit() {
-  for (byte i=0; i<PWMOUTPUTS_COUNT; i++) {
-    myControlPIDs[i].Init(&controlPIDInput[i],&controlPIDOutput[i],&controlPIDSetpoint[i],controlPIDKp[i],controlPIDKi[i],controlPIDKd[i],controlPIDPOn[i],controlPIDControllerDirection[i]);
-  }
-}
 

@@ -20,6 +20,7 @@ void eventTimerSecond() {
   errorsSecondEvent();
   beepErrors();
   sensorsSecondEvent();
+  pwmOutputsSecondEvent();
 
   //Publish topics
   if (publishValue==0) {
