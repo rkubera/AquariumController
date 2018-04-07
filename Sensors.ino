@@ -39,6 +39,8 @@ class sensorClass {
 
   byte precision = 10;
 
+  double lastValueSendMillis;
+
   void Init(byte pin) {
     switch (pin) {
       case 0: analogPin = ANALOG_IN_PIN_0;
@@ -91,7 +93,6 @@ class sensorClass {
       rawReading = rawReading+analog;
       count++;
     }
-  
     myValue = ValuesSum/count;
     rawReading = (rawReading/count);
     
@@ -124,32 +125,34 @@ class sensorClass {
     
     rawValue = rawReading;
     
+    if (abs(lastValueSendMillis-millis())>MQTT_MIN_REFRESH_MILLIS) {
+      lastValueSendMillis = millis();
+      if (lastRawReading!=rawReading) {
+        lastRawReading = rawReading;
+        mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charRawValue),intToString(rawReading));
+      }
     
-    if (lastRawReading!=rawReading) {
-      lastRawReading = rawReading;
-      mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charRawValue),intToString(rawReading));
-    }
-  
-    if (lastValue!=Value) {
-      lastValue = Value;
-      mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charValue),floatToString(Value));
+      if (lastValue!=Value) {
+        lastValue = Value;
+        mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(sensorPin)+setBufferFromFlash(charValue),floatToString(Value));
+      }
     }
   }
 
   void loadConfig(int EEPROM_addr) {
-    sensorType = configGetValue(EEPROM_addr+NAME_LENGHTH+1);
-    calibValue1 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+2);
-    calibRawRead1 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+6);
-    calibValue2 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+10);
-    calibRawRead2 = configGetFloatValue(EEPROM_addr+NAME_LENGHTH+14);
+    sensorType = configGetValue(EEPROM_addr+NAME_LENGTH+1);
+    calibValue1 = configGetFloatValue(EEPROM_addr+NAME_LENGTH+2);
+    calibRawRead1 = configGetFloatValue(EEPROM_addr+NAME_LENGTH+6);
+    calibValue2 = configGetFloatValue(EEPROM_addr+NAME_LENGTH+10);
+    calibRawRead2 = configGetFloatValue(EEPROM_addr+NAME_LENGTH+14);
   }
 
   void saveConfig(int EEPROM_addr) {
-    EEPROM.write(EEPROM_addr+NAME_LENGHTH+1,sensorType);
-    EEPROM.put(EEPROM_addr+NAME_LENGHTH+2,calibValue1);
-    EEPROM.put(EEPROM_addr+NAME_LENGHTH+6,calibRawRead1);
-    EEPROM.put(EEPROM_addr+NAME_LENGHTH+10,calibValue2);
-    EEPROM.put(EEPROM_addr+NAME_LENGHTH+14,calibRawRead2);
+    EEPROM.write(EEPROM_addr+NAME_LENGTH+1,sensorType);
+    EEPROM.put(EEPROM_addr+NAME_LENGTH+2,calibValue1);
+    EEPROM.put(EEPROM_addr+NAME_LENGTH+6,calibRawRead1);
+    EEPROM.put(EEPROM_addr+NAME_LENGTH+10,calibValue2);
+    EEPROM.put(EEPROM_addr+NAME_LENGTH+14,calibRawRead2);
   }
 
   void publishAll() {
@@ -180,6 +183,42 @@ void sensorsMqttPublishAll() {
   }
 }
 
+float sensorsGetSensorsValue (byte sensorNumber, byte outputType) {
+  sensorNumber = sensorNumber-1;
+  
+  float valSum = 0;
+  int valCount = 0;
+  float valMin;
+  float valMax;
+
+  if (outputType==OUTPUT_TYPE_PWM) {
+    sensorNumber = sensorNumber+RELAYS_COUNT;
+  }
+
+  for (int i =0; i<SENSORS_COUNT; i++) {
+    if (mySensors[i].sensorType==sensorNumber) {
+      if (valCount==0) {
+        valMin = valSum+mySensors[i].Value;
+        valMax = valSum+mySensors[i].Value;
+      }
+      
+      valSum = valSum+mySensors[i].Value;
+      valCount++;
+      
+      if (valMin>valSum+mySensors[i].Value) {
+        valMin = valSum+mySensors[i].Value;
+      }
+      if (valMax>valSum+mySensors[i].Value) {
+        valMax = valSum+mySensors[i].Value;
+      }
+    }
+  }
+  if (valCount>0) {
+    return valSum/valCount;
+  }
+  return 0;
+}
+
 byte sensorsGetByteSensorType (String sensorType) {
   byte i;
   if (sensorType==setBufferFromFlash(charSensornone)) {
@@ -195,7 +234,7 @@ byte sensorsGetByteSensorType (String sensorType) {
   for (i=RELAYS_COUNT; i<PWMOUTPUTS_COUNT+RELAYS_COUNT; i++) {
     strTemp = setBufferFromFlash(charPWMOutput)+intToString(i+1-RELAYS_COUNT);
     if (sensorType==strTemp) {
-      return(i-RELAYS_COUNT);
+      return(i);
     }
   }
   return 255;

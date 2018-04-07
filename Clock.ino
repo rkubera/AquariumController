@@ -124,19 +124,24 @@ void clockMqttPublishHourDate() {
   mqttElPublish( setBufferFromFlash(getActualDayOfWeek), setBufferFromFlash(daysOfTheWeek[globalWeekDay]));
 }
 void clockMinuteEvent() { 
-  DateTime btime = DateTime(boot_time);
-  Serial.print(F("Boot time="));
-  Serial.print(btime.year());
-  Serial.print(F("/"));
-  Serial.print(btime.month());
-  Serial.print(F("/"));
-  Serial.print(btime.day());
-  Serial.print(F(" "));    
-  Serial.print(btime.hour());
-  Serial.print(F(":")); 
-  Serial.print(btime.minute());
-  Serial.print(F(":")); 
-  Serial.println(btime.second());
+  if (boot_time>0) {
+    DateTime btime = DateTime(boot_time);
+    Serial.print(F("Boot time="));
+    Serial.print(btime.year());
+    Serial.print(F("/"));
+    Serial.print(btime.month());
+    Serial.print(F("/"));
+    Serial.print(btime.day());
+    Serial.print(F(" "));    
+    Serial.print(btime.hour());
+    Serial.print(F(":")); 
+    Serial.print(btime.minute());
+    Serial.print(F(":")); 
+    Serial.println(btime.second());
+  }
+  else {
+    Serial.println(F("Wrong Boot time"));
+  }
 }
 
 void clockMillisEvent() {

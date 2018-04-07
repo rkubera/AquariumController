@@ -17,8 +17,8 @@ String getStringControlModeFromValue(byte Value) {
     case CONTROL_MODE_PART_OF_DAY:
         return setBufferFromFlash(charPartofday);
         break;
-     case CONTROL_MODE_HYSTERESIS:
-        return setBufferFromFlash(charHysteresis);
+     case CONTROL_MODE_DISCRETE:
+        return setBufferFromFlash(charDiscrete);
         break;
      case CONTROL_MODE_PID:
         return setBufferFromFlash(charPid);

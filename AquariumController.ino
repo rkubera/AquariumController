@@ -101,7 +101,7 @@ const char charWave[] PROGMEM = "wave";
 
 const char charManual[] PROGMEM = "manual";
 const char charPartofday[] PROGMEM = "partofday";
-const char charHysteresis[] PROGMEM = "hysteresis";
+const char charDiscrete[] PROGMEM = "discrete";
 const char charPid[] PROGMEM = "pid";
 
 const char charSensornone[] PROGMEM = "notconnected";
@@ -127,21 +127,28 @@ const char charManualMode[] PROGMEM = "ManualMode";
 const char charPidKp[] PROGMEM = "PidKp";
 const char charPidKi[] PROGMEM = "PidKi";
 const char charPidKd[] PROGMEM = "PidKd";
-const char charPidSetpoint[] PROGMEM = "Setpoint";
+const char charSensorsSetpoint[] PROGMEM = "SensorsSetpoint";
 
-const char charDirection[] PROGMEM = "Direction";
-const char charDirect[] PROGMEM = "Direct";
-const char charReverse[] PROGMEM = "Reverse";
+const char charControlDirection[] PROGMEM = "ControlDirection";
+const char charDirect[] PROGMEM = "direct";
+const char charReverse[] PROGMEM = "reverse";
 
+const char charSensorsValue[] PROGMEM = "SensorsValue";
 
 const char charState[] PROGMEM = "State";
 
+const char charMaxDeviation[] PROGMEM = "MaxDeviation";
+
 #define CONTROL_MODE_MANUAL             0
 #define CONTROL_MODE_PART_OF_DAY        1
-#define CONTROL_MODE_HYSTERESIS         2
+#define CONTROL_MODE_DISCRETE           2
 #define CONTROL_MODE_PID                3
 
-#define NAME_LENGHTH                    15
+#define NAME_LENGTH                     15
+#define OUTPUT_TYPE_PWM                 1
+#define OUTPUT_TYPE_RELAY               2
+
+#define MQTT_MIN_REFRESH_MILLIS         5000
 
 byte fanStartTemperature = 30;
 byte fanMaxSpeedTemperature = 35;
@@ -181,11 +188,12 @@ int publishValue = -1;
 #define PWMOUTPUT_MANUAL_ONOFF             7
 #define PWMOUTPUT_MANUAL_MODE              8
 
-#define PWMOUTPUT_PID_DIRECTION            9
-#define PWMOUTPUT_PID_SETPOINT             10
+#define PWMOUTPUT_CONTROL_DIRECTION        9
+#define PWMOUTPUT_SENSORS_SETPOINT         10
 #define PWMOUTPUT_PID_KP                   11
 #define PWMOUTPUT_PID_KI                   12
 #define PWMOUTPUT_PID_KD                   13
+#define PWMOUTPUT_MAX_DEVIATION            14
 
 #define PID_AUTOMATIC                      1
 #define PID_MANUAL                         0
@@ -197,7 +205,7 @@ int publishValue = -1;
 //********************************
 //Relays
 //********************************
-#define RELAYS_RELAY_EEPROM_BYTES         20
+#define RELAYS_RELAY_EEPROM_BYTES         30
 #define RELAYS_COUNT                      2
 
 #define RELAY_MODE_OFF                    0
@@ -219,11 +227,11 @@ int publishValue = -1;
 //********************************
 //Sensors
 //********************************
-#define SENSORS_SENSOR_EEPROM_BYTES       30
+#define SENSORS_SENSOR_EEPROM_BYTES       40
 
 #define SENSORS_COUNT                     8
 
-#define SENSOR_TYPE_NONE                  0
+#define SENSOR_TYPE_NONE                  254
 
 #define SENSORS_VALUE                     1
 #define SENSORS_VALUE_RAW                 2

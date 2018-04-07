@@ -133,19 +133,19 @@ class relayClass {
   }
   
   void saveConfig(int EEPROM_addr) {
-    EEPROM.write(EEPROM_addr+NAME_LENGHTH+1,relayControlMode);
-    EEPROM.write(EEPROM_addr+NAME_LENGHTH+2,relayModeMorning);
-    EEPROM.write(EEPROM_addr+NAME_LENGHTH+3,relayModeAfternoon);
-    EEPROM.write(EEPROM_addr+NAME_LENGHTH+4,relayModeEvening);
-    EEPROM.write(EEPROM_addr+NAME_LENGHTH+5,relayModeNight);
+    EEPROM.write(EEPROM_addr+NAME_LENGTH+1,relayControlMode);
+    EEPROM.write(EEPROM_addr+NAME_LENGTH+2,relayModeMorning);
+    EEPROM.write(EEPROM_addr+NAME_LENGTH+3,relayModeAfternoon);
+    EEPROM.write(EEPROM_addr+NAME_LENGTH+4,relayModeEvening);
+    EEPROM.write(EEPROM_addr+NAME_LENGTH+5,relayModeNight);
   }
   
   void loadConfig(int EEPROM_addr) {
-    relayControlMode = configGetValue(EEPROM_addr+NAME_LENGHTH+1);
-    relayModeMorning = configGetValue(EEPROM_addr+NAME_LENGHTH+2);
-    relayModeAfternoon = configGetValue(EEPROM_addr+NAME_LENGHTH+3);
-    relayModeEvening = configGetValue(EEPROM_addr+NAME_LENGHTH+4);
-    relayModeNight = configGetValue(EEPROM_addr+NAME_LENGHTH+5);
+    relayControlMode = configGetValue(EEPROM_addr+NAME_LENGTH+1);
+    relayModeMorning = configGetValue(EEPROM_addr+NAME_LENGTH+2);
+    relayModeAfternoon = configGetValue(EEPROM_addr+NAME_LENGTH+3);
+    relayModeEvening = configGetValue(EEPROM_addr+NAME_LENGTH+4);
+    relayModeNight = configGetValue(EEPROM_addr+NAME_LENGTH+5);
   }
 };
 

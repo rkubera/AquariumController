@@ -20,7 +20,7 @@
   #include "WProgram.h"
 #endif
 
- class PID {
+class PID {
   public:
 
 /*Constructor (...)*********************************************************

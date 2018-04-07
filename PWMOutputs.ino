@@ -14,7 +14,7 @@ class pwmOutputClass {
   byte digitalPin;
 
   bool pwmOutputState = false;
-    
+  
   byte pwmOutputControlMode = CONTROL_MODE_MANUAL;
 
   byte pwmOutputModeMorning = 0;
@@ -28,6 +28,7 @@ class pwmOutputClass {
   byte pwmOutputLastMode;
   byte pwmOutputLastPartOfDay;
   byte pwmOutputValue;
+  int pwmLastOutputValue;
   
   bool pwmOutputLastpwmOutputState;
   byte pwmOutputLastpwmOutputValue;
@@ -35,11 +36,16 @@ class pwmOutputClass {
   PID pwmOutputPID;
   double pwmOutputPIDInput;
   double pwmOutputPIDOutput;
-  double pwmOutputPIDSetpoint;
+  double pwmOutputSensorsSetpoint;
   double pwmOutputPIDKp;
   double pwmOutputPIDKi;
   double pwmOutputPIDKd;
   byte pwmOutputDirection;
+
+  float maxDeviation;
+
+  double lastPwmOutputPIDInput;
+  double lastValueSendMillis;
   
   void Init(byte pin) {
     switch (pin) {
@@ -58,7 +64,7 @@ class pwmOutputClass {
     analogWrite(digitalPin,0);
     pwmOutputPin = pin+1;
     
-    pwmOutputPID.Init(&pwmOutputPIDInput,&pwmOutputPIDOutput,&pwmOutputPIDSetpoint,pwmOutputPIDKp,pwmOutputPIDKi,pwmOutputPIDKd,PID_P_ON_E,pwmOutputDirection);
+    pwmOutputPID.Init(&pwmOutputPIDInput,&pwmOutputPIDOutput,&pwmOutputSensorsSetpoint,pwmOutputPIDKp,pwmOutputPIDKi,pwmOutputPIDKd,PID_P_ON_E,pwmOutputDirection);
     pwmOutputPID.SetSampleTime(1000);
     pwmOutputPID.SetMode(PID_AUTOMATIC);
   }
@@ -73,15 +79,17 @@ class pwmOutputClass {
     mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charControlMode),getStringControlModeFromValue(pwmOutputControlMode));
     mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charValue),intToString(pwmOutputValue));
     if (pwmOutputDirection==PID_DIRECT) {
-      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charDirection),setBufferFromFlash(charDirect));
+      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charControlDirection),setBufferFromFlash(charDirect));
     }
     else {
-      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charDirection),setBufferFromFlash(charReverse));
+      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charControlDirection),setBufferFromFlash(charReverse));
     }
-    mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charPidSetpoint),intToString((int)pwmOutputPIDSetpoint));
+    mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charSensorsSetpoint),floatToString(pwmOutputSensorsSetpoint));
     mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charPidKp),doubleToString(pwmOutputPIDKp));
     mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charPidKi),doubleToString(pwmOutputPIDKi));
     mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charPidKd),doubleToString(pwmOutputPIDKd));
+
+    mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charMaxDeviation),floatToString(maxDeviation));
     
     pwmOutputSetState();
   }
@@ -128,17 +136,25 @@ class pwmOutputClass {
     else {
       pwmOutputUpDown = false;
     }
+    pwmOutputSetValue(pwmOutputValue);
     
-    if (pwmOutputLastpwmOutputValue!=pwmOutputValue) {
-      pwmOutputLastpwmOutputValue = pwmOutputValue;
-      pwmOutputSetValue(pwmOutputValue);
-      if (pwmOutputUpDown==true) {
-        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charState),setBufferFromFlash(charOn));
+    if (abs(lastValueSendMillis-millis())>MQTT_MIN_REFRESH_MILLIS) {
+      lastValueSendMillis = millis();
+      if (lastPwmOutputPIDInput!=pwmOutputPIDInput) {
+        lastPwmOutputPIDInput = pwmOutputPIDInput;
+        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charSensorsValue),floatToString(pwmOutputPIDInput));
       }
-      else {
-        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charState),setBufferFromFlash(charOff));
+      
+      if (pwmOutputLastpwmOutputValue!=pwmOutputValue) {
+        pwmOutputLastpwmOutputValue = pwmOutputValue;
+        if (pwmOutputUpDown==true) {
+          mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charState),setBufferFromFlash(charOn));
+        }
+        else {
+          mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charState),setBufferFromFlash(charOff));
+        }
+        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charValue),intToString(pwmOutputValue));
       }
-      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charValue),intToString(pwmOutputValue));
     }
   }
 
@@ -166,45 +182,58 @@ class pwmOutputClass {
   }
   
   void saveConfig(int EEPROM_addr) {
-    EEPROM.write(EEPROM_addr+NAME_LENGHTH+1,pwmOutputControlMode);
-    EEPROM.write(EEPROM_addr+NAME_LENGHTH+2,pwmOutputModeMorning);
-    EEPROM.write(EEPROM_addr+NAME_LENGHTH+3,pwmOutputModeAfternoon);
-    EEPROM.write(EEPROM_addr+NAME_LENGHTH+4,pwmOutputModeEvening);
-    EEPROM.write(EEPROM_addr+NAME_LENGHTH+5,pwmOutputModeNight);
-    EEPROM.write(EEPROM_addr+NAME_LENGHTH+6,pwmOutputManualMode);
-    EEPROM.write(EEPROM_addr+NAME_LENGHTH+7,pwmOutputDirection);
-    configSaveDoubleValue(pwmOutputPIDSetpoint,EEPROM_addr+NAME_LENGHTH+7+sizeof(double));
-    configSaveDoubleValue(pwmOutputPIDKp,EEPROM_addr+NAME_LENGHTH+7+(2*sizeof(double)));
-    configSaveDoubleValue(pwmOutputPIDKi,EEPROM_addr+NAME_LENGHTH+7+(3*sizeof(double)));
-    configSaveDoubleValue(pwmOutputPIDKd,EEPROM_addr+NAME_LENGHTH+7+(4*sizeof(double)));
+    double mydouble;
+    EEPROM.write(EEPROM_addr+NAME_LENGTH+1,pwmOutputControlMode);
+    EEPROM.write(EEPROM_addr+NAME_LENGTH+2,pwmOutputModeMorning);
+    EEPROM.write(EEPROM_addr+NAME_LENGTH+3,pwmOutputModeAfternoon);
+    EEPROM.write(EEPROM_addr+NAME_LENGTH+4,pwmOutputModeEvening);
+    EEPROM.write(EEPROM_addr+NAME_LENGTH+5,pwmOutputModeNight);
+    EEPROM.write(EEPROM_addr+NAME_LENGTH+6,pwmOutputManualMode);
+    EEPROM.write(EEPROM_addr+NAME_LENGTH+7,pwmOutputDirection);
+    configSaveDoubleValue(pwmOutputSensorsSetpoint,EEPROM_addr+NAME_LENGTH+8);
+    configSaveDoubleValue(pwmOutputPIDKp,EEPROM_addr+NAME_LENGTH+12);
+    configSaveDoubleValue(pwmOutputPIDKi,EEPROM_addr+NAME_LENGTH+16);
+    configSaveDoubleValue(pwmOutputPIDKd,EEPROM_addr+NAME_LENGTH+20);
+    configSaveFloatValue(maxDeviation,EEPROM_addr+NAME_LENGTH+20);
   }
   
   void loadConfig(int EEPROM_addr) {
-    pwmOutputControlMode = configGetValue(EEPROM_addr+NAME_LENGHTH+1);
-    pwmOutputModeMorning = configGetValue(EEPROM_addr+NAME_LENGHTH+2);
-    pwmOutputModeAfternoon = configGetValue(EEPROM_addr+NAME_LENGHTH+3);
-    pwmOutputModeEvening = configGetValue(EEPROM_addr+NAME_LENGHTH+4);
-    pwmOutputModeNight = configGetValue(EEPROM_addr+NAME_LENGHTH+5);
-    pwmOutputManualMode = configGetValue(EEPROM_addr+NAME_LENGHTH+6);
-    pwmOutputDirection = configGetValue(EEPROM_addr+NAME_LENGHTH+7);
-    pwmOutputPIDSetpoint = configGetDoubleValue(EEPROM_addr+NAME_LENGHTH+7+sizeof(double));
-    pwmOutputPIDKp = configGetDoubleValue(EEPROM_addr+NAME_LENGHTH+7+(2*sizeof(double)));
-    pwmOutputPIDKi = configGetDoubleValue(EEPROM_addr+NAME_LENGHTH+7+(2*sizeof(double)));
-    pwmOutputPIDKd = configGetDoubleValue(EEPROM_addr+NAME_LENGHTH+7+(2*sizeof(double)));
+    double mydouble;
+    pwmOutputControlMode = configGetValue(EEPROM_addr+NAME_LENGTH+1);
+    pwmOutputModeMorning = configGetValue(EEPROM_addr+NAME_LENGTH+2);
+    pwmOutputModeAfternoon = configGetValue(EEPROM_addr+NAME_LENGTH+3);
+    pwmOutputModeEvening = configGetValue(EEPROM_addr+NAME_LENGTH+4);
+    pwmOutputModeNight = configGetValue(EEPROM_addr+NAME_LENGTH+5);
+    pwmOutputManualMode = configGetValue(EEPROM_addr+NAME_LENGTH+6);
+    pwmOutputDirection = configGetValue(EEPROM_addr+NAME_LENGTH+7);
+    pwmOutputSensorsSetpoint = configGetDoubleValue(EEPROM_addr+NAME_LENGTH+8);
+    pwmOutputPIDKp = configGetDoubleValue(EEPROM_addr+NAME_LENGTH+12);
+    pwmOutputPIDKi = configGetDoubleValue(EEPROM_addr+NAME_LENGTH+16);
+    pwmOutputPIDKd = configGetDoubleValue(EEPROM_addr+NAME_LENGTH+20);
+    maxDeviation = configGetFloatValue(EEPROM_addr+NAME_LENGTH+24);
   }
 
   void PIDEvent() {
     if (pwmOutputControlMode == CONTROL_MODE_PID) {
+      pwmOutputPIDInput = sensorsGetSensorsValue(pwmOutputPin, OUTPUT_TYPE_PWM);
+      Serial.println(pwmOutputPIDInput);
       pwmOutputPID.Compute();
-      pwmOutputPID.SetOutputLimits(0,255);
+      Serial.println(pwmOutputPIDOutput);
+      pwmOutputValue = pwmOutputPIDOutput;
       pwmOutputSetValue(pwmOutputValue);
       pwmOutputManualOnOff=PWMOUTPUT_MANUAL_ONOFF_AUTO;
+
       if (pwmOutputLastpwmOutputState==false) {
         pwmOutputLastpwmOutputState = true;
         mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charState),setBufferFromFlash(charOn));
       }
-      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charValue),intToString(pwmOutputValue));
+     
+      if (pwmLastOutputValue!=pwmOutputValue) {
+        pwmLastOutputValue = pwmOutputValue;
+        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charValue),intToString(pwmOutputValue));
+      }
     }
+    else pwmLastOutputValue =-1;
   }
 };
 
@@ -274,24 +303,9 @@ void pwmOutputsSetPwmOutput(byte pwmOutputNr, byte valueType, byte Value) {
       case PWMOUTPUT_MANUAL_ONOFF:
         myPwmOutputs[pwmOutputNumber].pwmOutputManualOnOff = Value;
         break;
-      case PWMOUTPUT_PID_DIRECTION:
+      case PWMOUTPUT_CONTROL_DIRECTION:
         myPwmOutputs[pwmOutputNumber].pwmOutputDirection = Value;
         myPwmOutputs[pwmOutputNumber].pwmOutputPID.SetControllerDirection(Value);
-        break;
-      case PWMOUTPUT_PID_SETPOINT:
-        myPwmOutputs[pwmOutputNumber].pwmOutputPIDSetpoint = Value;
-        break;
-      case PWMOUTPUT_PID_KP:
-        myPwmOutputs[pwmOutputNumber].pwmOutputPIDKp = Value;
-        myPwmOutputs[pwmOutputNumber].pwmOutputPID.SetTunings(myPwmOutputs[pwmOutputNumber].pwmOutputPIDKp, myPwmOutputs[pwmOutputNumber].pwmOutputPIDKi, myPwmOutputs[pwmOutputNumber].pwmOutputPIDKd);
-        break;
-      case PWMOUTPUT_PID_KI:
-        myPwmOutputs[pwmOutputNumber].pwmOutputPIDKi = Value;
-        myPwmOutputs[pwmOutputNumber].pwmOutputPID.SetTunings(myPwmOutputs[pwmOutputNumber].pwmOutputPIDKp, myPwmOutputs[pwmOutputNumber].pwmOutputPIDKi, myPwmOutputs[pwmOutputNumber].pwmOutputPIDKd);
-        break;
-      case PWMOUTPUT_PID_KD:
-        myPwmOutputs[pwmOutputNumber].pwmOutputPIDKd = Value;
-        myPwmOutputs[pwmOutputNumber].pwmOutputPID.SetTunings(myPwmOutputs[pwmOutputNumber].pwmOutputPIDKp, myPwmOutputs[pwmOutputNumber].pwmOutputPIDKi, myPwmOutputs[pwmOutputNumber].pwmOutputPIDKd);
         break;
   }
   pwmOutputsSaveConfig(pwmOutputNumber);
@@ -324,13 +338,47 @@ byte pwmOutputsGetPwmOutput(byte pwmOutputNr, byte valueType) {
       case PWMOUTPUT_MANUAL_ONOFF:
         return (myPwmOutputs[pwmOutputNumber].pwmOutputManualOnOff);
         break;
-      case PWMOUTPUT_PID_DIRECTION:
+      case PWMOUTPUT_CONTROL_DIRECTION:
         return (myPwmOutputs[pwmOutputNumber].pwmOutputDirection);
         break;
-      case PWMOUTPUT_PID_SETPOINT:
-        return (myPwmOutputs[pwmOutputNumber].pwmOutputPIDSetpoint);
+  }
+}
+
+void pwmOutputsSetPwmOutputDouble(byte pwmOutputNr, byte valueType, double Value) {
+  byte pwmOutputNumber = pwmOutputNr-1;
+  switch (valueType) {
+    case PWMOUTPUT_MAX_DEVIATION:
+        myPwmOutputs[pwmOutputNumber].maxDeviation = Value;
+        break;    
+    case PWMOUTPUT_SENSORS_SETPOINT:
+        myPwmOutputs[pwmOutputNumber].pwmOutputSensorsSetpoint = Value;
         break;
-      case PWMOUTPUT_PID_KP:
+    case PWMOUTPUT_PID_KP:
+        myPwmOutputs[pwmOutputNumber].pwmOutputPIDKp = Value;
+        myPwmOutputs[pwmOutputNumber].pwmOutputPID.SetTunings(myPwmOutputs[pwmOutputNumber].pwmOutputPIDKp, myPwmOutputs[pwmOutputNumber].pwmOutputPIDKi, myPwmOutputs[pwmOutputNumber].pwmOutputPIDKd);
+        break;
+      case PWMOUTPUT_PID_KI:
+        myPwmOutputs[pwmOutputNumber].pwmOutputPIDKi = Value;
+        myPwmOutputs[pwmOutputNumber].pwmOutputPID.SetTunings(myPwmOutputs[pwmOutputNumber].pwmOutputPIDKp, myPwmOutputs[pwmOutputNumber].pwmOutputPIDKi, myPwmOutputs[pwmOutputNumber].pwmOutputPIDKd);
+        break;
+      case PWMOUTPUT_PID_KD:
+        myPwmOutputs[pwmOutputNumber].pwmOutputPIDKd = Value;
+        myPwmOutputs[pwmOutputNumber].pwmOutputPID.SetTunings(myPwmOutputs[pwmOutputNumber].pwmOutputPIDKp, myPwmOutputs[pwmOutputNumber].pwmOutputPIDKi, myPwmOutputs[pwmOutputNumber].pwmOutputPIDKd);
+        break;
+  }
+  pwmOutputsSaveConfig(pwmOutputNumber);
+}
+
+double pwmOutputsGetPwmOutputDouble(byte pwmOutputNr, byte valueType) {
+  byte pwmOutputNumber= pwmOutputNr-1;
+  switch (valueType) {
+    case PWMOUTPUT_MAX_DEVIATION:
+        return (myPwmOutputs[pwmOutputNumber].maxDeviation);
+        break;   
+    case PWMOUTPUT_SENSORS_SETPOINT:
+        return (myPwmOutputs[pwmOutputNumber].pwmOutputSensorsSetpoint);
+        break;
+    case PWMOUTPUT_PID_KP:
         return (myPwmOutputs[pwmOutputNumber].pwmOutputPIDKp);
         break;
       case PWMOUTPUT_PID_KI:
@@ -341,3 +389,4 @@ byte pwmOutputsGetPwmOutput(byte pwmOutputNr, byte valueType) {
         break;
   }
 }
+

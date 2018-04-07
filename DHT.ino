@@ -47,7 +47,7 @@ void dhtGetData() {
           changedTemp = true;
         }
 
-        if ((changedTemp==true || changedHum==true) && (abs(millis()-lastPubTime)>10000)) {
+        if ((changedTemp==true || changedHum==true) && (abs(millis()-lastPubTime)>MQTT_MIN_REFRESH_MILLIS)) {
           if (changedTemp==true) {
             changedTemp = false;
             mqttElPublish(setBufferFromFlash(getInternalTemperature),String(dhtTemperature));
