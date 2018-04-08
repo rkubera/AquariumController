@@ -143,6 +143,7 @@ const char charMaxDeviation[] PROGMEM = "MaxDeviation";
 #define CONTROL_MODE_PART_OF_DAY        1
 #define CONTROL_MODE_DISCRETE           2
 #define CONTROL_MODE_PID                3
+#define CONTROL_DISCRETE_DIRECTION      253
 
 #define NAME_LENGTH                     15
 #define OUTPUT_TYPE_PWM                 1
@@ -194,10 +195,11 @@ int publishValue = -1;
 #define PWMOUTPUT_PID_KI                   12
 #define PWMOUTPUT_PID_KD                   13
 #define PWMOUTPUT_MAX_DEVIATION            14
+#define PWMOUTPUT_OUTPUT_VALUE             15
 
 #define PID_AUTOMATIC                      1
 #define PID_MANUAL                         0
-#define PID_DIRECT                         0
+#define CONTROL_DIRECT                     0
 #define PID_REVERSE                        1
 #define PID_P_ON_M                         0
 #define PID_P_ON_E                         1

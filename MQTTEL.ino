@@ -679,13 +679,14 @@ void mqttElData(void* response) {
       if (bValue!=255) {
         pwmOutputsSetPwmOutput(i, PWMOUTPUT_CONTROL_MODE, bValue);
         mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charControlMode),Value);
+        pwmOutputsCheckDiscreteDirection(i,OUTPUT_TYPE_PWM);
       }
     }
 
-     pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charControlDirection);
-     if (endpoint == pwmOutputsEndpoint) {
+    pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charControlDirection);
+    if (endpoint == pwmOutputsEndpoint) {
       if (Value == setBufferFromFlash(charDirect)) {
-        pwmOutputsSetPwmOutput(i, PWMOUTPUT_CONTROL_DIRECTION,PID_DIRECT);
+        pwmOutputsSetPwmOutput(i, PWMOUTPUT_CONTROL_DIRECTION,CONTROL_DIRECT);
         mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charControlDirection),setBufferFromFlash(charDirect));
       }
       if (Value == setBufferFromFlash(charReverse)) {
@@ -699,6 +700,7 @@ void mqttElData(void* response) {
       pwmOutputsSetPwmOutputDouble(i, PWMOUTPUT_MAX_DEVIATION, stringToDouble(Value));
       Value = floatToString(pwmOutputsGetPwmOutputDouble(i,PWMOUTPUT_MAX_DEVIATION));
       mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charMaxDeviation),Value);
+      pwmOutputsCheckDiscreteDirection(i, OUTPUT_TYPE_PWM);
     }
     
     pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charSensorsSetpoint);
@@ -706,6 +708,16 @@ void mqttElData(void* response) {
       pwmOutputsSetPwmOutputDouble(i, PWMOUTPUT_SENSORS_SETPOINT, stringToDouble(Value));
       Value = floatToString(pwmOutputsGetPwmOutputDouble(i,PWMOUTPUT_SENSORS_SETPOINT));
       mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charSensorsSetpoint),Value);
+      pwmOutputsCheckDiscreteDirection(i, OUTPUT_TYPE_PWM);
+      /*
+      float pwmOutputPIDInput = sensorsGetSensorsValue(i, OUTPUT_TYPE_PWM);
+      if (pwmOutputPIDInput>pwmOutputsGetPwmOutputDouble(i, PWMOUTPUT_SENSORS_SETPOINT)) {
+        pwmOutputsSetPwmOutput(i,CONTROL_DISCRETE_DIRECTION,0);
+      }
+      else {
+        pwmOutputsSetPwmOutput(i,CONTROL_DISCRETE_DIRECTION,1);
+      }
+      */
     }
 
     pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charPidKp);
@@ -731,13 +743,25 @@ void mqttElData(void* response) {
     
     pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charState);
     if (endpoint == pwmOutputsEndpoint) {
-      if (Value == setBufferFromFlash(charOn)) {
-        pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_ON);
-        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charState),setBufferFromFlash(charOn));
+      if (pwmOutputsGetPwmOutput(i, PWMOUTPUT_CONTROL_MODE) == CONTROL_MODE_PID || pwmOutputsGetPwmOutput(i, PWMOUTPUT_CONTROL_MODE) == CONTROL_MODE_DISCRETE) {
+        if (pwmOutputsGetPwmOutput(i, PWMOUTPUT_OUTPUT_VALUE)==0) {
+          pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_OFF);
+          mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charState),setBufferFromFlash(charOff));
+        }
+        else {
+          pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_ON);
+          mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charState),setBufferFromFlash(charOn));
+        }
       }
-      if (Value == setBufferFromFlash(charOff)) {
-        pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_OFF);
-        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charState),setBufferFromFlash(charOff));
+      else {
+        if (Value == setBufferFromFlash(charOn)) {
+          pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_ON);
+          mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charState),setBufferFromFlash(charOn));
+        }
+        if (Value == setBufferFromFlash(charOff)) {
+          pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_OFF);
+          mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charState),setBufferFromFlash(charOff));
+        }
       }
     }
 
