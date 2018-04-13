@@ -43,7 +43,7 @@ class pwmOutputClass {
   byte pwmOutputDirection;
 
   float maxDeviation;
-  bool discreteDirection = false;
+  bool tresholdDirection = false;
 
   double lastPwmOutputPIDInput;
   double lastValueSendMillis;
@@ -70,7 +70,7 @@ class pwmOutputClass {
     pwmOutputPID.SetMode(PID_AUTOMATIC);
 
     pwmOutputSetState();
-    pwmOutputsCheckDiscreteDirection(pwmOutputPin, OUTPUT_TYPE_PWM);
+    pwmOutputsCheckTresholdDirection(pwmOutputPin, OUTPUT_TYPE_PWM);
   }
 
   void pwmOutputMqttPublishAll() {
@@ -96,7 +96,7 @@ class pwmOutputClass {
     mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charMaxDeviation),floatToString(maxDeviation));
     
     pwmOutputSetState();
-    pwmOutputsCheckDiscreteDirection(pwmOutputPin, OUTPUT_TYPE_PWM);
+    pwmOutputsCheckTresholdDirection(pwmOutputPin, OUTPUT_TYPE_PWM);
   }
 
   void pwmOutputSetState() {
@@ -219,9 +219,9 @@ class pwmOutputClass {
     maxDeviation = configGetFloatValue(EEPROM_addr+NAME_LENGTH+24);
   }
 
-  void PIDEvent() {
+  void ControlEvent() {
     if (pwmOutputControlMode == CONTROL_MODE_PID) {
-      pwmOutputPIDInput = sensorsGetSensorsValue(pwmOutputPin, OUTPUT_TYPE_PWM);
+      double pwmOutputInput = sensorsGetSensorsValue(pwmOutputPin, OUTPUT_TYPE_PWM);
       pwmOutputPID.Compute();
       pwmOutputValue = pwmOutputPIDOutput;
       pwmOutputSetValue(pwmOutputValue);
@@ -237,24 +237,24 @@ class pwmOutputClass {
         mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(pwmOutputPin)+setBufferFromFlash(charValue),intToString(pwmOutputValue));
       }
     }
-    else if (pwmOutputControlMode == CONTROL_MODE_DISCRETE) {
+    else if (pwmOutputControlMode == CONTROL_MODE_TRESHOLD) {
       
       pwmOutputPIDInput = sensorsGetSensorsValue(pwmOutputPin, OUTPUT_TYPE_PWM);
       pwmOutputManualOnOff=PWMOUTPUT_MANUAL_ONOFF_AUTO;
       float minValue = pwmOutputSensorsSetpoint-maxDeviation;
       float maxValue = pwmOutputSensorsSetpoint+maxDeviation;
-      if (discreteDirection==true) {
+      if (tresholdDirection==true) {
         if (pwmOutputPIDInput>maxValue) {
-          discreteDirection==false;
+          tresholdDirection==false;
         }
       }
       else {
         if (pwmOutputPIDInput<minValue) {
-          discreteDirection==true;
+          tresholdDirection==true;
         }
       }
 
-      if (discreteDirection==true) {
+      if (tresholdDirection==true) {
         if (pwmOutputDirection==CONTROL_DIRECT) {
           pwmOutputValue = 255;
           pwmOutputSetValue(255);
@@ -272,7 +272,6 @@ class pwmOutputClass {
         else {
           pwmOutputValue = 255;
           pwmOutputSetValue(255);
-          pwmOutputManualOnOff=PWMOUTPUT_MANUAL_ONOFF_ON;
         }
       }
     }
@@ -305,7 +304,7 @@ void pwmOutputsMillisEvent() {
 
 void pwmOutputsSecondEvent() {
   for (byte i=0; i<PWMOUTPUTS_COUNT; i++) {
-    myPwmOutputs[i].PIDEvent();
+    myPwmOutputs[i].ControlEvent();
   }
 }
 
@@ -325,24 +324,24 @@ void pwmOutputsSavePwmOutputName(byte pwmOutputNr, String Value) {
   configSaveString(Value,EEPROM_pwm_outputs_addr+(pwmOutputNumber*PWMOUTPUTS_PWMOUTPUT_EEPROM_BYTES),10);
 }
 
-void pwmOutputsCheckDiscreteDirection (byte pwmOutputNr , byte outputType) {
+void pwmOutputsCheckTresholdDirection (byte pwmOutputNr , byte outputType) {
   if (sensorsGetSensorsValue(pwmOutputNr, outputType)>pwmOutputsGetPwmOutputDouble(pwmOutputNr, PWMOUTPUT_SENSORS_SETPOINT)) {
-    pwmOutputsSetPwmOutput(pwmOutputNr,CONTROL_DISCRETE_DIRECTION,0);
+    pwmOutputsSetPwmOutput(pwmOutputNr,CONTROL_TRESHOLD_DIRECTION,0);
   }
   else {
-    pwmOutputsSetPwmOutput(pwmOutputNr,CONTROL_DISCRETE_DIRECTION,1);
+    pwmOutputsSetPwmOutput(pwmOutputNr,CONTROL_TRESHOLD_DIRECTION,1);
   } 
 }
 
 void pwmOutputsSetPwmOutput(byte pwmOutputNr, byte valueType, byte Value) {
   byte pwmOutputNumber = pwmOutputNr-1;
   switch (valueType) {
-      case CONTROL_DISCRETE_DIRECTION:
+      case CONTROL_TRESHOLD_DIRECTION:
         if (Value==0) {
-          myPwmOutputs[pwmOutputNumber].discreteDirection = true;
+          myPwmOutputs[pwmOutputNumber].tresholdDirection = true;
         }
         else {
-          myPwmOutputs[pwmOutputNumber].discreteDirection = false;
+          myPwmOutputs[pwmOutputNumber].tresholdDirection = false;
         }
         break;
       case PWMOUTPUT_CONTROL_MODE:

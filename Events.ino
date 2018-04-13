@@ -21,6 +21,7 @@ void eventTimerSecond() {
   beepErrors();
   sensorsSecondEvent();
   pwmOutputsSecondEvent();
+  relaysSecondEvent();
 
   //Publish topics
   if (publishValue==0) {
@@ -90,5 +91,4 @@ void eventMqttConnected() {
 void eventMqttDisconnected() {
   publishValue = -1;
 }
-
 

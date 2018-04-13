@@ -31,7 +31,6 @@ void mqttElInit() {
       ok = true;
     }
   } while(!ok);
-  
 
   // Set-up callbacks for events and initialize with es-link.
   mqttEl.connectedCb.attach(mqttElConnected);
@@ -93,7 +92,9 @@ void mqttElSubscribe(String topic) {
     String fullTopic = String(mqttElDeviceName)+'/'+topic;
     fullTopic.toCharArray( buffer, 100 );
     mqttEl.subscribe(buffer);
+    wdt_reset();
   }
+
 }
 
 void mqttElSubscribe(String topic, int qos) {
@@ -101,6 +102,7 @@ void mqttElSubscribe(String topic, int qos) {
     String fullTopic = String(mqttElDeviceName)+'/'+topic;
     fullTopic.toCharArray( buffer, 100 );
     mqttEl.subscribe(buffer, qos);
+    wdt_reset();
   }
 }
 
@@ -109,6 +111,7 @@ void mqttElSubscribeFull(String topic) {
    String fullTopic = topic;
     fullTopic.toCharArray( buffer, 100 );
     mqttEl.subscribe(buffer);
+    wdt_reset();
   }
 }
 
@@ -117,6 +120,7 @@ void mqttElSubscribeFull(String topic, int qos) {
     String fullTopic = topic;
     fullTopic.toCharArray( buffer, 100 );
     mqttEl.subscribe(buffer, qos);
+    wdt_reset();
   }
 }
 
@@ -124,6 +128,7 @@ void mqttSubscribe() {
   if (mqttStatus==MQTT_STATUS_CONNECTED) {
     mqttElSubscribe("set/+");
     mqttElSubscribeFull("stat/sonoff/+",1);
+    wdt_reset();
   }
 }
 
@@ -135,6 +140,7 @@ void mqttElConnected(void* response) {
   mqttStatus = MQTT_STATUS_CONNECTED;
   eventMqttConnected();
   mqttSubscribe();
+  wdt_reset();
 }
 
 // Callback when MQTT is disconnected
@@ -534,8 +540,6 @@ void mqttElData(void* response) {
     if (endpoint == sensorsEndpoint) {
       byte bValue = sensorsGetByteSensorType(Value);
       if (bValue!=255) {
-        Serial.println("bValue=");
-        Serial.println(bValue);
         sensorsSetSensor(i, SENSORS_VALUE_TYPE, bValue);
         mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(i)+setBufferFromFlash(charSensorType),Value);
       }
@@ -586,8 +590,8 @@ void mqttElData(void* response) {
       if (Value==setBufferFromFlash(charPartofday)) {
         bValue = CONTROL_MODE_PART_OF_DAY;
       }
-      if (Value==setBufferFromFlash(charDiscrete)) {
-        bValue = CONTROL_MODE_DISCRETE;
+      if (Value==setBufferFromFlash(charTreshold)) {
+        bValue = CONTROL_MODE_TRESHOLD;
       }
       if (bValue!=255) {
         relaysSetRelay(i, RELAY_CONTROL_MODE, bValue);
@@ -595,6 +599,34 @@ void mqttElData(void* response) {
       }
     }
 
+    relaysEndpoint = setBufferFromFlash(charSetRelay)+intToString(i)+setBufferFromFlash(charMaxDeviation);
+    if (endpoint == relaysEndpoint) {
+      relaysSetRelayDouble(i, RELAY_MAX_DEVIATION, stringToDouble(Value));
+      Value = floatToString(relaysGetRelayDouble(i,RELAY_MAX_DEVIATION));
+      mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(i)+setBufferFromFlash(charMaxDeviation),Value);
+      relaysCheckTresholdDirection(i, OUTPUT_TYPE_RELAY);
+    }
+
+    relaysEndpoint = setBufferFromFlash(charSetRelay)+intToString(i)+setBufferFromFlash(charSensorsSetpoint);
+    if (endpoint == relaysEndpoint) {
+      relaysSetRelayDouble(i, RELAY_SENSORS_SETPOINT, stringToDouble(Value));
+      Value = floatToString(relaysGetRelayDouble(i,RELAY_SENSORS_SETPOINT));
+      mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(i)+setBufferFromFlash(charSensorsSetpoint),Value);
+      relaysCheckTresholdDirection(i, OUTPUT_TYPE_RELAY);
+    }
+    
+    relaysEndpoint = setBufferFromFlash(charSetRelay)+intToString(i)+setBufferFromFlash(charControlDirection);
+    if (endpoint == relaysEndpoint) {
+      if (Value == setBufferFromFlash(charDirect)) {
+        relaysSetRelay(i, RELAY_CONTROL_DIRECTION,CONTROL_DIRECT);
+        mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(i)+setBufferFromFlash(charControlDirection),setBufferFromFlash(charDirect));
+      }
+      if (Value == setBufferFromFlash(charReverse)) {
+        relaysSetRelay(i, RELAY_CONTROL_DIRECTION,PID_REVERSE);
+        mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(i)+setBufferFromFlash(charControlDirection),setBufferFromFlash(charReverse));
+      }
+    }
+    
     relaysEndpoint = setBufferFromFlash(charSetRelay)+intToString(i)+setBufferFromFlash(charState);
     if (endpoint == relaysEndpoint) {
       if (Value == setBufferFromFlash(charOn)) {
@@ -670,8 +702,8 @@ void mqttElData(void* response) {
       if (Value==setBufferFromFlash(charPartofday)) {
         bValue = CONTROL_MODE_PART_OF_DAY;
       }
-      if (Value==setBufferFromFlash(charDiscrete)) {
-        bValue = CONTROL_MODE_DISCRETE;
+      if (Value==setBufferFromFlash(charTreshold)) {
+        bValue = CONTROL_MODE_TRESHOLD;
       }
       if (Value==setBufferFromFlash(charPid)) {
         bValue = CONTROL_MODE_PID;
@@ -679,7 +711,7 @@ void mqttElData(void* response) {
       if (bValue!=255) {
         pwmOutputsSetPwmOutput(i, PWMOUTPUT_CONTROL_MODE, bValue);
         mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charControlMode),Value);
-        pwmOutputsCheckDiscreteDirection(i,OUTPUT_TYPE_PWM);
+        pwmOutputsCheckTresholdDirection(i,OUTPUT_TYPE_PWM);
       }
     }
 
@@ -700,7 +732,7 @@ void mqttElData(void* response) {
       pwmOutputsSetPwmOutputDouble(i, PWMOUTPUT_MAX_DEVIATION, stringToDouble(Value));
       Value = floatToString(pwmOutputsGetPwmOutputDouble(i,PWMOUTPUT_MAX_DEVIATION));
       mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charMaxDeviation),Value);
-      pwmOutputsCheckDiscreteDirection(i, OUTPUT_TYPE_PWM);
+      pwmOutputsCheckTresholdDirection(i, OUTPUT_TYPE_PWM);
     }
     
     pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charSensorsSetpoint);
@@ -708,16 +740,7 @@ void mqttElData(void* response) {
       pwmOutputsSetPwmOutputDouble(i, PWMOUTPUT_SENSORS_SETPOINT, stringToDouble(Value));
       Value = floatToString(pwmOutputsGetPwmOutputDouble(i,PWMOUTPUT_SENSORS_SETPOINT));
       mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charSensorsSetpoint),Value);
-      pwmOutputsCheckDiscreteDirection(i, OUTPUT_TYPE_PWM);
-      /*
-      float pwmOutputPIDInput = sensorsGetSensorsValue(i, OUTPUT_TYPE_PWM);
-      if (pwmOutputPIDInput>pwmOutputsGetPwmOutputDouble(i, PWMOUTPUT_SENSORS_SETPOINT)) {
-        pwmOutputsSetPwmOutput(i,CONTROL_DISCRETE_DIRECTION,0);
-      }
-      else {
-        pwmOutputsSetPwmOutput(i,CONTROL_DISCRETE_DIRECTION,1);
-      }
-      */
+      pwmOutputsCheckTresholdDirection(i, OUTPUT_TYPE_PWM);
     }
 
     pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charPidKp);
@@ -743,7 +766,7 @@ void mqttElData(void* response) {
     
     pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charState);
     if (endpoint == pwmOutputsEndpoint) {
-      if (pwmOutputsGetPwmOutput(i, PWMOUTPUT_CONTROL_MODE) == CONTROL_MODE_PID || pwmOutputsGetPwmOutput(i, PWMOUTPUT_CONTROL_MODE) == CONTROL_MODE_DISCRETE) {
+      if (pwmOutputsGetPwmOutput(i, PWMOUTPUT_CONTROL_MODE) == CONTROL_MODE_PID || pwmOutputsGetPwmOutput(i, PWMOUTPUT_CONTROL_MODE) == CONTROL_MODE_TRESHOLD) {
         if (pwmOutputsGetPwmOutput(i, PWMOUTPUT_OUTPUT_VALUE)==0) {
           pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_OFF);
           mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charState),setBufferFromFlash(charOff));
@@ -886,5 +909,4 @@ void mqttElData(void* response) {
     ledSetActualMode();
   }
 }
-
 

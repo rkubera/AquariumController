@@ -17,8 +17,8 @@ String getStringControlModeFromValue(byte Value) {
     case CONTROL_MODE_PART_OF_DAY:
         return setBufferFromFlash(charPartofday);
         break;
-     case CONTROL_MODE_DISCRETE:
-        return setBufferFromFlash(charDiscrete);
+     case CONTROL_MODE_TRESHOLD:
+        return setBufferFromFlash(charTreshold);
         break;
      case CONTROL_MODE_PID:
         return setBufferFromFlash(charPid);
@@ -122,5 +122,4 @@ String intToString (int value) {
   sprintf (buffer, "%d", value);
   return (String) buffer;
 }
-
 

@@ -194,7 +194,7 @@ float sensorsGetSensorsValue (byte sensorNumber, byte outputType) {
   if (outputType==OUTPUT_TYPE_PWM) {
     sensorNumber = sensorNumber+RELAYS_COUNT;
   }
-
+  
   for (int i =0; i<SENSORS_COUNT; i++) {
     if (mySensors[i].sensorType==sensorNumber) {
       if (valCount==0) {
@@ -329,5 +329,4 @@ void sensorsSecondEvent() {
     }
   }
 }
-
 

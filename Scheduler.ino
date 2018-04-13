@@ -114,4 +114,3 @@ int schedulerGetPartOfDay(double h, double m) {
   return SCHEDULER_MODE_NIGHT;
 }
 
-

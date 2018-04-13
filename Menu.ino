@@ -64,4 +64,3 @@ void menuStatsuWindow() {
   lcdString ("%");
 }
 
-

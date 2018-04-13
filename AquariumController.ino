@@ -101,7 +101,7 @@ const char charWave[] PROGMEM = "wave";
 
 const char charManual[] PROGMEM = "manual";
 const char charPartofday[] PROGMEM = "partofday";
-const char charDiscrete[] PROGMEM = "discrete";
+const char charTreshold[] PROGMEM = "treshold";
 const char charPid[] PROGMEM = "pid";
 
 const char charSensornone[] PROGMEM = "notconnected";
@@ -141,9 +141,9 @@ const char charMaxDeviation[] PROGMEM = "MaxDeviation";
 
 #define CONTROL_MODE_MANUAL             0
 #define CONTROL_MODE_PART_OF_DAY        1
-#define CONTROL_MODE_DISCRETE           2
+#define CONTROL_MODE_TRESHOLD           2
 #define CONTROL_MODE_PID                3
-#define CONTROL_DISCRETE_DIRECTION      253
+#define CONTROL_TRESHOLD_DIRECTION      253
 
 #define NAME_LENGTH                     15
 #define OUTPUT_TYPE_PWM                 1
@@ -225,6 +225,9 @@ int publishValue = -1;
 #define RELAY_MODE_EVENING                5
 #define RELAY_MODE_NIGHT                  6
 #define RELAY_MANUAL_ONOFF                7
+#define RELAY_MAX_DEVIATION               8
+#define RELAY_SENSORS_SETPOINT            9
+#define RELAY_CONTROL_DIRECTION           10
 
 //********************************
 //Sensors
@@ -567,6 +570,8 @@ const char getLedState[] PROGMEM="get/LedState";
 #define EEPROM_timezoneRule1Month_addr                      93
 #define EEPROM_timezoneRule2Month_addr                      94
 
+#define EEPROM_unix_timestamp_addr                          95 //(4 bytes)
+
 #define EEPROM_sensors_addr                                 2048      //8*50 = 400
 #define EEPROM_relays_addr                                  EEPROM_sensors_addr+(SENSORS_SENSOR_EEPROM_BYTES*SENSORS_COUNT) //4*20 = 80
 #define EEPROM_pwm_outputs_addr                             EEPROM_relays_addr+(RELAYS_RELAY_EEPROM_BYTES*RELAYS_COUNT)
@@ -701,5 +706,5 @@ void loop() {
 
   //MQTTEL
   mqttElCheck();
-  
 }
+

@@ -53,4 +53,3 @@ void fanEvent(bool stopFan) {
   }
 }
 
-

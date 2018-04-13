@@ -588,4 +588,3 @@ void ledSetManualOff() {
   ledStep = ledStepSwitchColor;
 }
 
-

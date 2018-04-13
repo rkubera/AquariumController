@@ -209,4 +209,3 @@ void gotoXY(int x, int y) {
   lcdWrite( 0, 0x40 | y);  // Row.
 }
 
-

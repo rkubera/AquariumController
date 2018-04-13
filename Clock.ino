@@ -10,14 +10,20 @@
 static uint32_t clockDelta = 0;
 
 void clockInit() {
+
   if (!clockRtc.begin()) {
     Serial.println(F("Couldn't find RTC"));
   }
   if (!clockRtc.isrunning()) {
     Serial.println(F("RTC is NOT running!"));
   }
+  
   clockSetLocalTime();
   clockUpdateTimezoneRules();
+
+  uint32_t mytime = configGetUint32Value(EEPROM_unix_timestamp_addr);
+  clockDelta = mytime-(millis()/1000);
+
 }
 
 void clockMqttPublishAll() {
@@ -144,7 +150,16 @@ void clockMinuteEvent() {
   }
 }
 
+
 void clockMillisEvent() {
+  static double lastMillisSavedTime;
+  if (abs(millis()-lastMillisSavedTime)>3600000) {
+    lastMillisSavedTime = millis();
+    time_t my_time = clockGetGlobalDateTime();
+    DateTime btime = DateTime(my_time);
+    uint32_t mytime = btime.unixtime();
+    configSaveUint32Value(mytime, EEPROM_unix_timestamp_addr);
+  }
   static byte clockLastMinute;
   time_t local = clockGetLocalTime();
    
@@ -186,7 +201,7 @@ time_t clockGetLocalTime() {
   globalMonth = month(localTime);
   globalYear = year(localTime);
 
-  /*
+/*
   Serial.print(F("Actual time="));
   Serial.print(btime.year());
   Serial.print(F("/"));
@@ -202,7 +217,6 @@ time_t clockGetLocalTime() {
   Serial.print(F(" ")); 
   Serial.println(setBufferFromFlash(daysOfTheWeek[globalWeekDay]));
   */
-  
   return localTime;
 }
 
@@ -235,7 +249,9 @@ time_t clockGetGlobalDateTime(){
   if (clockRtc.isrunning()) {
     now = clockRtc.now();
     if (boot_time==0) {
-      boot_time = now.unixtime();
+      if (now.year()>2000 && now.year()<2100) {
+        boot_time = now.unixtime();
+      }
     }
   }
   else {
@@ -263,5 +279,4 @@ void clockSetGlobalDateTime(time_t tSet){
   uint32_t mytime = now.unixtime();
   clockDelta = mytime-(millis()/1000);
 }
-
 

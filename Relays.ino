@@ -29,6 +29,15 @@ class relayClass {
   
   bool relayLastRelayState;
 
+  double relaySensorsSetpoint;
+  float maxDeviation;
+  byte relayDirection;
+  bool tresholdDirection = false;
+  double relayInput;
+
+  double lastValueSendMillis;
+  double lastRelayInput;
+
   void Init(byte pin) {
     switch (pin) {
       case 0: digitalPin = RELAY_PIN_1;
@@ -39,6 +48,9 @@ class relayClass {
             break;
     }
     relayPin = pin+1;
+    
+    relaySetState();
+    relaysCheckTresholdDirection(relayPin, OUTPUT_TYPE_RELAY);
   }
 
   void relayMqttPublishAll() {
@@ -49,8 +61,20 @@ class relayClass {
     mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charNightMode),relayGetStringValue(relayModeNight));
     mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charState),relayGetStringValueFromBool(relayLastRelayState));
     mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charControlMode),getStringControlModeFromValue(relayControlMode));
+
+    mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charSensorsValue),intToString(relayInput));
     
+    if (relayDirection==CONTROL_DIRECT) {
+      mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charControlDirection),setBufferFromFlash(charDirect));
+    }
+    else {
+      mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charControlDirection),setBufferFromFlash(charReverse));
+    }
+    mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charSensorsSetpoint),floatToString(relaySensorsSetpoint));
+    mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charMaxDeviation),floatToString(maxDeviation));
+
     relaySetState();
+    relaysCheckTresholdDirection(relayPin, OUTPUT_TYPE_RELAY);
   }
 
   void relaySetState() {
@@ -83,7 +107,10 @@ class relayClass {
         relayManualOnOff=RELAY_MANUAL_ONOFF_AUTO;
       }
     }
-  
+
+    if (relayControlMode == CONTROL_MODE_TRESHOLD) {
+      relayUpDown = relayState;
+    }
     if (relayManualOnOff == RELAY_MANUAL_ONOFF_ON) {
       relayUpDown = true;
     }
@@ -101,6 +128,27 @@ class relayClass {
       else {
         relayDown();
         mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charState),setBufferFromFlash(charOff));
+      }
+    }
+
+    if (abs(lastValueSendMillis-millis())>MQTT_MIN_REFRESH_MILLIS) {
+      lastValueSendMillis = millis();
+
+      if (lastRelayInput!=relayInput) {
+        lastRelayInput = relayInput;
+        mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charSensorsValue),floatToString(relayInput));
+      }
+      
+      if (relayLastRelayState!=relayUpDown) {
+        relayLastRelayState = relayUpDown;
+        if (relayUpDown == true) {
+          relayUp();
+          mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charState),setBufferFromFlash(charOn));
+        }
+        else {
+          relayDown();
+          mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charState),setBufferFromFlash(charOff));
+        }
       }
     }
   }
@@ -138,6 +186,9 @@ class relayClass {
     EEPROM.write(EEPROM_addr+NAME_LENGTH+3,relayModeAfternoon);
     EEPROM.write(EEPROM_addr+NAME_LENGTH+4,relayModeEvening);
     EEPROM.write(EEPROM_addr+NAME_LENGTH+5,relayModeNight);
+    EEPROM.write(EEPROM_addr+NAME_LENGTH+6,relayDirection);
+    configSaveDoubleValue(relaySensorsSetpoint,EEPROM_addr+NAME_LENGTH+7);
+    configSaveFloatValue(maxDeviation,EEPROM_addr+NAME_LENGTH+11);
   }
   
   void loadConfig(int EEPROM_addr) {
@@ -146,6 +197,58 @@ class relayClass {
     relayModeAfternoon = configGetValue(EEPROM_addr+NAME_LENGTH+3);
     relayModeEvening = configGetValue(EEPROM_addr+NAME_LENGTH+4);
     relayModeNight = configGetValue(EEPROM_addr+NAME_LENGTH+5);
+    relayDirection = configGetValue(EEPROM_addr+NAME_LENGTH+6);
+    relaySensorsSetpoint = configGetDoubleValue(EEPROM_addr+NAME_LENGTH+7);
+    maxDeviation = configGetFloatValue(EEPROM_addr+NAME_LENGTH+11);
+  }
+
+  void ControlEvent() {
+    if (relayControlMode == CONTROL_MODE_TRESHOLD) {
+      
+      relayInput = sensorsGetSensorsValue(relayPin, OUTPUT_TYPE_RELAY);
+      relayManualOnOff=RELAY_MANUAL_ONOFF_AUTO;
+      float minValue = relaySensorsSetpoint-maxDeviation;
+      float maxValue = relaySensorsSetpoint+maxDeviation;
+
+      Serial.print("Relay ");
+      Serial.println(relayPin);
+
+      Serial.println(relayInput);
+      Serial.println(minValue);
+      Serial.println(maxValue);
+      
+      if (tresholdDirection==true) {
+        if (relayInput>maxValue) {
+          tresholdDirection==false;
+        }
+      }
+      else {
+        if (relayInput<minValue) {
+          tresholdDirection==true;
+        }
+      }
+
+      if (tresholdDirection==true) {
+        if (relayDirection==CONTROL_DIRECT) {
+          relayState = true;
+          relayUp();
+        }
+        else {
+          relayState = false;
+          relayDown();
+        }
+      }
+      else {
+        if (relayDirection==CONTROL_DIRECT) {
+          relayState = false;
+          relayDown();
+        }
+        else {
+          relayState = true;
+          relayUp();
+        }
+      }
+    }
   }
 };
 
@@ -169,6 +272,12 @@ void relaysMillisEvent() {
   }
 }
 
+void relaysSecondEvent() {
+  for (byte i=0; i<RELAYS_COUNT; i++) {
+    myRelays[i].ControlEvent();
+  }
+}
+
 void relaysLoadConfig() {
   for (byte relayNumber=0; relayNumber<RELAYS_COUNT; relayNumber++) {
     myRelays[relayNumber].loadConfig(EEPROM_relays_addr+(relayNumber*RELAYS_RELAY_EEPROM_BYTES));
@@ -187,6 +296,14 @@ void relaysSaveRelayName(byte relayNr, String Value) {
 void relaysSetRelay(byte relayNr, byte valueType, byte Value) {
   byte relayNumber = relayNr-1;
   switch (valueType) {
+    case CONTROL_TRESHOLD_DIRECTION:
+        if (Value==0) {
+          myRelays[relayNumber].tresholdDirection = true;
+        }
+        else {
+          myRelays[relayNumber].tresholdDirection = false;
+        }
+        break;
     case RELAY_CONTROL_MODE:
         myRelays[relayNumber].relayControlMode = Value;
         break;
@@ -204,6 +321,9 @@ void relaysSetRelay(byte relayNr, byte valueType, byte Value) {
         break;
       case RELAY_MANUAL_ONOFF:
         myRelays[relayNumber].relayManualOnOff = Value;
+        break;
+      case RELAY_CONTROL_DIRECTION:
+        myRelays[relayNumber].relayDirection = Value;
         break;
   }
   relaysSaveConfig(relayNumber);
@@ -238,6 +358,42 @@ byte relaysGetRelay(byte relayNr, byte valueType) {
       case RELAY_MANUAL_ONOFF:
         return (myRelays[relayNumber].relayManualOnOff);
         break;
+      case RELAY_CONTROL_DIRECTION:
+        return (myRelays[relayNumber].relayDirection);
+        break;
   }
 }
 
+void relaysSetRelayDouble(byte relayNr, byte valueType, double Value) {
+  byte relayNumber = relayNr-1;
+  switch (valueType) {
+    case RELAY_MAX_DEVIATION:
+        myRelays[relayNumber].maxDeviation = Value;
+        break;
+    case RELAY_SENSORS_SETPOINT:
+        myRelays[relayNumber].relaySensorsSetpoint = Value;
+        break; 
+  }
+  relaysSaveConfig(relayNumber);
+}
+
+double relaysGetRelayDouble(byte myRelayNr, byte valueType) {
+  byte relayNumber= myRelayNr-1;
+  switch (valueType) {
+    case RELAY_MAX_DEVIATION:
+      return (myRelays[relayNumber].maxDeviation);
+      break;
+    case RELAY_SENSORS_SETPOINT:
+      return (myRelays[relayNumber].relaySensorsSetpoint);
+      break;    
+  }
+}
+
+void relaysCheckTresholdDirection (byte relayNr , byte outputType) {
+  if (sensorsGetSensorsValue(relayNr, outputType)>relaysGetRelayDouble(relayNr, RELAY_SENSORS_SETPOINT)) {
+    relaysSetRelay(relayNr,CONTROL_TRESHOLD_DIRECTION,0);
+  }
+  else {
+    relaysSetRelay(relayNr,CONTROL_TRESHOLD_DIRECTION,1);
+  } 
+}

@@ -72,6 +72,13 @@ float configGetDoubleValue(int addr) {
   EEPROM.get(addr,ret);
   return ret;
 }
+
+uint32_t configGetUint32Value(int addr) {
+  uint32_t ret;
+  EEPROM.get(addr,ret);
+  return ret;
+}
+
 void configSaveFloatValue (float value, int addr) {
   EEPROM.put(addr,value); 
 }
@@ -80,6 +87,9 @@ void configSaveDoubleValue (double value, int addr) {
   EEPROM.put(addr,value);
 }
 
+void configSaveUint32Value (uint32_t value, int addr) {
+  EEPROM.put(addr,value);
+}
 void configSaveValue (int value, int addr) {
   EEPROM.write(addr,(byte)value); 
 }
@@ -133,5 +143,4 @@ void configSaveSchedulerTimers() {
   EEPROM.write(EEPROM_schedulerStartNightHour_addr,schedulerStartNightHour);
   EEPROM.write(EEPROM_schedulerStartNightMinute_addr,schedulerStartNightMinute);
 }
-
 
