@@ -38,12 +38,20 @@ class relayClass {
   double lastValueSendMillis;
   double lastRelayInput;
 
+  bool lastRelayState;
+
   void Init(byte pin) {
     switch (pin) {
       case 0: digitalPin = RELAY_PIN_1;
             pinMode(digitalPin, LOW);
             break;
       case 1: digitalPin = RELAY_PIN_2;
+            pinMode(digitalPin, LOW);
+            break;
+      case 2: digitalPin = RELAY_PIN_3;
+            pinMode(digitalPin, LOW);
+            break;
+      case 3: digitalPin = RELAY_PIN_4;
             pinMode(digitalPin, LOW);
             break;
     }
@@ -107,7 +115,21 @@ class relayClass {
         relayManualOnOff=RELAY_MANUAL_ONOFF_AUTO;
       }
     }
-
+    /*
+    if (relayPin==3) {
+    Serial.println("----------------");
+    Serial.print("RelayNumber=");
+    Serial.println(relayPin);
+    Serial.print("actualPartOfDay=");
+    Serial.println(actualPartOfDay);
+    Serial.print("relayControlMode=");
+    Serial.println(relayControlMode);
+    Serial.print("relayMode=");
+    Serial.println(relayMode);
+    Serial.print("relayManualOnOff=");
+    Serial.println(relayManualOnOff);
+    */
+    
     if (relayControlMode == CONTROL_MODE_TRESHOLD) {
       relayUpDown = relayState;
     }
@@ -118,7 +140,18 @@ class relayClass {
       relayUpDown = false;
     }
 
+    /*
+    if (relayUpDown==true) {
+      Serial.println("relayUpDown=true");
+    }
+    else{
+      Serial.println("relayUpDown=false");
+    }
+    */
+    
     relayState = relayUpDown;
+
+
     if (relayLastRelayState!=relayUpDown) {
       relayLastRelayState = relayUpDown;
       if (relayUpDown == true) {
@@ -130,7 +163,7 @@ class relayClass {
         mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charState),setBufferFromFlash(charOff));
       }
     }
-
+      
     if (abs(lastValueSendMillis-millis())>MQTT_MIN_REFRESH_MILLIS) {
       lastValueSendMillis = millis();
 
@@ -138,19 +171,8 @@ class relayClass {
         lastRelayInput = relayInput;
         mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charSensorsValue),floatToString(relayInput));
       }
-      
-      if (relayLastRelayState!=relayUpDown) {
-        relayLastRelayState = relayUpDown;
-        if (relayUpDown == true) {
-          relayUp();
-          mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charState),setBufferFromFlash(charOn));
-        }
-        else {
-          relayDown();
-          mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charState),setBufferFromFlash(charOff));
-        }
-      }
     }
+    //}
   }
 
   String relayGetStringValueFromBool (bool Value) {
@@ -174,10 +196,18 @@ class relayClass {
 
   void relayUp() {
     pinMode(digitalPin,HIGH);
+    if (lastRelayState!=true && relayPin==3) {
+      mqttElPublish("cmnd/POWER2","ON");
+      lastRelayState = true;
+    }
   }
   
   void relayDown() {
     pinMode(digitalPin,LOW);
+    if (lastRelayState!=false && relayPin==3) {
+      mqttElPublish("cmnd/POWER2","OFF");
+      lastRelayState = false;
+    }
   }
   
   void saveConfig(int EEPROM_addr) {
@@ -204,18 +234,10 @@ class relayClass {
 
   void ControlEvent() {
     if (relayControlMode == CONTROL_MODE_TRESHOLD) {
-      
       relayInput = sensorsGetSensorsValue(relayPin, OUTPUT_TYPE_RELAY);
       relayManualOnOff=RELAY_MANUAL_ONOFF_AUTO;
       float minValue = relaySensorsSetpoint-maxDeviation;
       float maxValue = relaySensorsSetpoint+maxDeviation;
-
-      Serial.print("Relay ");
-      Serial.println(relayPin);
-
-      Serial.println(relayInput);
-      Serial.println(minValue);
-      Serial.println(maxValue);
       
       if (tresholdDirection==true) {
         if (relayInput>maxValue) {

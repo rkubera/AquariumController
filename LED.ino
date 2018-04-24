@@ -201,28 +201,24 @@ void ledSetActualMode() {
   if (ledManualOnOff==LED_MANUAL_ONOFF_ON) {
     ledSetManualOn();
   }
-  
   if (ledLastMode!=ledMode) {
     ledLastMode = ledMode;
     if (ledMode==LED_MODE_BLACK) {
-      mqttElPublishFull("cmnd/sonoff/POWER1","OFF");
+      mqttElPublish("cmnd/POWER1","OFF");
       mqttElPublish( setBufferFromFlash(getLedState), setBufferFromFlash(charOff));
     }
     else {
-      mqttElPublishFull("cmnd/sonoff/POWER1","ON");
+      mqttElPublish("cmnd/POWER1","ON");
       mqttElPublish( setBufferFromFlash(getLedState), setBufferFromFlash(charOn));
     }
     ledManualOnOff = LED_MANUAL_ONOFF_AUTO; 
   }
-
   if (ledManualOnOff==LED_MANUAL_ONOFF_OFF && ledMode==LED_MODE_BLACK) {
     ledManualOnOff = LED_MANUAL_ONOFF_AUTO;
   }
-
   if (ledManualOnOff==LED_MANUAL_ONOFF_ON && ledMode!=LED_MODE_BLACK) {
     ledManualOnOff = LED_MANUAL_ONOFF_AUTO;
   }
-  
 }
 
 void ledModeWave() {

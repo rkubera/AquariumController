@@ -30,7 +30,8 @@
 
 #define DIGITAL_PWM_OUT_PIN_1  7
 #define DIGITAL_PWM_OUT_PIN_2  8
-#define DIGITAL_PWM_OUT_PIN_3  10
+#define DIGITAL_PWM_OUT_PIN_3  9
+#define DIGITAL_PWM_OUT_PIN_4  10
 
 #define ANALOG_IN_PIN_0 4
 #define ANALOG_IN_PIN_1 5
@@ -50,12 +51,14 @@
 #define LCD_PIN_DC    35
 #define LCD_PIN_SDIN  36
 #define LCD_PIN_SCLK  37
-#define LCD_PIN_LED   9 //Must be PWM Output
+#define LCD_PIN_LED   2 //Must be PWM Output
 
 #define RELAY_PIN_1 44
 #define RELAY_PIN_2 45
+#define RELAY_PIN_3 46
+#define RELAY_PIN_4 47
 
-#define DHT_PIN 2
+#define DHT_PIN 32
 
 #define FAN_PIN 3
 
@@ -170,7 +173,7 @@ int publishValue = -1;
 //RWMOutputs
 //********************************
 #define PWMOUTPUTS_PWMOUTPUT_EEPROM_BYTES  40
-#define PWMOUTPUTS_COUNT                   5
+#define PWMOUTPUTS_COUNT                   6
 
 #define PWMOUTPUT_MODE_OFF                 0
 #define PWMOUTPUT_MODE_ON                  1
@@ -208,7 +211,7 @@ int publishValue = -1;
 //Relays
 //********************************
 #define RELAYS_RELAY_EEPROM_BYTES         30
-#define RELAYS_COUNT                      2
+#define RELAYS_COUNT                      4
 
 #define RELAY_MODE_OFF                    0
 #define RELAY_MODE_ON                     1

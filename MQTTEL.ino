@@ -127,7 +127,7 @@ void mqttElSubscribeFull(String topic, int qos) {
 void mqttSubscribe() {
   if (mqttStatus==MQTT_STATUS_CONNECTED) {
     mqttElSubscribe("set/+");
-    mqttElSubscribeFull("stat/sonoff/+",1);
+    mqttElSubscribe("stat/+",1);
     wdt_reset();
   }
 }
@@ -178,14 +178,13 @@ void mqttElData(void* response) {
 
   if (endpoint==setBufferFromFlash(setLedState)) {
     if (Value == setBufferFromFlash(charOn)) {
-      
       ledManualOnOff = LED_MANUAL_ONOFF_ON;
-      mqttElPublishFull("cmnd/sonoff/POWER1","ON");
+      mqttElPublish("cmnd/POWER1","ON");
       mqttElPublish( setBufferFromFlash(getLedState), setBufferFromFlash(charOn));
     }
     else if (Value == setBufferFromFlash(charOff)) {  
       ledManualOnOff = LED_MANUAL_ONOFF_OFF;
-      mqttElPublishFull("cmnd/sonoff/POWER1","OFF");
+      mqttElPublish("cmnd/POWER1","OFF");
       mqttElPublish( setBufferFromFlash(getLedState), setBufferFromFlash(charOff));
     }
     else if (Value == setBufferFromFlash(charWave)) {
@@ -193,7 +192,7 @@ void mqttElData(void* response) {
     }
   }
 
-   if (String(topic)=="stat/sonoff/RESULT") {
+  if (String(topic)=="ac/stat/RESULT") {
     if (Value=="{\"power1\":\"on\"}") {   
       ledManualOnOff = LED_MANUAL_ONOFF_ON;
       mqttElPublish( setBufferFromFlash(getLedState), setBufferFromFlash(charOn));
@@ -202,8 +201,15 @@ void mqttElData(void* response) {
       ledManualOnOff = LED_MANUAL_ONOFF_OFF;
       mqttElPublish( setBufferFromFlash(getLedState), setBufferFromFlash(charOff));
     }
-    else if (Value == setBufferFromFlash(charWave)) {
-      ledManualOnOff = LED_MANUAL_ONOFF_AUTO;
+
+
+    if (Value=="{\"power2\":\"on\"}") {
+      relaysSetRelay(3, RELAY_MANUAL_ONOFF, RELAY_MANUAL_ONOFF_ON);
+      mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(3)+setBufferFromFlash(charState),setBufferFromFlash(charOn));
+    }
+    if (Value=="{\"power2\":\"off\"}") {
+      relaysSetRelay(3, RELAY_MANUAL_ONOFF, RELAY_MANUAL_ONOFF_OFF);
+      mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(3)+setBufferFromFlash(charState),setBufferFromFlash(charOff));
     }
   }
 

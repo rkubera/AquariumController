@@ -9,8 +9,8 @@ Alfa release, not for production/test usage
 - watchdog
 - timezones support
 - 8 x 5V analog sensors (eg. PH sensor, thermometer, aqua level sensor etc)
-- 2 x phisical relays outputs
-- 3 x 5V PWM outputs
+- 2 x relays outputs
+- 4 x 5V PWM outputs
 - 2 x 12V PWM outputs (optional)
 - LED strips controller (optional)
 - internal fan with pwm and temperature controller (optional)

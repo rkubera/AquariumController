@@ -56,9 +56,11 @@ class pwmOutputClass {
             break;
       case 2: digitalPin = DIGITAL_PWM_OUT_PIN_3;
             break;
-      case 3: digitalPin = DIGITAL_PWM_12V_OUT_PIN_1;
+      case 3: digitalPin = DIGITAL_PWM_OUT_PIN_4;
             break;
-      case 4: digitalPin = DIGITAL_PWM_12V_OUT_PIN_2;
+      case 4: digitalPin = DIGITAL_PWM_12V_OUT_PIN_1;
+            break;
+      case 5: digitalPin = DIGITAL_PWM_12V_OUT_PIN_2;
             break;
     }
     pinMode(digitalPin, OUTPUT);
