@@ -12,29 +12,21 @@ void schedulerInit() {
 }
 
 void schedulerMqttPublishAll() {
-  sprintf(buffer,"%02d:%02d", schedulerStartMorningHour, schedulerStartMorningMinute);
-  mqttElPublish( setBufferFromFlash(getMorningTime), buffer );
+  sprintf(bufferOut,"%02d:%02d", schedulerStartMorningHour, schedulerStartMorningMinute);
+  mqttElPublish( setBufferFromFlash(getMorningTime), bufferOut );
 
-  sprintf(buffer,"%02d:%02d", schedulerStartAfternoonHour, schedulerStartAfternoonMinute);
-  mqttElPublish(setBufferFromFlash(getAfternoonTime), buffer );
+  sprintf(bufferOut,"%02d:%02d", schedulerStartAfternoonHour, schedulerStartAfternoonMinute);
+  mqttElPublish(setBufferFromFlash(getAfternoonTime), bufferOut );
    
-  sprintf(buffer,"%02d:%02d", schedulerStartEveningHour, schedulerStartEveningMinute);
-  mqttElPublish(setBufferFromFlash(getEveningTime), buffer );
+  sprintf(bufferOut,"%02d:%02d", schedulerStartEveningHour, schedulerStartEveningMinute);
+  mqttElPublish(setBufferFromFlash(getEveningTime), bufferOut );
       
-  sprintf(buffer,"%02d:%02d", schedulerStartNightHour, schedulerStartNightMinute);
-  mqttElPublish(setBufferFromFlash(getNightTime), buffer );
+  sprintf(bufferOut,"%02d:%02d", schedulerStartNightHour, schedulerStartNightMinute);
+  mqttElPublish(setBufferFromFlash(getNightTime), bufferOut );
 }
 
 int schedulerGetActualPartOfDay() {
   time_t local = clockGetLocalTime();
-  /*
-  Serial.print("LocaL: ");
-  Serial.print(hour(local));
-  Serial.print(":");
-  Serial.println(minute(local));
-  Serial.println (schedulerGetPartOfDay(hour(local), minute(local)));
-  */
-  
   return schedulerGetPartOfDay(hour(local), minute(local));
 }
 
@@ -113,4 +105,3 @@ int schedulerGetPartOfDay(double h, double m) {
   }
   return SCHEDULER_MODE_NIGHT;
 }
-

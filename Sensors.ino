@@ -81,7 +81,7 @@ class sensorClass {
     
     float analog;
     float myValue;
-    float ValuesSum;
+    float ValuesSum=0;
     long ValuesRawSum;
   
     int count = 0;
@@ -320,6 +320,7 @@ float sensorsGetSensor(byte sensorNr, byte valueType) {
         return (mySensors[sensorNumber].calibRawRead2);
         break;
   }
+  return 0;
 }
 
 void sensorsSecondEvent() {
@@ -329,4 +330,5 @@ void sensorsSecondEvent() {
     }
   }
 }
+
 

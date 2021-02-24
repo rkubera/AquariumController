@@ -30,26 +30,27 @@ String getStringControlModeFromValue(byte Value) {
 String setBufferFromEeprom(int addr, int maxSize) {
   int index;
   for (index = 0; index < maxSize; index++) {
-    buffer[index] = EEPROM.read(addr+index);
-    if (buffer[index]==0) {
-      return (String) buffer;
+    bufferOut[index] = EEPROM.read(addr+index);
+    if (bufferOut[index]==0) {
+      return (String) bufferOut;
     } 
   }
-  buffer[maxSize] = 0;
-  return (String) buffer;
+  bufferOut[maxSize] = 0;
+  return (String) bufferOut;
 }
 
 String setBufferFromFlash(const char * what) {
   char z;
   int index;
-  for (index = 0; index < bufferSize; index++) {
+  for (index = 0; index < bufferOutSize; index++) {
     z=pgm_read_byte(&(what[index]));
-    buffer[index] = z;
+    bufferOut[index] = z;
     if (z==0) {
-      return (String) buffer;
+      return (String) bufferOut;
     } 
   }
-  return (String) buffer;
+  bufferOut[bufferOutSize-1]=0;
+  return (String) bufferOut;
 }
 
 int parseYearFromString(String dateString) {
@@ -92,8 +93,8 @@ String floatToString (float value) {
   int tmpInt2 = round(tmpFrac * 100);
   
   value = (float)tmpInt1+((float)tmpInt2/100);
-  sprintf (buffer, "%d.%02d", tmpInt1, tmpInt2); 
-  return (String) buffer;   
+  sprintf (bufferOut, "%d.%02d", tmpInt1, tmpInt2); 
+  return (String) bufferOut;   
 }
 
 String doubleToString (double value) {
@@ -102,8 +103,8 @@ String doubleToString (double value) {
   int tmpInt2 = round(tmpFrac * 10000);
   
   value = (double)tmpInt1+((double)tmpInt2/10000);
-  sprintf (buffer, "%d.%04d", tmpInt1, tmpInt2); 
-  return (String) buffer;   
+  sprintf (bufferOut, "%d.%04d", tmpInt1, tmpInt2); 
+  return (String) bufferOut;   
 }
 
 float stringToFloat(String str) {
@@ -119,7 +120,6 @@ int stringToInt(String str) {
 }
 
 String intToString (int value) {
-  sprintf (buffer, "%d", value);
-  return (String) buffer;
+  sprintf (bufferOut, "%d", value);
+  return (String) bufferOut;
 }
-

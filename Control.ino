@@ -200,7 +200,7 @@ class PID {
  *  does all the things that need to happen to ensure a bumpless transfer
  *  from manual to automatic mode.
  ******************************************************************************/
-  void PID::Initialize() {
+  void Initialize() {
     outputSum = *myOutput;
     lastInput = *myInput;
     if(outputSum > outMax) outputSum = outMax;
@@ -234,4 +234,5 @@ class PID {
 /**********************************************************************************************
 /End of PID Class based on: https://github.com/br3ttb/Arduino-PID-Library/
  **********************************************************************************************/
+
 

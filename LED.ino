@@ -15,10 +15,17 @@
 
 void ledInit () {
   ledWaveIdx = 0;
+
+  //Power
+  pinMode(LCD_GND,LOW);
+  pinMode(LCD_POWER,HIGH);
+  
   pinMode(LED_RED_PIN, OUTPUT);
   pinMode(LED_GREEN_PIN, OUTPUT);
   pinMode(LED_BLUE_PIN, OUTPUT);
-  
+  lastLEDMicros = micros();
+
+      
   ledSetBrightness(0);
   ledSetActualMode();
 }
@@ -57,13 +64,23 @@ String ledColorValueToString (byte Value) {
 }
 
 void ledMqttPublishAll() {
+  
+  String actualControlMode;
+  if (ledControlMode==CONTROL_MODE_PART_OF_DAY) {
+    actualControlMode = setBufferFromFlash(charPartofday);
+  }
+  else if (ledControlMode==CONTROL_MODE_MANUAL) {
+    actualControlMode = setBufferFromFlash(charManual);
+  }
+  
+  mqttElPublish(setBufferFromFlash(getLedControlMode), actualControlMode);
   mqttElPublish(setBufferFromFlash(getBrightness), String(ledBrightness));
   mqttElPublish(setBufferFromFlash(getLedManualMode), ledColorValueToString(ledManualMode));
   mqttElPublish(setBufferFromFlash(getLedColorMorning), ledColorValueToString(ledModeMorning));
   mqttElPublish(setBufferFromFlash(getLedColorAfternoon), ledColorValueToString(ledModeAfternoon));
   mqttElPublish(setBufferFromFlash(getLedColorEvening), ledColorValueToString(ledModeEvening));
   mqttElPublish(setBufferFromFlash(getLedColorNight), ledColorValueToString(ledModeNight));
-  mqttElPublish(setBufferFromFlash(getLedControlMode), getStringControlModeFromValue(ledControlMode));
+  //mqttElPublish(setBufferFromFlash(getLedControlMode), getStringControlModeFromValue(ledControlMode));
 }
 
 void ledSwitchToMode(int myMode) {
@@ -99,14 +116,14 @@ void ledSwitchToMode(int myMode) {
 }
 
 void ledSetActualMode() {
-    
+  
   if (ledControlMode==CONTROL_MODE_PART_OF_DAY) {
     int ledModeNext;
     int ledModePrev;
 
     int nextHourMinute = 0;
     int prevHourMinute = 0;
-    
+
     time_t local = clockGetLocalTime();
     
     int mysec = second(local);
@@ -154,7 +171,7 @@ void ledSetActualMode() {
       nextHourMinute = startMorningHourMinute;
       prevHourMinute = startNightHourMinute;
     }
-  
+
     //LedStep
     ledStep = ledStepSwitchColor;
     
@@ -194,7 +211,6 @@ void ledSetActualMode() {
 
   ledSetBrightness(LED_BRIGHTNESS_AUTO);
   ledSwitchToMode(ledMode);
-
   if (ledManualOnOff==LED_MANUAL_ONOFF_OFF) {
     ledSetManualOff();
   }
@@ -388,70 +404,61 @@ void ledModeWave() {
     }
     else {
       ledActualTimer++;
+      
     }
     return;
   }
 }
 
-void ledMillisEvent() {
+void ledMicrosEvent() {
+  if (abs(micros()-lastLEDMicros)>1000) {
+    lastLEDMicros = micros();
   
-  if (ledMode == LED_MODE_WAVE) {
-    ledModeWave();
-  }
-
-  ledSetActualMode();
+    ledSetActualMode();
+    
+    if (ledActualRed>ledRed) {
+      ledActualRed = ledActualRed-ledStep;
+      if (ledActualRed<0) ledActualRed = 0;
+    }
   
-  if (ledActualRed>ledRed) {
-    ledActualRed = ledActualRed-ledStep;
-    if (ledActualRed<0) ledActualRed = 0;
-  }
-
-  if (ledActualRed<ledRed) {
-    ledActualRed = ledActualRed+ledStep;
-    if (ledActualRed>255) ledActualRed = 255;
-  }
-
-  if (ledActualGreen>ledGreen) {
-    ledActualGreen = ledActualGreen-ledStep;
-    if (ledActualGreen<0) ledActualGreen = 0;
-  }
-
-  if (ledActualGreen<ledGreen) {
-    ledActualGreen = ledActualGreen+ledStep;
-    if (ledActualGreen>255) ledActualGreen = 255;
-  }
-
-  if (ledActualBlue>ledBlue) {
-    ledActualBlue = ledActualBlue-ledStep;
-    if (ledActualBlue<0) ledActualBlue = 0;
-  }
-
-  if (ledActualBlue<ledBlue) {
-    ledActualBlue = ledActualBlue+ledStep;
-    if (ledActualBlue>255) ledActualBlue = 255;
-  }
-
-  if (ledActualBrightness<ledBrightness) {
-    ledActualBrightness = ledActualBrightness+ledStep;
-    if (ledActualBrightness>255) ledActualBrightness = 255;
-  }
-
-  if (ledActualBrightness>ledBrightness) {
-    ledActualBrightness = ledActualBrightness-ledStep;
-    if (ledActualBrightness<0) ledActualBrightness = 0;
-  }
+    if (ledActualRed<ledRed) {
+      ledActualRed = ledActualRed+ledStep;
+      if (ledActualRed>255) ledActualRed = 255;
+    }
   
-  letSetColor (ledActualRed, ledActualGreen, ledActualBlue); 
-}
-
-/*
-void ledSetBrightness (int brightness) {
-  if (ledBrightness!=brightness) {
-    ledBrightness = brightness;
-    mqttElPublish( "getBrightness", String(ledBrightness));
+    if (ledActualGreen>ledGreen) {
+      ledActualGreen = ledActualGreen-ledStep;
+      if (ledActualGreen<0) ledActualGreen = 0;
+    }
+  
+    if (ledActualGreen<ledGreen) {
+      ledActualGreen = ledActualGreen+ledStep;
+      if (ledActualGreen>255) ledActualGreen = 255;
+    }
+  
+    if (ledActualBlue>ledBlue) {
+      ledActualBlue = ledActualBlue-ledStep;
+      if (ledActualBlue<0) ledActualBlue = 0;
+    }
+  
+    if (ledActualBlue<ledBlue) {
+      ledActualBlue = ledActualBlue+ledStep;
+      if (ledActualBlue>255) ledActualBlue = 255;
+    }
+  
+    if (ledActualBrightness<ledBrightness) {
+      ledActualBrightness = ledActualBrightness+ledStep;
+      if (ledActualBrightness>255) ledActualBrightness = 255;
+    }
+  
+    if (ledActualBrightness>ledBrightness) {
+      ledActualBrightness = ledActualBrightness-ledStep;
+      if (ledActualBrightness<0) ledActualBrightness = 0;
+    }
+    
+    letSetColor (ledActualRed, ledActualGreen, ledActualBlue);
   }
 }
-*/
 
 void ledSetBrightness(int value) {
   int brightness;
@@ -478,7 +485,6 @@ void ledSetBrightness(int value) {
   else {
     brightness = value;
   }
-  
   if (ledBrightness!=brightness) {
     ledBrightness = brightness;
     mqttElPublish( setBufferFromFlash(getBrightness), String(ledBrightness));
@@ -487,17 +493,13 @@ void ledSetBrightness(int value) {
 
 void letSetColor (int r, int g, int b) {
 
-  ledRedLevel = (double)r*ledAutoBrightness*ledActualBrightness/255/255;
-  ledGreenLevel = (double)g*ledAutoBrightness*ledActualBrightness/255/255;
-  ledBlueLevel = (double)b*ledAutoBrightness*ledActualBrightness/255/255;
+  double ledRedLevelDouble = (double)r*(double)ledAutoBrightness*(double)ledActualBrightness/255/255;
+  double ledGreenLevelDouble = (double)g*(double)ledAutoBrightness*(double)ledActualBrightness/255/255;
+  double ledBlueLevelDouble = (double)b*(double)ledAutoBrightness*(double)ledActualBrightness/255/255;
 
-/*
-  if (errorTemperature==true) {
-    ledRedLevel = 0;
-    ledGreenLevel = 0;
-    ledBlueLevel = 0;
-  }
-*/
+  ledRedLevel = ledRedLevelDouble;
+  ledGreenLevel = ledGreenLevelDouble;
+  ledBlueLevel = ledBlueLevelDouble;
   
   analogWrite (LED_RED_PIN, ledRedLevel);
   analogWrite (LED_GREEN_PIN, ledGreenLevel);
@@ -583,4 +585,3 @@ void ledSetManualOff() {
   ledBlue = 0;
   ledStep = ledStepSwitchColor;
 }
-

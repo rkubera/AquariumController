@@ -12,20 +12,19 @@ void dhtInit() {
 }
 
 void dhtMqttPublishAll() {
-  mqttElPublish( setBufferFromFlash(getMaxInternalTemperature), (String)maxInternalTemperature);
+  mqttElPublish(setBufferFromFlash(getMaxInternalTemperature), (String)maxInternalTemperature);
   mqttElPublish(setBufferFromFlash(getInternalTemperature), String(dhtTemperature));
   mqttElPublish(setBufferFromFlash(getInternalHumidity),String(dhtHumidity));
 }
 
 void dhtGetData() {
-  static double lastPubTime; 
-  static bool changedTemp, changedHum;
+  static double lastPubTime = millis(); 
+  static float oldDhtHumidity = 0;
+  static float oldDhtTemperature = 0;
   int chk = DHT.read11(DHT_PIN);
   switch (chk) {
     case DHTLIB_OK:  
       if (DHT.humidity<100) {
-        float oldDhtHumidity = dhtHumidity;
-        float oldDhtTemperature = dhtTemperature;
         int myHumidity = DHT.humidity;
         int myTemperature = DHT.temperature;
         
@@ -40,26 +39,18 @@ void dhtGetData() {
         dhtTemperature = stats.median(dhtTemparatureReadings,dhtNumReadings);
         dhtHumidity = stats.median(dhtHumidityReadings,dhtNumReadings);
         
-        if (oldDhtHumidity!=dhtHumidity) {
-          changedHum = true;
-        }
-        if (oldDhtTemperature != dhtTemperature) {
-          changedTemp = true;
-        }
-
-        if ((changedTemp==true || changedHum==true) && (abs(millis()-lastPubTime)>MQTT_MIN_REFRESH_MILLIS)) {
-          if (changedTemp==true) {
-            changedTemp = false;
-            mqttElPublish(setBufferFromFlash(getInternalTemperature),String(dhtTemperature));
-          }
-          if (changedHum==true) {
-            changedHum = false;
+        if (abs(millis()-lastPubTime)>MQTT_MIN_REFRESH_MILLIS) {
+          if (oldDhtHumidity!=dhtHumidity) {
             mqttElPublish(setBufferFromFlash(getInternalHumidity),String(dhtHumidity));
           }
+          if (oldDhtTemperature != dhtTemperature) {
+            mqttElPublish(setBufferFromFlash(getInternalTemperature),String(dhtTemperature));
+          }
           lastPubTime = millis();
+          oldDhtHumidity = dhtHumidity;
+          oldDhtTemperature = dhtTemperature;
         }
       }
     break;
   }
 }
-

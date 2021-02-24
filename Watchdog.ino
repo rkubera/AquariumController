@@ -16,8 +16,3 @@ void watchdogInit() {
 void watchdogMillisEvent() {
   wdt_reset();
 }
-
-void watchdogMinuteEvent() {
-  wdt_reset();
-}
-

@@ -48,8 +48,8 @@ void fanEvent(bool stopFan) {
   if (abs(fanStartTime-millis())>MQTT_MIN_REFRESH_MILLIS) {
     fanStartTime = millis();
     if (fanLastPWM!=fanPWM) {
+      fanLastPWM = fanPWM;
       mqttElPublish(setBufferFromFlash(getFanPWMValue), intToString(fanPWM));
     }
   }
 }
-

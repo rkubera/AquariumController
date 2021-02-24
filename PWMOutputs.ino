@@ -190,7 +190,6 @@ class pwmOutputClass {
   }
   
   void saveConfig(int EEPROM_addr) {
-    double mydouble;
     EEPROM.write(EEPROM_addr+NAME_LENGTH+1,pwmOutputControlMode);
     EEPROM.write(EEPROM_addr+NAME_LENGTH+2,pwmOutputModeMorning);
     EEPROM.write(EEPROM_addr+NAME_LENGTH+3,pwmOutputModeAfternoon);
@@ -206,7 +205,6 @@ class pwmOutputClass {
   }
   
   void loadConfig(int EEPROM_addr) {
-    double mydouble;
     pwmOutputControlMode = configGetValue(EEPROM_addr+NAME_LENGTH+1);
     pwmOutputModeMorning = configGetValue(EEPROM_addr+NAME_LENGTH+2);
     pwmOutputModeAfternoon = configGetValue(EEPROM_addr+NAME_LENGTH+3);
@@ -223,7 +221,7 @@ class pwmOutputClass {
 
   void ControlEvent() {
     if (pwmOutputControlMode == CONTROL_MODE_PID) {
-      double pwmOutputInput = sensorsGetSensorsValue(pwmOutputPin, OUTPUT_TYPE_PWM);
+      //double pwmOutputInput = sensorsGetSensorsValue(pwmOutputPin, OUTPUT_TYPE_PWM);
       pwmOutputPID.Compute();
       pwmOutputValue = pwmOutputPIDOutput;
       pwmOutputSetValue(pwmOutputValue);
@@ -247,12 +245,12 @@ class pwmOutputClass {
       float maxValue = pwmOutputSensorsSetpoint+maxDeviation;
       if (tresholdDirection==true) {
         if (pwmOutputPIDInput>maxValue) {
-          tresholdDirection==false;
+          tresholdDirection=false;
         }
       }
       else {
         if (pwmOutputPIDInput<minValue) {
-          tresholdDirection==true;
+          tresholdDirection=true;
         }
       }
 
@@ -407,8 +405,9 @@ byte pwmOutputsGetPwmOutput(byte pwmOutputNr, byte valueType) {
         break;
       case PWMOUTPUT_OUTPUT_VALUE:
         return (myPwmOutputs[pwmOutputNumber].pwmOutputValue);
-        return;
+        break;
   }
+  return 0;
 }
 
 void pwmOutputsSetPwmOutputDouble(byte pwmOutputNr, byte valueType, double Value) {
@@ -455,5 +454,7 @@ double pwmOutputsGetPwmOutputDouble(byte pwmOutputNr, byte valueType) {
         return (myPwmOutputs[pwmOutputNumber].pwmOutputPIDKd);
         break;
   }
+  return 0;
 }
+
 

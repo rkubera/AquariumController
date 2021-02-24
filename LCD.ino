@@ -119,7 +119,7 @@ void lcdInit() {
 void lcdCharacter(char character) {
   unsigned char z,z1;
 
-  if (character<0x20 || character>127) character = 0x20;
+  if (character<0x20) character = 0x20;
   z1=character - 0x20;
 
   lcdWrite(LCD_D, 0x00);
@@ -133,7 +133,7 @@ void lcdCharacter(char character) {
 void lcdCharacterX(char character) {
   unsigned char z,z1;
 
-  if (character<0x20 || character>127) character = 0x20;
+  if (character<0x20) character = 0x20;
   z1=character - 0x20;       
   lcdWrite(LCD_D, 0x00);
   for (int index = 0; index < 5; index++) {
@@ -160,7 +160,7 @@ void lcdInitialise(void) {
 
   digitalWrite(LCD_PIN_RESET, LOW);
   digitalWrite(LCD_PIN_RESET, HIGH);
-  analogWrite(LCD_PIN_LED, 0);
+  analogWrite(LCD_PIN_LED, 128);
 
   lcdWrite(LCD_CMD, 0x21);  // LCD Extended Commands.
   lcdWrite(LCD_CMD, 0xB5);  // Set LCD Vop (Contrast). //B1
@@ -208,4 +208,3 @@ void gotoXY(int x, int y) {
   lcdWrite( 0, 0x80 | x);  // Column.
   lcdWrite( 0, 0x40 | y);  // Row.
 }
-

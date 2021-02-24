@@ -241,12 +241,12 @@ class relayClass {
       
       if (tresholdDirection==true) {
         if (relayInput>maxValue) {
-          tresholdDirection==false;
+          tresholdDirection=false;
         }
       }
       else {
         if (relayInput<minValue) {
-          tresholdDirection==true;
+          tresholdDirection=true;
         }
       }
 
@@ -384,6 +384,7 @@ byte relaysGetRelay(byte relayNr, byte valueType) {
         return (myRelays[relayNumber].relayDirection);
         break;
   }
+  return 0;
 }
 
 void relaysSetRelayDouble(byte relayNr, byte valueType, double Value) {
@@ -409,6 +410,7 @@ double relaysGetRelayDouble(byte myRelayNr, byte valueType) {
       return (myRelays[relayNumber].relaySensorsSetpoint);
       break;    
   }
+  return 0;
 }
 
 void relaysCheckTresholdDirection (byte relayNr , byte outputType) {

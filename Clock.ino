@@ -27,12 +27,12 @@ void clockInit() {
 }
 
 void clockMqttPublishAll() {
-  sprintf(buffer,"%+d", timezoneActualOffset);
-  mqttElPublish(setBufferFromFlash(getActualTimezoneOffset),String(buffer));
+  sprintf(bufferOut,"%+d", timezoneActualOffset);
+  mqttElPublish(setBufferFromFlash(getActualTimezoneOffset),String(bufferOut));
 
-  sprintf(buffer,"%04d/%02d/%02d", globalYear, globalMonth, globalMonthDay);
-  buffer[10] = 0;
-  mqttElPublish( setBufferFromFlash(getActualDate), buffer );
+  sprintf(bufferOut,"%04d/%02d/%02d", globalYear, globalMonth, globalMonthDay);
+  bufferOut[10] = 0;
+  mqttElPublish( setBufferFromFlash(getActualDate), bufferOut );
   mqttElPublish( setBufferFromFlash(getActualDayOfWeek), setBufferFromFlash(daysOfTheWeek[globalWeekDay]));
 
   mqttElPublish(setBufferFromFlash(getTimezoneRule1Week), clockTimezoneCodeToWeek(timezoneRule1Week));
@@ -47,11 +47,11 @@ void clockMqttPublishAll() {
   mqttElPublish(setBufferFromFlash(getTimezoneRule1Hour), intToString(timezoneRule1Hour));
   mqttElPublish(setBufferFromFlash(getTimezoneRule2Hour), intToString(timezoneRule2Hour));
 
-  sprintf(buffer,"%+d", timezoneRule1Offset);
-  mqttElPublish(setBufferFromFlash(getTimezoneRule1Offset), (String)buffer);
+  sprintf(bufferOut,"%+d", timezoneRule1Offset);
+  mqttElPublish(setBufferFromFlash(getTimezoneRule1Offset), (String)bufferOut);
 
-  sprintf(buffer,"%+d", timezoneRule2Offset);
-  mqttElPublish(setBufferFromFlash(getTimezoneRule2Offset), (String)buffer);
+  sprintf(bufferOut,"%+d", timezoneRule2Offset);
+  mqttElPublish(setBufferFromFlash(getTimezoneRule2Offset), (String)bufferOut);
 }
 
 String clockTimezoneCodeToWeek(int value) {
@@ -101,8 +101,8 @@ char clockGetActualTimezoneOffset() {
   timezoneActualOffset = (secs/3600);
   if (oldTimezoneActualOffset!=timezoneActualOffset) {
     oldTimezoneActualOffset = timezoneActualOffset;
-    sprintf(buffer,"%+d", timezoneRule1Offset);
-    mqttElPublish(setBufferFromFlash(getActualTimezoneOffset), (String)buffer);
+    sprintf(bufferOut,"%+d", timezoneRule1Offset);
+    mqttElPublish(setBufferFromFlash(getActualTimezoneOffset), (String)bufferOut);
   }
   
   return timezoneActualOffset;
@@ -114,40 +114,29 @@ void clockUpdateTimezoneRules() {
   myTZ.setRules (myDST, mySTD);
   clockGetActualTimezoneOffset();
   clockSetLocalTime();
-
-  time_t local = clockGetLocalTime();
-   
   clockMqttPublishHourDate();
 }
 
 void clockMqttPublishHourDate() {
-  sprintf(buffer,"%02d:%02d", globalHour, globalMinute);
-  buffer[5] = 0;
-  mqttElPublish( setBufferFromFlash(getActualTime), buffer );
-  sprintf(buffer,"%04d/%02d/%02d", globalYear, globalMonth, globalMonthDay);
-  buffer[10] = 0;
-  mqttElPublish( setBufferFromFlash(getActualDate), buffer );
+  sprintf(bufferOut,"%02d:%02d", globalHour, globalMinute);
+  bufferOut[5] = 0;
+  mqttElPublish( setBufferFromFlash(getActualTime), bufferOut );
+  sprintf(bufferOut,"%04d/%02d/%02d", globalYear, globalMonth, globalMonthDay);
+  bufferOut[10] = 0;
+  mqttElPublish( setBufferFromFlash(getActualDate), bufferOut );
   mqttElPublish( setBufferFromFlash(getActualDayOfWeek), setBufferFromFlash(daysOfTheWeek[globalWeekDay]));
 }
 void clockMinuteEvent() { 
-  if (boot_time>0) {
-    DateTime btime = DateTime(boot_time);
-    Serial.print(F("Boot time="));
-    Serial.print(btime.year());
-    Serial.print(F("/"));
-    Serial.print(btime.month());
-    Serial.print(F("/"));
-    Serial.print(btime.day());
-    Serial.print(F(" "));    
-    Serial.print(btime.hour());
-    Serial.print(F(":")); 
-    Serial.print(btime.minute());
-    Serial.print(F(":")); 
-    Serial.println(btime.second());
+  static bool bootTimeSet = false;
+
+  DateTime btime = DateTime(boot_time);
+  if (bootTimeSet==false && MQTT_STATUS_CONNECTED && hostnameReceived == true && mqttElDeviceName!="") {
+    String bootTimeStr = String(btime.year())+"/"+String(btime.month())+"/"+String(btime.day())+" "+String(btime.hour())+":"+String(btime.minute());
+    mqttElPublish( setBufferFromFlash(setBootTime), bootTimeStr);
+    bootTimeSet = true;
+    Serial.println("Boot Time Set via mqtt");
   }
-  else {
-    Serial.println(F("Wrong Boot time"));
-  }
+  clockNTPSynchronize();
 }
 
 
@@ -164,15 +153,14 @@ void clockMillisEvent() {
   time_t local = clockGetLocalTime();
    
   byte mymin = minute(local);
-  byte myhour = hour(local);
-
+  
   if (clockLastMinute!=mymin) {
     clockLastMinute = mymin;
     clockMqttPublishHourDate();
   }
 }
 
-time_t clockSetLocalTime() {
+void clockSetLocalTime() {
   time_t tSet;
   tmElements_t tmSet;
   tmSet.Year = globalYear-1970;
@@ -200,29 +188,18 @@ time_t clockGetLocalTime() {
   globalMonthDay = day(localTime);
   globalMonth = month(localTime);
   globalYear = year(localTime);
-
-/*
-  Serial.print(F("Actual time="));
-  Serial.print(btime.year());
-  Serial.print(F("/"));
-  Serial.print(btime.month());
-  Serial.print(F("/"));
-  Serial.print(btime.day());
-  Serial.print(F(" "));    
-  Serial.print(btime.hour());
-  Serial.print(F(":")); 
-  Serial.print(btime.minute());
-  Serial.print(F(":")); 
-  Serial.print(btime.second());
-  Serial.print(F(" ")); 
-  Serial.println(setBufferFromFlash(daysOfTheWeek[globalWeekDay]));
-  */
   return localTime;
 }
 
 void clockNTPSynchronize() {
-  Serial.println(F("Clock NTP Synchro start"));
-  uint32_t ntpTime = mqttElcmd.GetTime();
+  if (wifiStatus == WIFI_STATUS_CONNECTED) {
+    Serial.println(F("Clock NTP Synchro start"));
+    String command = "get timestamp";
+    mqttSendCommand(command);
+  }
+}
+
+void clockNTPSynchronize_cb(long ntpTime) {
   if (ntpTime>0) {
     Serial.println(F("Clock NTP Synchro ok"));
     clockLastSynchro = millis();
@@ -230,6 +207,7 @@ void clockNTPSynchronize() {
     if (boot_time==0) {
       boot_time = ntpTime;
     }
+    clockUpdateTimezoneRules();
   }
   else {
     Serial.println(F("Clock NTP Synchro failed"));
@@ -245,8 +223,7 @@ time_t clockGetGlobalDateTime(){
       clockNTPSynchronize();
     }
   }
-    
-  if (clockRtc.isrunning()) {
+  if (1==0 && clockRtc.isrunning()) {
     now = clockRtc.now();
     if (boot_time==0) {
       if (now.year()>2000 && now.year()<2100) {
@@ -258,7 +235,6 @@ time_t clockGetGlobalDateTime(){
     uint32_t mytime = (millis()/1000)+clockDelta;
     now = DateTime(mytime);
   }
- 
   time_t tSet;
   tmElements_t tmSet;
   tmSet.Year = now.year()-1970;
@@ -279,4 +255,3 @@ void clockSetGlobalDateTime(time_t tSet){
   uint32_t mytime = now.unixtime();
   clockDelta = mytime-(millis()/1000);
 }
-

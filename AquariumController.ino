@@ -46,11 +46,11 @@
 #define LED_GREEN_PIN 12
 #define LED_BLUE_PIN 13
 
-#define LCD_PIN_SCE   33
-#define LCD_PIN_RESET 34
-#define LCD_PIN_DC    35
-#define LCD_PIN_SDIN  36
-#define LCD_PIN_SCLK  37
+#define LCD_PIN_SCE   49  // ZMIANA Z 33
+#define LCD_PIN_RESET 51  // ZMIANA Z 34
+#define LCD_PIN_DC    53  // ZMIANA Z 35
+#define LCD_PIN_SDIN  52  // ZMIANA Z 36
+#define LCD_PIN_SCLK  50  // ZMIANA Z 37
 #define LCD_PIN_LED   2 //Must be PWM Output
 
 #define RELAY_PIN_1 44
@@ -65,11 +65,11 @@
 const byte KBD_ROWS = 5; //four rows
 const byte KBD_COLS = 4; //three columns
 char keys[KBD_ROWS][KBD_COLS] = {
-{'A','B','#','*'},
-{'1','2','3','U'},
-{'4','5','6','D'},
-{'7','8','9','R'},
-{'L','0','R','E'}
+  {'A', 'B', '#', '*'},
+  {'1', '2', '3', 'U'},
+  {'4', '5', '6', 'D'},
+  {'7', '8', '9', 'R'},
+  {'L', '0', 'R', 'E'}
 };
 byte KBD_ROW_PINS[KBD_ROWS] = {30, 29, 28, 27, 26}; //connect to the row pinouts of the keypad
 byte KBD_COL_PINS[KBD_COLS] = {22, 23, 24, 25}; //connect to the column pinouts of the keypad
@@ -79,6 +79,16 @@ byte KBD_COL_PINS[KBD_COLS] = {22, 23, 24, 25}; //connect to the column pinouts 
 //********************************
 const char daysOfTheWeek[7][10] PROGMEM = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 const char monthsOfYear[12][10] PROGMEM = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+
+const char getWifiStatus[] PROGMEM = "get wifistatus";
+const char getMqttStatus[] PROGMEM = "get mqttstatus";
+const char getHostname[] PROGMEM = "get hostname";
+const char getSsid[] PROGMEM = "get ssid";
+const char getMqttserver[] PROGMEM = "get mqttserverń";
+
+const char mqttSubscribeCommand[] PROGMEM = "subscribe ";
+const char mqttPublishretainedCommand[] PROGMEM = "publishretained ";
+const char mqttPublishCommand[] PROGMEM = "publish ";
 
 const char charSetSensor[] PROGMEM = "set/Sensor";
 const char charGetSensor[] PROGMEM = "get/Sensor";
@@ -159,16 +169,18 @@ byte fanMaxSpeedTemperature = 35;
 byte maxInternalTemperature = 50;
 
 double timerMillisEventDate;
+double timerTenSecondsEventDate;
 double timerSecondEventDate;
 double timerMinuteEventDate;
 double timerHourEventDate;
-const int bufferSize = 100;
-char buffer[bufferSize];
+double lastLEDMicros;
+const int bufferOutSize = 100;
+char bufferOut[bufferOutSize];
 uint32_t boot_time = 0;
 QuickStats stats;
 
 int publishValue = -1;
- 
+
 //********************************
 //RWMOutputs
 //********************************
@@ -254,7 +266,7 @@ int publishValue = -1;
 //********************************
 #define WIFI_STATUS_CONNECTED     1
 #define WIFI_STATUS_DISCONNECTED  0
-char wifiStatus = 0;
+char wifiStatus = WIFI_STATUS_DISCONNECTED;
 
 //********************************
 //Errors
@@ -298,7 +310,7 @@ const char timezoneWeekFirst[] PROGMEM = "first";
 const char timezoneWeekSecond[] PROGMEM = "second";
 const char timezoneWeekThird[] PROGMEM = "third";
 const char timezoneWeekFourth[] PROGMEM = "fourth";
-const char timezoneWeekLast[] PROGMEM ="last";
+const char timezoneWeekLast[] PROGMEM = "last";
 
 char timezoneActualOffset = 1;
 byte timezoneRule1Week;
@@ -336,10 +348,10 @@ uint32_t clockLastSynchro = 7200000;
 //********************************
 //Scheduler
 //********************************
-const char schedulerMorning[] PROGMEM="morning";
-const char schedulerAfternoon[] PROGMEM="afternoon";
-const char schedulerEvening[] PROGMEM="evening";
-const char schedulerNight[] PROGMEM="night";
+const char schedulerMorning[] PROGMEM = "morning";
+const char schedulerAfternoon[] PROGMEM = "afternoon";
+const char schedulerEvening[] PROGMEM = "evening";
+const char schedulerNight[] PROGMEM = "night";
 
 #define SCHEDULER_MODE_NONE 0
 #define SCHEDULER_MODE_MORNING 1
@@ -413,8 +425,8 @@ byte ledRed = 0;
 byte ledGreen = 0;
 byte ledBlue = 0;
 
-byte ledStep = 10;
-byte ledStepSwitchColor = 10;
+byte ledStep = 4;
+byte ledStepSwitchColor = 4;
 byte ledStepWave = 1;
 
 int ledFadeInFromBlackSeconds = 120;
@@ -442,21 +454,31 @@ double ledRedLevel, ledGreenLevel, ledBlueLevel;
 #define LCD_X     84
 #define LCD_Y     48
 
+//Power
+#define LCD_GND   46
+#define LCD_POWER 44
+
 //********************************
-//MQTTEL
+//MQTT
 //********************************
+
+String wifi_ssid = "";
+String wifi_pass = "";
+String mqtt_server = "";
+int mqtt_port = 1883;
+String mqtt_user = "ac";
+String mqtt_pass = "";
+
+String mqttElDeviceName = "";
+bool hostnameReceived = false;
+bool subscriptionSent = false;
+
+const char published[] PROGMEM = "published";
+
 #define MQTT_STATUS_CONNECTED     1
 #define MQTT_STATUS_DISCONNECTED  0
 
 byte mqttStatus = MQTT_STATUS_DISCONNECTED;
-
-ELClient mqttElesp(&Serial, &Serial);
-ELClientCmd mqttElcmd(&mqttElesp);
-ELClientMqtt mqttEl(&mqttElesp);
-
-char mqttElDeviceName[] = "ac";
-
-bool mqttElconnected;
 
 const char setLedColorMorning[] PROGMEM = "set/LedColorMorning";                 //red, green, blue, white, cyan, magenta, yellow, white, wave, black
 const char setLedColorAfternoon[] PROGMEM = "set/LedColorAfternoon";             //red, green, blue, white, cyan, magenta, yellow, white, wave, black
@@ -464,37 +486,36 @@ const char setLedColorEvening[] PROGMEM = "set/LedColorEvening";                
 const char setLedColorNight[] PROGMEM = "set/LedColorNight";                     //red, green, blue, white, cyan, magenta, yellow, white, wave, black
 const char setBrightness[] PROGMEM = "set/Brightness";                           //0-255
 const char setActualTime[] PROGMEM = "set/ActualTime";                           //HH:mm in 24 hours format
-const char setActualDate[] PROGMEM="set/ActualDate";                             //yyyy/mm/dd
+const char setActualDate[] PROGMEM = "set/ActualDate";                           //yyyy/mm/dd
 const char setMorningTime[] PROGMEM = "set/MorningTime";                         //HH:mm in 24 hours format
 const char setAfternoonTime[] PROGMEM = "set/AfternoonTime";                     //HH:mm in 24 hours format
 const char setEveningTime[] PROGMEM = "set/EveningTime";                         //HH:mm in 24 hours format
 const char setNightTime[] PROGMEM = "set/NightTime";                             //HH:mm in 24 hours format
-const char setFanStartTemperature[] PROGMEM="set/FanStartTemp";                  //integer value
-const char setFanMaxSpeedTemperature[] PROGMEM="set/FanMaxSpeedTemp";            //integer value
-const char setMaxInternalTemperature[] PROGMEM="set/MaxIntTemp";                 //integer value
+const char setFanStartTemperature[] PROGMEM = "set/FanStartTemp";                //integer value
+const char setFanMaxSpeedTemperature[] PROGMEM = "set/FanMaxSpeedTemp";          //integer value
+const char setMaxInternalTemperature[] PROGMEM = "set/MaxIntTemp";               //integer value
 const char setLedControlMode[] PROGMEM = "set/LedControlMode";                   //manual, partofday
 const char setLedManualMode[] PROGMEM = "set/LedManualMode";                     //red, green, blue, white, cyan, magenta, yellow, white, wave, black
 const char setBuzzerOnStart[] PROGMEM = "set/BuzzerOnStart";                     //on, off
 const char setBuzzerOnErrors[] PROGMEM = "set/BuzzerOnErrors";                   //on, off
-const char setTimezoneRule1Week[] PROGMEM="set/TimezoneRule1Week";               //first, second, third, fourth, last
-const char setTimezoneRule2Week[] PROGMEM="set/TimezoneRule2Week";               //first, second, third, fourth, last
-const char setTimezoneRule1DayOfWeek[] PROGMEM="set/TimezoneRule1DayOfWeek";     //sunday, monday, tuesday, wednesday, thursday, friday, saturday
-const char setTimezoneRule2DayOfWeek[] PROGMEM="set/TimezoneRule2DayOfWeek";     //sunday, monday, tuesday, wednesday, thursday, friday, saturday
-const char setTimezoneRule1Hour[] PROGMEM="set/TimezoneRule1Hour";               //0..23
-const char setTimezoneRule2Hour[] PROGMEM="set/TimezoneRule2Hour";               //0..23
-const char setTimezoneRule1Offset[] PROGMEM="set/TimezoneRule1Offset";           //+1, +2, -1, -2 etc
-const char setTimezoneRule2Offset[] PROGMEM="set/TimezoneRule2Offset";           //+1, +2, -1, -2 etc
-const char setTimezoneRule1Month[] PROGMEM="set/TimezoneRule1Month";             //january, february, march, april, may, june, july, august, september, october, november, december
-const char setTimezoneRule2Month[] PROGMEM="set/TimezoneRule2Month";             //january, february, march, april, may, june, july, august, september, october, november, december
-const char setLedState[] PROGMEM="set/LedState";                                 //on, off
-
+const char setTimezoneRule1Week[] PROGMEM = "set/TimezoneRule1Week";             //first, second, third, fourth, last
+const char setTimezoneRule2Week[] PROGMEM = "set/TimezoneRule2Week";             //first, second, third, fourth, last
+const char setTimezoneRule1DayOfWeek[] PROGMEM = "set/TimezoneRule1DayOfWeek";   //sunday, monday, tuesday, wednesday, thursday, friday, saturday
+const char setTimezoneRule2DayOfWeek[] PROGMEM = "set/TimezoneRule2DayOfWeek";   //sunday, monday, tuesday, wednesday, thursday, friday, saturday
+const char setTimezoneRule1Hour[] PROGMEM = "set/TimezoneRule1Hour";             //0..23
+const char setTimezoneRule2Hour[] PROGMEM = "set/TimezoneRule2Hour";             //0..23
+const char setTimezoneRule1Offset[] PROGMEM = "set/TimezoneRule1Offset";         //+1, +2, -1, -2 etc
+const char setTimezoneRule2Offset[] PROGMEM = "set/TimezoneRule2Offset";         //+1, +2, -1, -2 etc
+const char setTimezoneRule1Month[] PROGMEM = "set/TimezoneRule1Month";           //january, february, march, april, may, june, july, august, september, october, november, december
+const char setTimezoneRule2Month[] PROGMEM = "set/TimezoneRule2Month";           //january, february, march, april, may, june, july, august, september, october, november, december
+const char setLedState[] PROGMEM = "set/LedState";                               //on, off
 const char getBrightness[] PROGMEM = "get/Brightness";
 const char getActualTime[] PROGMEM = "get/ActualTime";
-const char getActualDate[] PROGMEM="get/ActualDate";
-const char getActualDayOfWeek[] PROGMEM="get/ActualDayOfWeek";
+const char getActualDate[] PROGMEM = "get/ActualDate";
+const char getActualDayOfWeek[] PROGMEM = "get/ActualDayOfWeek";
 const char getActualTimezoneOffset[] PROGMEM = "get/ActualTimezoneOffset";
-const char getInternalTemperature[] PROGMEM = "get/InternalTemperature"; 
-const char getInternalHumidity[] PROGMEM = "get/InternalHumidity";   
+const char getInternalTemperature[] PROGMEM = "get/InternalTemperature";
+const char getInternalHumidity[] PROGMEM = "get/InternalHumidity";
 const char getMorningTime[] PROGMEM = "get/MorningTime";
 const char getAfternoonTime[] PROGMEM = "get/AfternoonTime";
 const char getEveningTime[] PROGMEM = "get/EveningTime";
@@ -506,24 +527,26 @@ const char getLedColorNight[] PROGMEM = "get/LedColorNight";
 const char getLedControlMode[] PROGMEM = "get/LedControlMode";
 const char getLedManualMode[] PROGMEM = "get/LedManualMode";
 const char getActualPartOfDay[] PROGMEM = "get/ActualPartOfDay";
-const char getStatus[] PROGMEM="get/Status";
-const char getFanStartTemperature[] PROGMEM="get/FanStartTemp";
-const char getFanMaxSpeedTemperature[] PROGMEM="get/FanMaxSpeedTemp";
-const char getFanPWMValue[] PROGMEM="get/FanPWMValue";
-const char getMaxInternalTemperature[] PROGMEM="get/MaxIntTemp";
+const char getStatus[] PROGMEM = "get/Status";
+const char getFanStartTemperature[] PROGMEM = "get/FanStartTemp";
+const char getFanMaxSpeedTemperature[] PROGMEM = "get/FanMaxSpeedTemp";
+const char getFanPWMValue[] PROGMEM = "get/FanPWMValue";
+const char getMaxInternalTemperature[] PROGMEM = "get/MaxIntTemp";
 const char getBuzzerOnStart[] PROGMEM = "get/BuzzerOnStart";
 const char getBuzzerOnErrors[] PROGMEM = "get/BuzzerOnErrors";
-const char getTimezoneRule1Week[] PROGMEM="get/TimezoneRule1Week";
-const char getTimezoneRule2Week[] PROGMEM="get/TimezoneRule2Week";
-const char getTimezoneRule1DayOfWeek[] PROGMEM="get/TimezoneRule1DayOfWeek";
-const char getTimezoneRule2DayOfWeek[] PROGMEM="get/TimezoneRule2DayOfWeek";
-const char getTimezoneRule1Hour[] PROGMEM="get/TimezoneRule1Hour";
-const char getTimezoneRule2Hour[] PROGMEM="get/TimezoneRule2Hour";
-const char getTimezoneRule1Offset[] PROGMEM="get/TimezoneRule1Offset";
-const char getTimezoneRule2Offset[] PROGMEM="get/TimezoneRule2Offset";
-const char getTimezoneRule1Month[] PROGMEM="get/TimezoneRule1Month";
-const char getTimezoneRule2Month[] PROGMEM="get/TimezoneRule2Month";
-const char getLedState[] PROGMEM="get/LedState"; 
+const char getTimezoneRule1Week[] PROGMEM = "get/TimezoneRule1Week";
+const char getTimezoneRule2Week[] PROGMEM = "get/TimezoneRule2Week";
+const char getTimezoneRule1DayOfWeek[] PROGMEM = "get/TimezoneRule1DayOfWeek";
+const char getTimezoneRule2DayOfWeek[] PROGMEM = "get/TimezoneRule2DayOfWeek";
+const char getTimezoneRule1Hour[] PROGMEM = "get/TimezoneRule1Hour";
+const char getTimezoneRule2Hour[] PROGMEM = "get/TimezoneRule2Hour";
+const char getTimezoneRule1Offset[] PROGMEM = "get/TimezoneRule1Offset";
+const char getTimezoneRule2Offset[] PROGMEM = "get/TimezoneRule2Offset";
+const char getTimezoneRule1Month[] PROGMEM = "get/TimezoneRule1Month";
+const char getTimezoneRule2Month[] PROGMEM = "get/TimezoneRule2Month";
+const char getLedState[] PROGMEM = "get/LedState";
+const char setBootTime[] PROGMEM = "get/BootTime";
+
 
 //********************************
 //EEPROM
@@ -543,14 +566,14 @@ const char getLedState[] PROGMEM="get/LedState";
 #define EEPROM_schedulerStartEveningMinute_addr             11
 #define EEPROM_schedulerStartNightHour_addr                 12
 #define EEPROM_schedulerStartNightMinute_addr               13
-  
+
 #define EEPROM_ledMorningBrightness_addr                    14
 #define EEPROM_ledAfternoonBrightness_addr                  15
 #define EEPROM_ledEveningBrightness_addr                    16
 #define EEPROM_ledNightBrightness_addr                      17
 #define EEPROM_ledManualBrightness_addr                     18
 
-#define EEPROM_ledControlMode_addr                          57
+#define EEPROM_ledControlMode_addr                          56
 #define EEPROM_ledManualMode_addr                           58
 
 #define EEPROM_buzzerOnStart_addr                           59
@@ -599,8 +622,8 @@ float dhtHumidity = 0;
 float dhtTemperature = 0;
 
 int dhtNumReadings = 20;
-float dhtTemparatureReadings[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-float dhtHumidityReadings[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+float dhtTemparatureReadings[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+float dhtHumidityReadings[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 //********************************
 //Fan
@@ -613,49 +636,51 @@ byte fanPWM = 255;
 
 void setup() {
 
+  //Watchdog
+  watchdogInit();
+  
   //LCD
   lcdInit();
-  gotoXY(0,1);
-  lcdString("Initializing");
-  
+  gotoXY(0, 1);
+  lcdString((char *)"Initializing");
+
   //Init
   Serial.begin(115200);
   Wire.begin();
 
   //Config
   configLoad();
-  
+
   //Fan
   initFan();
-  
+
   //Keyboard
   keyboardInit();
 
   //Menu
   menuInit();
 
-  //MQTTEL
-  mqttElInit();
-  
+  //MQTT
+  mqttInit();
+
   //Scheduler
   schedulerInit();
 
   //LED
   ledInit();
-    
   //Clock
-  clockInit();
+  //clockInit();
 
   //DHT
   dhtInit();
-
+  
   //Relays
   relaysInit();
 
   //PWMOutputs
   pwmOutputsInit();
-  
-  lcdClear();  
+
+  lcdClear();
   //clockSetLocalTime();
 
   //Sensors
@@ -663,15 +688,13 @@ void setup() {
 
   //Errors
   errorsInit();
-  
+
   //Events
   timerMillisEventDate = millis();
   timerSecondEventDate = millis();
+  timerTenSecondsEventDate = millis();
   timerMinuteEventDate = millis();
   timerHourEventDate = millis();
-
-  //Watchdog
-  watchdogInit();
 
   //Buzzer
   buzzerInit();
@@ -679,35 +702,39 @@ void setup() {
 }
 
 void loop() {
-  if (abs(millis()-timerMillisEventDate)>1) {
+  if (abs(millis() - timerMillisEventDate) > 1) {
     eventTimerMillis();
     timerMillisEventDate = millis();
   }
 
-   if (abs(millis()-timerSecondEventDate)>1000) {
+  if (abs(millis() - timerSecondEventDate) > 1000) {
     eventTimerSecond();
     timerSecondEventDate = millis();
   }
 
-   if (abs(millis()-timerMinuteEventDate)>60000) {
+  if (abs(millis() - timerTenSecondsEventDate) > 10000) {
+    eventTimerTenSeconds();
+    timerTenSecondsEventDate = millis();
+  }
+  
+  if (abs(millis() - timerMinuteEventDate) > 60000) {
     eventTimerMinute();
     timerMinuteEventDate = millis();
   }
 
-   if (abs(millis()-timerHourEventDate)>(3600000)) {
+  if (abs(millis() - timerHourEventDate) > (3600000)) {
     eventTimerHour();
     timerHourEventDate = millis();
   }
-    //Keyvboard
+  //Keyvboard
   keyboardCheck();
 
   //Menu
-  menuShow();
-  
+  //menuShow();
+
   //DHT
-  dhtGetData(); 
+  dhtGetData();
 
-  //MQTTEL
-  mqttElCheck();
+  //MQTT
+  mqttCheck();
 }
-
