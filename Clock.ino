@@ -8,22 +8,33 @@
  * ************************************************/
 
 static uint32_t clockDelta = 0;
+static bool clockInited = false;
 
 void clockInit() {
+  clockInited = true;
 
+/*
   if (!clockRtc.begin()) {
     Serial.println(F("Couldn't find RTC"));
   }
   if (!clockRtc.isrunning()) {
     Serial.println(F("RTC is NOT running!"));
   }
-  
-  clockSetLocalTime();
-  clockUpdateTimezoneRules();
-
+*/
   uint32_t mytime = configGetUint32Value(EEPROM_unix_timestamp_addr);
   clockDelta = mytime-(millis()/1000);
+  if (DEBUG_LEVEL & _DEBUG_NOTICE) {
+    Serial.print("Loaded timestamp:");
+    Serial.println(mytime);
+  }
 
+
+  myDST = TimeChangeRule {"EDT", timezoneRule1Week, timezoneRule1DayOfWeek, timezoneRule1Month, timezoneRule1Hour, timezoneRule1Offset*60}; 
+  mySTD = TimeChangeRule {"EST", timezoneRule2Week, timezoneRule1DayOfWeek, timezoneRule2Month, timezoneRule2Hour, timezoneRule1Offset*60}; 
+  myTZ.setRules (myDST, mySTD);
+  //clockGetActualTimezoneOffset();
+  //clockSetLocalTime();
+  
 }
 
 void clockMqttPublishAll() {
@@ -134,20 +145,26 @@ void clockMinuteEvent() {
     String bootTimeStr = String(btime.year())+"/"+String(btime.month())+"/"+String(btime.day())+" "+String(btime.hour())+":"+String(btime.minute());
     mqttElPublish( setBufferFromFlash(setBootTime), bootTimeStr);
     bootTimeSet = true;
-    Serial.println("Boot Time Set via mqtt");
   }
   clockNTPSynchronize();
 }
 
 
 void clockMillisEvent() {
-  static double lastMillisSavedTime;
-  if (abs(millis()-lastMillisSavedTime)>3600000) {
+  static double lastMillisSavedTime = -3600000;
+
+  time_t my_time = clockGetGlobalDateTime();
+  DateTime btime = DateTime(my_time);
+  uint32_t mytime = btime.unixtime();
+  if (abs(millis()-lastMillisSavedTime)>3600000 && wifiStatus == WIFI_STATUS_CONNECTED) {
     lastMillisSavedTime = millis();
-    time_t my_time = clockGetGlobalDateTime();
-    DateTime btime = DateTime(my_time);
-    uint32_t mytime = btime.unixtime();
     configSaveUint32Value(mytime, EEPROM_unix_timestamp_addr);
+    if (DEBUG_LEVEL & _DEBUG_NOTICE) {
+      Serial.print("Saved timestamp:");
+      Serial.print(millis()-lastMillisSavedTime);
+      Serial.print(" ");
+      Serial.println(mytime);
+    }
   }
   static byte clockLastMinute;
   time_t local = clockGetLocalTime();
@@ -192,16 +209,25 @@ time_t clockGetLocalTime() {
 }
 
 void clockNTPSynchronize() {
+  if (clockInited==false) return;
+  static double lastSyncMillis = -10000;
   if (wifiStatus == WIFI_STATUS_CONNECTED) {
-    Serial.println(F("Clock NTP Synchro start"));
-    String command = "get timestamp";
-    mqttSendCommand(command);
+    if (abs(millis()-lastSyncMillis)>10000) {
+      lastSyncMillis = millis();
+      if (DEBUG_LEVEL & _DEBUG_NOTICE) {
+        Serial.println(F("Clock NTP Synchro start"));
+      }
+      String command = "get timestamp";
+      mqttSendCommand(command);
+    }
   }
 }
 
 void clockNTPSynchronize_cb(long ntpTime) {
   if (ntpTime>0) {
-    Serial.println(F("Clock NTP Synchro ok"));
+    if (DEBUG_LEVEL & _DEBUG_NOTICE) {
+      Serial.println(F("Clock NTP Synchro ok"));
+    }
     clockLastSynchro = millis();
     clockDelta = ntpTime-(millis()/1000);
     if (boot_time==0) {
@@ -210,18 +236,16 @@ void clockNTPSynchronize_cb(long ntpTime) {
     clockUpdateTimezoneRules();
   }
   else {
-    Serial.println(F("Clock NTP Synchro failed"));
+    if (DEBUG_LEVEL & _DEBUG_WARNING) {
+      Serial.println(F("Clock NTP Synchro failed"));
+    }
   }
 }
 
 time_t clockGetGlobalDateTime(){
-  static uint32_t clockLastMillisGet;
   DateTime now;
-  if (abs(millis()-clockLastSynchro)>3600000 && wifiStatus == WIFI_STATUS_CONNECTED) {
-    if (abs(millis()-clockLastMillisGet)>10000) {
-      clockLastMillisGet = millis();
-      clockNTPSynchronize();
-    }
+  if (abs(millis()-clockLastSynchro)>60000 && wifiStatus == WIFI_STATUS_CONNECTED) {
+    clockNTPSynchronize();
   }
   if (1==0 && clockRtc.isrunning()) {
     now = clockRtc.now();

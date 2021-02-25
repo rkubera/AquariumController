@@ -7,6 +7,14 @@
  *                                                *
  * ************************************************/
 
+#define _DEGUB_NONE     0
+#define _DEBUG_ERROR    1
+#define _DEBUG_WARNING  2
+#define _DEBUG_NOTICE   4
+#define _DEBUG_MQTT     8 
+
+#define DEBUG_LEVEL _DEBUG_ERROR + _DEBUG_WARNING
+
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
 #include <Wire.h>
@@ -636,6 +644,10 @@ byte fanPWM = 255;
 
 void setup() {
 
+    //Init
+  Serial.begin(115200);
+  Wire.begin();
+
   //Watchdog
   watchdogInit();
   
@@ -644,21 +656,17 @@ void setup() {
   gotoXY(0, 1);
   lcdString((char *)"Initializing");
 
-  //Init
-  Serial.begin(115200);
-  Wire.begin();
-
   //Config
   configLoad();
+
+  //Clock
+  clockInit();
 
   //Fan
   initFan();
 
   //Keyboard
   keyboardInit();
-
-  //Menu
-  menuInit();
 
   //MQTT
   mqttInit();
@@ -668,9 +676,7 @@ void setup() {
 
   //LED
   ledInit();
-  //Clock
-  //clockInit();
-
+  
   //DHT
   dhtInit();
   
@@ -680,7 +686,6 @@ void setup() {
   //PWMOutputs
   pwmOutputsInit();
 
-  lcdClear();
   //clockSetLocalTime();
 
   //Sensors
@@ -696,6 +701,10 @@ void setup() {
   timerMinuteEventDate = millis();
   timerHourEventDate = millis();
 
+  //Menu
+  lcdClear();
+  menuInit();
+  
   //Buzzer
   buzzerInit();
 

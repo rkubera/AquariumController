@@ -14,7 +14,9 @@ void mqttSendCommand(String command) {
 void mqttSendCommand(String command, bool callCriticalEvent) {
   Serial3.println(command+char(0));
   Serial3.flush();
-  Serial.println(command);
+  if ((DEBUG_LEVEL & _DEBUG_MQTT) || (DEBUG_LEVEL & _DEBUG_NOTICE)) {
+    Serial.println(command);
+  }
   if (callCriticalEvent==true) {
     criticalEvent();
   }
@@ -95,34 +97,6 @@ void mqttInit() {
   mqttConnectToServer();
 }
 
-/*
-void mqttCheck() {
-  static String bufferInStr = "";
-   while(true) {
-    watchdogMillisEvent();
-    if(Serial3.available()) {
-      char readed = Serial3.read();
-      if (readed=='\n') {
-        if (bufferInStr.length()>0) {
-          bufferInStr = bufferInStr+char(0);
-          mqttCheckCRCCommand(bufferInStr);
-          bufferInStr = ""+char(0);
-        }
-      }
-      else {
-        bufferInStr = bufferInStr+readed;
-      }
-      if (bufferInStr.length()>100) {
-        Serial.print("Msg too long:");
-        Serial.println(bufferInStr);
-        bufferInStr = ""+char(0);
-      }
-    } else break;
-  }
-}
-*/
-
-
 void mqttCheck() {
   static char inBuffer [100];
   static int inBufferIdx=0;
@@ -143,8 +117,10 @@ void mqttCheck() {
         inBuffer[inBufferIdx+1] = 0;
         inBufferIdx = inBufferIdx+1;
         if (inBufferIdx==98) {
-          Serial.print("Msg too long:");
-          Serial.println((String)inBuffer+char(0));
+          if ((DEBUG_LEVEL & _DEBUG_MQTT) || (DEBUG_LEVEL & _DEBUG_WARNING)) {
+            Serial.print("Msg too long:");
+            Serial.println((String)inBuffer+char(0));
+          }
           inBufferIdx = 0;
           inBuffer[0] = 0;
           inBuffer[1] = 0;
@@ -172,10 +148,12 @@ void mqttCheckCRCCommand(String line) {
       }
       uint32_t checksum = CRC32_finalize();
       if (crcMsg!=checksum) {
-        Serial.print("Wrong msg. Calculated crc:");
-        Serial.print(checksum);
-        Serial.print(" Message: ");
-        Serial.println(line);
+        if ((DEBUG_LEVEL & _DEBUG_MQTT) || (DEBUG_LEVEL & _DEBUG_WARNING)) {
+          Serial.print("Wrong msg. Calculated crc:");
+          Serial.print(checksum);
+          Serial.print(" Message: ");
+          Serial.println(line);
+        }
         return;
       }
       //Command
@@ -192,8 +170,10 @@ void mqttCheckCRCCommand(String line) {
       }
     }
     else {
-      Serial.print("Wrong msg:");
-      Serial.println(line);
+      if ((DEBUG_LEVEL & _DEBUG_MQTT) || (DEBUG_LEVEL & _DEBUG_WARNING)) {
+        Serial.print("Wrong msg:");
+        Serial.println(line);
+      }
     }
 }
 
@@ -202,9 +182,10 @@ void mqttParseCommand(String line) {
     int endIdx = line.indexOf(']');
     if (endIdx>-1) {
       String command = line.substring(1, endIdx);
-      Serial.print("Command:");
-      Serial.println(command);
-      
+      if ((DEBUG_LEVEL & _DEBUG_MQTT) || (DEBUG_LEVEL & _DEBUG_NOTICE)) {
+        Serial.print("Command:");
+        Serial.println(command);
+      }
       endIdx = command.indexOf(' ');
       if (endIdx>-1) {
         String cmd = command.substring(0, endIdx);
@@ -247,8 +228,10 @@ void mqttParseCommand(String line) {
       }
     }
     else {
-      Serial.print("Wrong msg:");
-      Serial.println(line);
+      if ((DEBUG_LEVEL & _DEBUG_MQTT) || (DEBUG_LEVEL & _DEBUG_WARNING)) {
+        Serial.print("Wrong msg:");
+        Serial.println(line);
+      }
     }
   }
 }
@@ -258,10 +241,12 @@ void mqttElData(String topic, String RawValue) {
   String Value = RawValue;
   Value.trim();
   Value.toLowerCase();
-  Serial.print("received topic:");
-  Serial.print(topic);
-  Serial.print(" ");
-  Serial.println(RawValue);
+  if ((DEBUG_LEVEL & _DEBUG_MQTT) || (DEBUG_LEVEL & _DEBUG_NOTICE)) {
+    Serial.print("received topic:");
+    Serial.print(topic);
+    Serial.print(" ");
+    Serial.println(RawValue);
+  }
 
   String endpoint = topic;
   endpoint = endpoint.substring(strlen(mqttElDeviceName.c_str())+1); 
@@ -548,8 +533,6 @@ void mqttElData(String topic, String RawValue) {
       timezoneRule1Hour = temp;
       configSaveValue(timezoneRule1Hour, EEPROM_timezoneRule1Hour_addr);
     }
-    Serial.print("timezoneRule1Hour");
-    Serial.println(temp);
     mqttElPublish(setBufferFromFlash(getTimezoneRule1Hour), intToString(timezoneRule1Hour), false);
     clockUpdateTimezoneRules();
     return;
