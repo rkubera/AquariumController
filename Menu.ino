@@ -11,7 +11,7 @@ void menuInit() {
   
 }
 
-void menuShow() {
+void menuShowCMillis() {
   static unsigned long lastMenuMillis = millis();
   if (abs(lastMenuMillis-millis())>100) {
     lastMenuMillis = millis();
@@ -31,16 +31,15 @@ void menuStatsuWindow() {
   int mymonth = month(local);
   int myday = day(local);
 
-  //if (mymin<60 && myhour<=24 && mymonth<=12 && myday<=31) {
-    gotoXY(0,0);
-    if ((round(millis()/500)%4)==0) {
-      sprintf(bufferOut,"%02d/%02d  %02d %02d", mymonth, myday, myhour, mymin);
-    }
-    else {
-      sprintf(bufferOut,"%02d/%02d  %02d:%02d", mymonth, myday, myhour, mymin);
-    }
-    lcdString(bufferOut);
-  //}
+  gotoXY(0,0);
+  if ((round(millis()/500)%4)==0) {
+    sprintf(bufferOut,"%02d/%02d  %02d %02d", mymonth, myday, myhour, mymin);
+  }
+  else {
+    sprintf(bufferOut,"%02d/%02d  %02d:%02d", mymonth, myday, myhour, mymin);
+  }
+  lcdString(bufferOut);
+  
   gotoXY(0,1);
   lcdStringX((char*)"NET:");
   if (wifiStatus == WIFI_STATUS_CONNECTED) {

@@ -86,7 +86,7 @@ class sensorClass {
   
     int count = 0;
     long rawReading = 0;
-    for (int i=0; i<300; i++) {
+    for (int i=0; i<10; i++) {
       analog = analogRead(analogPin);
       myValue = (a*analog)+b;
       ValuesSum = ValuesSum+myValue;
@@ -330,5 +330,3 @@ void sensorsSecondEvent() {
     }
   }
 }
-
-

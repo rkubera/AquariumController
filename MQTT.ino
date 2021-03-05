@@ -70,17 +70,22 @@ void mqttElPublishFull (String topic, String value, bool callCriticalEvent) {
   }
 }
 
-void mqttTenSecondsEvent() {
+void mqttSecondsEvent() {
+  static double lastMqttStatusEvent = 0;
   static bool lastWifiQuery = false;
-  if (lastWifiQuery==false) {
-    String command = setBufferFromFlash(getWifiStatus);
-    mqttSendCommand(command);
-    lastWifiQuery = true;
-  }
-  else {
-    String command = setBufferFromFlash(getMqttStatus);
-    mqttSendCommand(command);
-    lastWifiQuery = false;
+  
+  if (abs(millis()-lastMqttStatusEvent)>7000) {
+    lastMqttStatusEvent = millis();
+    if (lastWifiQuery==false) {
+      String command = setBufferFromFlash(getWifiStatus);
+      mqttSendCommand(command);
+      lastWifiQuery = true;
+    }
+    else {
+      String command = setBufferFromFlash(getMqttStatus);
+      mqttSendCommand(command);
+      lastWifiQuery = false;
+    }
   }
 }
 
@@ -97,12 +102,12 @@ void mqttInit() {
   mqttConnectToServer();
 }
 
-void mqttCheck() {
+void mqttCheckCriticalEvent() {
   static char inBuffer [100];
   static int inBufferIdx=0;
    while(true) {
-    watchdogMillisEvent();
     if(Serial3.available()) {
+      criticalEventNoMqtt();
       char readed = Serial3.read();
       if (readed=='\n') {
         if (inBufferIdx>0) {
@@ -129,7 +134,6 @@ void mqttCheck() {
     } else break;
   }
 }
-
 
 void mqttCheckCRCCommand(String line) {
    //Check CRC

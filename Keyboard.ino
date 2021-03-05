@@ -11,11 +11,9 @@ void keyboardInit() {
   
 }
 
-void keyboardCheck() {
+void keyboardCheckMillisEvent() {
   char key = keypad.getKey();
   if (key) {
     lastKey=key;
   }
 }
-
-

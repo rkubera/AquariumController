@@ -9,33 +9,46 @@
 
 
 void criticalEvent() {
-  mqttCheck();
+  mqttCheckCriticalEvent();
   criticalEventNoMqtt();
-  menuShow();
 }
 
 void criticalEventNoMqtt() {
-//  ledMillisEvent();
-  ledMicrosEvent();
-  wdt_reset();
+  if (abs(millis()-lastCriticalEvent)>CRITICAL_EVENT_MIN_MILLIS) {
+    ledMicrosEvent();
+
+     //Serial.println(millis());
+     wdt_reset();
+
+    //IMPORTANT!!!
+    lastCriticalEvent = millis();
+
+  }
 }
 
 void eventTimerMillis() {
-  clockMillisEvent();
-  
+
   relaysMillisEvent();
   
   pwmOutputsMillisEvent();
   
-  watchdogMillisEvent();
-  
+  clockMillisEvent();
+
+  menuShowCMillis();
+
   fanMillisEvent();
 
+  dhtGetDataMillisEvent();
+
+  keyboardCheckMillisEvent();
+  
   //IMPORTANT!!!
   criticalEvent();
 }
 
 void eventTimerSecond() {
+  mqttSecondsEvent();
+  
   errorsSecondEvent();
   
   beepErrors();
@@ -94,7 +107,6 @@ void eventTimerSecond() {
   criticalEvent();
 }
 void eventTimerTenSeconds() {
-  mqttTenSecondsEvent();
 
   String command = setBufferFromFlash(getSsid);
   mqttSendCommand(command);
@@ -130,12 +142,18 @@ void eventWifiConnected() {
     
   }
   wifiStatus = WIFI_STATUS_CONNECTED;
+  
+  //IMPORTANT!!!
+  criticalEvent();
 }
 
 void eventHostnameReceived() {
   if (mqttElDeviceName!="") {
     hostnameReceived = true;
   }
+
+  //IMPORTANT!!!
+  criticalEvent();
 }
 
 void eventWifiDisconnected() {
@@ -143,6 +161,9 @@ void eventWifiDisconnected() {
   wifiStatus = WIFI_STATUS_DISCONNECTED;
   String command = setBufferFromFlash(getWifiStatus);
   mqttSendCommand(command);
+
+  //IMPORTANT!!!
+  criticalEvent();
 }
 
 void eventMqttConnected() {
@@ -155,9 +176,15 @@ void eventMqttConnected() {
   if (subscriptionSent==false) {
     mqttSubscribe();
   }
+
+  //IMPORTANT!!!
+  criticalEvent();
 }
 
 void eventMqttDisconnected() {
   publishValue = -1;
   mqttStatus = MQTT_STATUS_DISCONNECTED;
+
+  //IMPORTANT!!!
+  criticalEvent();
 }

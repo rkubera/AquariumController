@@ -128,6 +128,7 @@ void lcdCharacter(char character) {
     lcdWrite(LCD_D, z);   
   }
   lcdWrite(LCD_D, 0x00);
+  criticalEventNoMqtt();
 }
 
 void lcdCharacterX(char character) {

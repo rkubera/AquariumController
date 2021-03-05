@@ -26,8 +26,10 @@ void clockInit() {
   if (DEBUG_LEVEL & _DEBUG_NOTICE) {
     Serial.print("Loaded timestamp:");
     Serial.println(mytime);
+    
+    Serial.print("Clock Delta=");
+    Serial.println(clockDelta);
   }
-
 
   myDST = TimeChangeRule {"EDT", timezoneRule1Week, timezoneRule1DayOfWeek, timezoneRule1Month, timezoneRule1Hour, timezoneRule1Offset*60}; 
   mySTD = TimeChangeRule {"EST", timezoneRule2Week, timezoneRule1DayOfWeek, timezoneRule2Month, timezoneRule2Hour, timezoneRule1Offset*60}; 
@@ -225,11 +227,15 @@ void clockNTPSynchronize() {
 
 void clockNTPSynchronize_cb(long ntpTime) {
   if (ntpTime>0) {
-    if (DEBUG_LEVEL & _DEBUG_NOTICE) {
-      Serial.println(F("Clock NTP Synchro ok"));
-    }
     clockLastSynchro = millis();
     clockDelta = ntpTime-(millis()/1000);
+    
+    if (DEBUG_LEVEL & _DEBUG_NOTICE) {
+      Serial.println(F("Clock NTP Synchro ok"));
+      Serial.print("Clock Delta=");
+      Serial.println(clockDelta);
+    }
+    
     if (boot_time==0) {
       boot_time = ntpTime;
     }
@@ -275,7 +281,14 @@ void clockSetGlobalDateTime(time_t tSet){
   if (clockRtc.isrunning()) {
     clockRtc.adjust(DateTime(year(tSet), month(tSet), day(tSet), hour(tSet), minute(tSet), second(tSet)));
   }
+  /*
   DateTime now = DateTime(tSet);
   uint32_t mytime = now.unixtime();
   clockDelta = mytime-(millis()/1000);
+
+  if (DEBUG_LEVEL & _DEBUG_NOTICE) {
+    Serial.print("Clock Delta=");
+    Serial.println(clockDelta);
+  }
+  */
 }

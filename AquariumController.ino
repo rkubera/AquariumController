@@ -7,13 +7,19 @@
  *                                                *
  * ************************************************/
 
+ //********************************
+//Serials
+//********************************
+#define SERIAL_TX_BUFFER_SIZE 10
+#define SERIAL_RX_BUFFER_SIZE 10
+
 #define _DEGUB_NONE     0
 #define _DEBUG_ERROR    1
 #define _DEBUG_WARNING  2
 #define _DEBUG_NOTICE   4
 #define _DEBUG_MQTT     8 
 
-#define DEBUG_LEVEL _DEBUG_ERROR + _DEBUG_WARNING
+#define DEBUG_LEVEL _DEBUG_ERROR + _DEBUG_WARNING + _DEBUG_MQTT + _DEBUG_NOTICE
 
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
@@ -27,6 +33,7 @@
 #include <RTClib.h>         // https://github.com/adafruit/RTClib
 #include <QuickStats.h>     // https://github.com/dndubins/QuickStats
 #include <dht.h>            // https://github.com/RobTillaart/Arduino/tree/master/libraries/DHTlib/
+
 
 //********************************
 //PINS
@@ -378,6 +385,12 @@ byte schedulerStartEveningMinute = 0;
 
 byte schedulerStartNightHour = 22;
 byte schedulerStartNightMinute = 00;
+
+//********************************
+//Events
+//********************************
+double lastCriticalEvent =0;
+#define CRITICAL_EVENT_MIN_MILLIS 30
 
 //********************************
 //Buzzer
@@ -735,15 +748,4 @@ void loop() {
     eventTimerHour();
     timerHourEventDate = millis();
   }
-  //Keyvboard
-  keyboardCheck();
-
-  //Menu
-  //menuShow();
-
-  //DHT
-  dhtGetData();
-
-  //MQTT
-  mqttCheck();
 }
