@@ -24,7 +24,7 @@ class relayClass {
   byte relayManualOnOff = RELAY_MANUAL_ONOFF_AUTO;
   
   byte relayLastMode;
-  byte relayLastPartOfDay;
+  byte relayLastPartOfDay = SCHEDULER_MODE_INITIAL;
   byte relayMode;
   
   bool relayLastRelayState;
