@@ -67,7 +67,7 @@ class relayClass {
     mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charAfternoonMode),relayGetStringValue(relayModeAfternoon));
     mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charEveningMode),relayGetStringValue(relayModeEvening));
     mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charNightMode),relayGetStringValue(relayModeNight));
-    mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charState),relayGetStringValueFromBool(relayLastRelayState));
+    
     mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charControlMode),getStringControlModeFromValue(relayControlMode));
 
     mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charSensorsValue),intToString(relayInput));
@@ -83,6 +83,7 @@ class relayClass {
 
     relaySetState();
     relaysCheckTresholdDirection(relayPin, OUTPUT_TYPE_RELAY);
+    mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(relayPin)+setBufferFromFlash(charState),relayGetStringValueFromBool(relayLastRelayState));
   }
 
   void relaySetState() {
