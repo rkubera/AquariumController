@@ -373,6 +373,7 @@ const char schedulerNight[] PROGMEM = "night";
 #define SCHEDULER_MODE_AFTERNOON 2
 #define SCHEDULER_MODE_EVENING 3
 #define SCHEDULER_MODE_NIGHT 4
+#define SCHEDULER_MODE_INITIAL 254
 
 byte schedulerStartMorningHour = 9;
 byte schedulerStartMorningMinute = 0;
