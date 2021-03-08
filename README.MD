@@ -24,7 +24,7 @@ Alfa release, not for production/test usage
 ## Control methods for LED, relays and PWM outputs:
 - manual
 - part of day
-- hysteresis
+- treshold (hysteresis)
 - pid
 
 # ESP8266
