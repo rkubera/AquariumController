@@ -17,12 +17,15 @@
 #define _DEBUG_ERROR    1
 #define _DEBUG_WARNING  2
 #define _DEBUG_NOTICE   4
-#define _DEBUG_MQTT     8 
+#define _DEBUG_MQTT     8
 
-#define DEBUG_LEVEL _DEBUG_ERROR + _DEBUG_WARNING + _DEBUG_MQTT + _DEBUG_NOTICE
+//#define DEBUG_LEVEL _DEBUG_ERROR + _DEBUG_WARNING + _DEBUG_MQTT + _DEBUG_NOTICE
+
+#define DEBUG_LEVEL 0
 
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
+#include <Servo.h>
 #include <Wire.h>
 #include <EEPROM.h>
 #include <Timezone.h>       // https://github.com/JChristensen/Timezone
@@ -197,7 +200,7 @@ QuickStats stats;
 int publishValue = -1;
 
 //********************************
-//RWMOutputs
+//PWMOutputs
 //********************************
 #define PWMOUTPUTS_PWMOUTPUT_EEPROM_BYTES  40
 #define PWMOUTPUTS_COUNT                   6
@@ -405,6 +408,10 @@ byte buzzerOnErrors = 1;
 //********************************
 //LED
 //********************************
+#define _LED_MIN_VALUE 0
+#define _LED_MAX_VALUE 2048
+#define _LED_RANGE_VALUES _LED_MAX_VALUE - _LED_MIN_VALUE
+
 #define LED_MODE_NONE    0
 #define LED_MODE_WHITE   1
 #define LED_MODE_WAVE    2
@@ -423,7 +430,7 @@ byte ledManualMode = LED_MODE_NONE;
 
 byte ledTimer = 100;
 byte ledActualTimer = 0;
-byte ledBrightness = 0;
+int ledBrightness = 0;
 int ledActualBrightness = 0;
 
 int ledMorningBrightness = 0;
@@ -432,24 +439,26 @@ int ledEveningBrightness = 0;
 int ledNightBrightness = 0;
 int ledManualBrightness = 0;
 
-int ledAutoBrightness = 255;
+int ledAutoBrightness = _LED_RANGE_VALUES;
 byte ledMode = LED_MODE_NONE;
 byte ledModeMorning = LED_MODE_NONE;
 byte ledModeAfternoon = LED_MODE_NONE;
 byte ledModeEvening = LED_MODE_NONE;
 byte ledModeNight = LED_MODE_NONE;
 
-int ledActualRed = 0;
-int ledActualGreen = 0;
-int ledActualBlue = 0;
+int ledActualRed = _LED_MIN_VALUE;
+int ledActualGreen = _LED_MIN_VALUE;
+int ledActualBlue = _LED_MIN_VALUE;
 
-byte ledRed = 0;
-byte ledGreen = 0;
-byte ledBlue = 0;
+int ledRed = _LED_MIN_VALUE;
+int ledGreen = _LED_MIN_VALUE;
+int ledBlue = _LED_MIN_VALUE;
 
-byte ledStep = 4;
-byte ledStepSwitchColor = 4;
-byte ledStepWave = 1;
+
+byte ledStepSwitchColorSeconds = 4;
+byte ledStepWaveSeconds = 10;
+
+byte ledStep = ledStepSwitchColorSeconds;
 
 int ledFadeInFromBlackSeconds = 120;
 
@@ -506,7 +515,7 @@ const char setLedColorMorning[] PROGMEM = "set/LedColorMorning";                
 const char setLedColorAfternoon[] PROGMEM = "set/LedColorAfternoon";             //red, green, blue, white, cyan, magenta, yellow, white, wave, black
 const char setLedColorEvening[] PROGMEM = "set/LedColorEvening";                 //red, green, blue, white, cyan, magenta, yellow, white, wave, black
 const char setLedColorNight[] PROGMEM = "set/LedColorNight";                     //red, green, blue, white, cyan, magenta, yellow, white, wave, black
-const char setBrightness[] PROGMEM = "set/Brightness";                           //0-255
+const char setBrightness[] PROGMEM = "set/Brightness";                           //0-2048
 const char setActualTime[] PROGMEM = "set/ActualTime";                           //HH:mm in 24 hours format
 const char setActualDate[] PROGMEM = "set/ActualDate";                           //yyyy/mm/dd
 const char setMorningTime[] PROGMEM = "set/MorningTime";                         //HH:mm in 24 hours format
@@ -590,10 +599,10 @@ const char setBootTime[] PROGMEM = "get/BootTime";
 #define EEPROM_schedulerStartNightMinute_addr               13
 
 #define EEPROM_ledMorningBrightness_addr                    14
-#define EEPROM_ledAfternoonBrightness_addr                  15
-#define EEPROM_ledEveningBrightness_addr                    16
-#define EEPROM_ledNightBrightness_addr                      17
-#define EEPROM_ledManualBrightness_addr                     18
+#define EEPROM_ledAfternoonBrightness_addr                  18
+#define EEPROM_ledEveningBrightness_addr                    22
+#define EEPROM_ledNightBrightness_addr                      26
+#define EEPROM_ledManualBrightness_addr                     30
 
 #define EEPROM_ledControlMode_addr                          56
 #define EEPROM_ledManualMode_addr                           58

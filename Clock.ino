@@ -23,14 +23,7 @@ void clockInit() {
 */
   uint32_t mytime = configGetUint32Value(EEPROM_unix_timestamp_addr);
   clockDelta = mytime-(millis()/1000);
-  if (DEBUG_LEVEL & _DEBUG_NOTICE) {
-    Serial.print("Loaded timestamp:");
-    Serial.println(mytime);
-    
-    Serial.print("Clock Delta=");
-    Serial.println(clockDelta);
-  }
-
+  
   myDST = TimeChangeRule {"EDT", timezoneRule1Week, timezoneRule1DayOfWeek, timezoneRule1Month, timezoneRule1Hour, timezoneRule1Offset*60}; 
   mySTD = TimeChangeRule {"EST", timezoneRule2Week, timezoneRule1DayOfWeek, timezoneRule2Month, timezoneRule2Hour, timezoneRule1Offset*60}; 
   myTZ.setRules (myDST, mySTD);
@@ -161,12 +154,6 @@ void clockMillisEvent() {
   if (abs(millis()-lastMillisSavedTime)>3600000 && wifiStatus == WIFI_STATUS_CONNECTED) {
     lastMillisSavedTime = millis();
     configSaveUint32Value(mytime, EEPROM_unix_timestamp_addr);
-    if (DEBUG_LEVEL & _DEBUG_NOTICE) {
-      Serial.print("Saved timestamp:");
-      Serial.print(millis()-lastMillisSavedTime);
-      Serial.print(" ");
-      Serial.println(mytime);
-    }
   }
   static byte clockLastMinute;
   time_t local = clockGetLocalTime();
@@ -232,8 +219,6 @@ void clockNTPSynchronize_cb(long ntpTime) {
     
     if (DEBUG_LEVEL & _DEBUG_NOTICE) {
       Serial.println(F("Clock NTP Synchro ok"));
-      Serial.print("Clock Delta=");
-      Serial.println(clockDelta);
     }
     
     if (boot_time==0) {

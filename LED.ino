@@ -11,9 +11,15 @@
  // Nicu Florica (aka niq_ro) from http://www.tehnic.go.ro made a small change for nice display for low frequence (bellow 100MHz)
 // it use info from http://full-chip.net/arduino-proekty/97-cifrovoy-fm-priemnik-na-arduino-i-module-rda5807-s-graficheskim-displeem-i-funkciey-rds.html
 // original look like is from http://seta43.hol.es/radiofm.html
-// version 1 - store frequency and volume step in EEPROM memory
 
-void ledInit () {
+Servo redLed, greenLed, blueLed;
+
+void ledInit() {
+
+  //redLed.attach(LED_RED_PIN);
+  //greenLed.attach(LED_GREEN_PIN);
+  //blueLed.attach(LED_BLUE_PIN);
+  
   ledWaveIdx = 0;
 
   //Power
@@ -25,7 +31,6 @@ void ledInit () {
   pinMode(LED_BLUE_PIN, OUTPUT);
   lastLEDMicros = micros();
 
-      
   ledSetBrightness(0);
   ledSetActualMode();
 }
@@ -173,24 +178,24 @@ void ledSetActualMode() {
     }
 
     //LedStep
-    ledStep = ledStepSwitchColor;
+    ledStep = ledStepSwitchColorSeconds;
     
     //Auto Brightness
-    ledAutoBrightness = 255;
+    ledAutoBrightness = _LED_RANGE_VALUES;
   
     //Fade in black
     if (ledModeNext==LED_MODE_BLACK) {
       int seconds = nextHourMinute-nowHourMinute;
       if (seconds>=0 && seconds<=ledFadeInFromBlackSeconds) {
-        ledAutoBrightness = ((255/ledFadeInFromBlackSeconds)*seconds);
+        ledAutoBrightness = (_LED_RANGE_VALUES/ledFadeInFromBlackSeconds)*seconds;
       }
       if (seconds<=1) {
-        ledActualRed=0;
-        ledActualGreen=0;
-        ledActualBlue=0;
-        ledRed=0;
-        ledGreen=0;
-        ledBlue=0;
+        ledActualRed=_LED_MIN_VALUE;
+        ledActualGreen=_LED_MIN_VALUE;
+        ledActualBlue=_LED_MIN_VALUE;
+        ledRed=_LED_MIN_VALUE;
+        ledGreen=_LED_MIN_VALUE;
+        ledBlue=_LED_MIN_VALUE;
       }
     }
   
@@ -198,15 +203,15 @@ void ledSetActualMode() {
     if (ledModePrev == LED_MODE_BLACK) {
       int seconds = nowHourMinute-prevHourMinute;
       if (seconds>=0 && seconds<=ledFadeInFromBlackSeconds) {
-        ledAutoBrightness = ((255/ledFadeInFromBlackSeconds)*seconds);
+        ledAutoBrightness = (_LED_RANGE_VALUES/ledFadeInFromBlackSeconds)*seconds;
       }
     }
   }
   else if (ledControlMode==CONTROL_MODE_MANUAL) {
     //ledSetBrightness(ledManualBrightness);
     ledMode = ledManualMode;
-    ledStep = ledStepSwitchColor;
-    ledAutoBrightness = 255;
+    ledStep = ledStepSwitchColorSeconds;
+    ledAutoBrightness = _LED_RANGE_VALUES;
   }
 
   ledSetBrightness(LED_BRIGHTNESS_AUTO);
@@ -238,12 +243,12 @@ void ledSetActualMode() {
 }
 
 void ledModeWave() {
-  if (ledActualRed==255 && ledActualGreen==0 && ledActualBlue==0 && ledWaveIdx==0) {
+  if (ledActualRed==_LED_MAX_VALUE && ledActualGreen==_LED_MIN_VALUE && ledActualBlue==_LED_MIN_VALUE && ledWaveIdx==0) {
     if (ledActualTimer>=ledTimer) {
       //red to green
-      ledRed=0;
-      ledGreen=255;
-      ledBlue=0;
+      ledRed=_LED_MIN_VALUE;
+      ledGreen=_LED_MAX_VALUE;
+      ledBlue=_LED_MIN_VALUE;
       ledActualTimer = 0;
     }
     else {
@@ -252,12 +257,12 @@ void ledModeWave() {
     return;
   }
 
-  if (ledActualRed==0 && ledActualGreen==255 && ledActualBlue==0 && ledWaveIdx==0) {
+  if (ledActualRed==_LED_MIN_VALUE && ledActualGreen==_LED_MAX_VALUE && ledActualBlue==_LED_MIN_VALUE && ledWaveIdx==0) {
     if (ledActualTimer>=ledTimer) {
       //green to blue
-      ledRed=0;
-      ledGreen=0;
-      ledBlue=255;
+      ledRed=_LED_MIN_VALUE;
+      ledGreen=_LED_MIN_VALUE;
+      ledBlue=_LED_MAX_VALUE;
       ledActualTimer = 0;
     }
     else {
@@ -266,12 +271,12 @@ void ledModeWave() {
     return;
   }
 
-  if (ledActualRed==0 && ledActualGreen==0 && ledActualBlue==255 && ledWaveIdx==0) {
+  if (ledActualRed==_LED_MIN_VALUE && ledActualGreen==_LED_MIN_VALUE && ledActualBlue==_LED_MAX_VALUE && ledWaveIdx==0) {
     if (ledActualTimer>=ledTimer) {
       //blue to white
-      ledRed=255;
-      ledGreen=255;
-      ledBlue=255;
+      ledRed=_LED_MAX_VALUE;
+      ledGreen=_LED_MAX_VALUE;
+      ledBlue=_LED_MAX_VALUE;
       ledActualTimer = 0;
     }
     else {
@@ -280,12 +285,12 @@ void ledModeWave() {
     return;
   }
   
-  if (ledActualRed==255 && ledActualGreen==255 && ledActualBlue==255 && ledWaveIdx==0) {
+  if (ledActualRed==_LED_MAX_VALUE && ledActualGreen==_LED_MAX_VALUE && ledActualBlue==_LED_MAX_VALUE && ledWaveIdx==0) {
     if (ledActualTimer>=ledTimer) {
       //white to red
-      ledRed=255;
-      ledGreen=0;
-      ledBlue=0;
+      ledRed=_LED_MAX_VALUE;
+      ledGreen=_LED_MIN_VALUE;
+      ledBlue=_LED_MIN_VALUE;
       ledWaveIdx=1;
       ledActualTimer = 0;
     }
@@ -295,12 +300,12 @@ void ledModeWave() {
     return;
   }
 
-  if (ledActualRed==255 && ledActualGreen==0 && ledActualBlue==0 && ledWaveIdx==1) {
+  if (ledActualRed==_LED_MAX_VALUE && ledActualGreen==_LED_MIN_VALUE && ledActualBlue==_LED_MIN_VALUE && ledWaveIdx==1) {
     if (ledActualTimer>=ledTimer) {
       //red to blue
-      ledRed=0;
-      ledGreen=0;
-      ledBlue=255;
+      ledRed=_LED_MIN_VALUE;
+      ledGreen=_LED_MIN_VALUE;
+      ledBlue=_LED_MAX_VALUE;
       ledActualTimer = 0;
     }
     else {
@@ -309,12 +314,12 @@ void ledModeWave() {
     return;
   }
   
-  if (ledActualRed==0 && ledActualGreen==0 && ledActualBlue==255 && ledWaveIdx==1) {
+  if (ledActualRed==_LED_MIN_VALUE && ledActualGreen==_LED_MIN_VALUE && ledActualBlue==_LED_MAX_VALUE && ledWaveIdx==1) {
     if (ledActualTimer>=ledTimer) {
       //blue to green
-      ledRed=0;
-      ledGreen=255;
-      ledBlue=0;
+      ledRed=_LED_MIN_VALUE;
+      ledGreen=_LED_MAX_VALUE;
+      ledBlue=_LED_MIN_VALUE;
       ledActualTimer = 0;
     }
     else {
@@ -323,12 +328,12 @@ void ledModeWave() {
     return;
   }
   
-  if (ledActualRed==0 && ledActualGreen==255 && ledActualBlue==0 && ledWaveIdx==1) {
+  if (ledActualRed==_LED_MIN_VALUE && ledActualGreen==_LED_MAX_VALUE && ledActualBlue==_LED_MIN_VALUE && ledWaveIdx==1) {
     if (ledActualTimer>=ledTimer) {
       //green to white
-      ledRed=255;
-      ledGreen=255;
-      ledBlue=255;
+      ledRed=_LED_MAX_VALUE;
+      ledGreen=_LED_MAX_VALUE;
+      ledBlue=_LED_MAX_VALUE;
       ledActualTimer = 0;
     }
     else {
@@ -337,12 +342,12 @@ void ledModeWave() {
     return;
   }
   
-  if (ledActualRed==255 && ledActualGreen==255 && ledActualBlue==255 && ledWaveIdx==1) {
+  if (ledActualRed==_LED_MAX_VALUE && ledActualGreen==_LED_MAX_VALUE && ledActualBlue==_LED_MAX_VALUE && ledWaveIdx==1) {
     if (ledActualTimer>=ledTimer) {
       //white to red
-      ledRed=255;
-      ledGreen=0;
-      ledBlue=0;  
+      ledRed=_LED_MAX_VALUE;
+      ledGreen=_LED_MIN_VALUE;
+      ledBlue=_LED_MIN_VALUE;  
       ledWaveIdx=0;
       ledActualTimer = 0;
     }
@@ -352,12 +357,12 @@ void ledModeWave() {
     return;
   }
 
-  if (ledActualRed==0 && ledActualGreen==255 && ledActualBlue==255) {
+  if (ledActualRed==_LED_MIN_VALUE && ledActualGreen==_LED_MAX_VALUE && ledActualBlue==_LED_MAX_VALUE) {
     if (ledActualTimer>=ledTimer) {
       //cyan to green
-      ledRed=0;
-      ledGreen=255;
-      ledBlue=0;
+      ledRed=_LED_MIN_VALUE;
+      ledGreen=_LED_MAX_VALUE;
+      ledBlue=_LED_MIN_VALUE;
       ledActualTimer = 0;
     }
     else {
@@ -366,12 +371,12 @@ void ledModeWave() {
     return;
   }
 
-  if (ledActualRed==255 && ledActualGreen==255 && ledActualBlue==0) {
+  if (ledActualRed==_LED_MAX_VALUE && ledActualGreen==_LED_MAX_VALUE && ledActualBlue==_LED_MIN_VALUE) {
     if (ledActualTimer>=ledTimer) {
       //yellow to red
-      ledRed=255;
-      ledGreen=0;
-      ledBlue=0;
+      ledRed=_LED_MAX_VALUE;
+      ledGreen=_LED_MIN_VALUE;
+      ledBlue=_LED_MIN_VALUE;
       ledActualTimer = 0;
     }
     else {
@@ -380,12 +385,12 @@ void ledModeWave() {
     return;
   }
 
-  if (ledActualRed==255 && ledActualGreen==0 && ledActualBlue==255) {
+  if (ledActualRed==_LED_MAX_VALUE && ledActualGreen==_LED_MIN_VALUE && ledActualBlue==_LED_MAX_VALUE) {
     if (ledActualTimer>=ledTimer) {
       //magenta to blue
-      ledRed=0;
-      ledGreen=0;
-      ledBlue=255;
+      ledRed=_LED_MIN_VALUE;
+      ledGreen=_LED_MIN_VALUE;
+      ledBlue=_LED_MAX_VALUE;
       ledActualTimer = 0;
     }
     else {
@@ -394,12 +399,12 @@ void ledModeWave() {
     return;
   }
 
-  if (ledActualRed==0 && ledActualGreen==0 && ledActualBlue==0) {
+  if (ledActualRed==_LED_MIN_VALUE && ledActualGreen==_LED_MIN_VALUE && ledActualBlue==_LED_MIN_VALUE) {
     if (ledActualTimer>=ledTimer) {
       //dark to white
-      ledRed=255;
-      ledGreen=255;
-      ledBlue=255;
+      ledRed=_LED_MAX_VALUE;
+      ledGreen=_LED_MAX_VALUE;
+      ledBlue=_LED_MAX_VALUE;
       ledActualTimer = 0;
     }
     else {
@@ -411,53 +416,65 @@ void ledModeWave() {
 }
 
 void ledMicrosEvent() {
-  if (abs(micros()-lastLEDMicros)>1000) {
+  //if (abs(micros()-lastLEDMicros)>1000) {
+    double microsDelta = abs(micros()- (lastLEDMicros));
     lastLEDMicros = micros();
-  
+
+    if (ledMode == LED_MODE_WAVE) {
+      ledModeWave();
+    }
+   
     ledSetActualMode();
+
+
+    double milisSum = ledStep*1000;
+    
+    //double ledStepMillis = (microsDelta/1000)*(double)_LED_RANGE_VALUES/milisSum;
+    double ledStepMillis = (microsDelta/1000)*_LED_RANGE_VALUES;
+    ledStepMillis = ledStepMillis/milisSum;
     
     if (ledActualRed>ledRed) {
-      ledActualRed = ledActualRed-ledStep;
-      if (ledActualRed<0) ledActualRed = 0;
+      ledActualRed = ledActualRed-ledStepMillis;
+      if (ledActualRed<_LED_MIN_VALUE) ledActualRed = _LED_MIN_VALUE;
     }
   
     if (ledActualRed<ledRed) {
-      ledActualRed = ledActualRed+ledStep;
-      if (ledActualRed>255) ledActualRed = 255;
+      ledActualRed = ledActualRed+ledStepMillis;
+      if (ledActualRed>_LED_MAX_VALUE) ledActualRed = _LED_MAX_VALUE;
     }
   
     if (ledActualGreen>ledGreen) {
-      ledActualGreen = ledActualGreen-ledStep;
-      if (ledActualGreen<0) ledActualGreen = 0;
+      ledActualGreen = ledActualGreen-ledStepMillis;
+      if (ledActualGreen<_LED_MIN_VALUE) ledActualGreen = _LED_MIN_VALUE;
     }
   
     if (ledActualGreen<ledGreen) {
-      ledActualGreen = ledActualGreen+ledStep;
-      if (ledActualGreen>255) ledActualGreen = 255;
+      ledActualGreen = ledActualGreen+ledStepMillis;
+      if (ledActualGreen>_LED_MAX_VALUE) ledActualGreen = _LED_MAX_VALUE;
     }
   
     if (ledActualBlue>ledBlue) {
-      ledActualBlue = ledActualBlue-ledStep;
-      if (ledActualBlue<0) ledActualBlue = 0;
+      ledActualBlue = ledActualBlue-ledStepMillis;
+      if (ledActualBlue<_LED_MIN_VALUE) ledActualBlue = _LED_MIN_VALUE;
     }
   
     if (ledActualBlue<ledBlue) {
-      ledActualBlue = ledActualBlue+ledStep;
-      if (ledActualBlue>255) ledActualBlue = 255;
+      ledActualBlue = ledActualBlue+ledStepMillis;
+      if (ledActualBlue>_LED_MAX_VALUE) ledActualBlue = _LED_MAX_VALUE;
     }
-  
+
     if (ledActualBrightness<ledBrightness) {
-      ledActualBrightness = ledActualBrightness+ledStep;
-      if (ledActualBrightness>255) ledActualBrightness = 255;
+      ledActualBrightness = ledActualBrightness+ledStepMillis;
+      if (ledActualBrightness>_LED_RANGE_VALUES) ledActualBrightness = _LED_RANGE_VALUES;
     }
-  
+
     if (ledActualBrightness>ledBrightness) {
-      ledActualBrightness = ledActualBrightness-ledStep;
+      ledActualBrightness = ledActualBrightness-ledStepMillis;
       if (ledActualBrightness<0) ledActualBrightness = 0;
     }
     
     letSetColor (ledActualRed, ledActualGreen, ledActualBlue);
-  }
+  //}
 }
 
 void ledSetBrightness(int value) {
@@ -493,95 +510,124 @@ void ledSetBrightness(int value) {
 
 void letSetColor (int r, int g, int b) {
 
-  double ledRedLevelDouble = (double)r*(double)ledAutoBrightness*(double)ledActualBrightness/255/255;
-  double ledGreenLevelDouble = (double)g*(double)ledAutoBrightness*(double)ledActualBrightness/255/255;
-  double ledBlueLevelDouble = (double)b*(double)ledAutoBrightness*(double)ledActualBrightness/255/255;
+  double fullledBrightness;
+  
+  fullledBrightness = (double)ledActualBrightness/_LED_RANGE_VALUES;
+  fullledBrightness = (double)fullledBrightness*(double)ledAutoBrightness/_LED_RANGE_VALUES;
 
+  double ledRedLevelDouble = (fullledBrightness * (double)(r-_LED_MIN_VALUE)) + (double)_LED_MIN_VALUE;
+  double ledGreenLevelDouble = (fullledBrightness * (double)(g-_LED_MIN_VALUE)) + (double)_LED_MIN_VALUE;
+  double ledBlueLevelDouble = (fullledBrightness * (double)(b-_LED_MIN_VALUE)) + (double)_LED_MIN_VALUE;
+  
   ledRedLevel = ledRedLevelDouble;
   ledGreenLevel = ledGreenLevelDouble;
   ledBlueLevel = ledBlueLevelDouble;
+
+  //redLed.writeMicroseconds(ledRedLevel);
+  //greenLed.writeMicroseconds(ledGreenLevel);
+  //blueLed.writeMicroseconds(ledBlueLevel);
+
+  ledRedLevel = map (ledRedLevel, _LED_MIN_VALUE, _LED_MAX_VALUE, 0, 255);
+  ledGreenLevel = map (ledGreenLevel, _LED_MIN_VALUE, _LED_MAX_VALUE, 0, 255);
+  ledBlueLevel = map (ledBlueLevel, _LED_MIN_VALUE, _LED_MAX_VALUE, 0, 255);
   
   analogWrite (LED_RED_PIN, ledRedLevel);
   analogWrite (LED_GREEN_PIN, ledGreenLevel);
   analogWrite (LED_BLUE_PIN, ledBlueLevel);
+
+/*
+  Serial.print("fullledBrightness=");
+  Serial.print(fullledBrightness);
+  Serial.print(" ledActualBrightness=");
+  Serial.print(ledActualBrightness);
+  Serial.print(" ledAutoBrightness=");
+  Serial.print(ledAutoBrightness);
+  Serial.print("red=");
+  Serial.print(ledRedLevel);
+  Serial.print(" green=");
+  Serial.print(ledGreenLevel);
+  Serial.print(" blue=");
+  Serial.println(ledBlueLevel);
+  */
+  
 }
 
 void ledSetBlack() {
-  ledRed = 0;
-  ledGreen = 0;
-  ledBlue = 0;
+  ledRed = _LED_MIN_VALUE;
+  ledGreen = _LED_MIN_VALUE;
+  ledBlue = _LED_MIN_VALUE;
   ledMode = LED_MODE_BLACK;
 }
 
 void ledSetRed() {
-  ledRed = 255;
-  ledGreen = 0;
-  ledBlue = 0;
+  ledRed = _LED_MAX_VALUE;
+  ledGreen = _LED_MIN_VALUE;
+  ledBlue = _LED_MIN_VALUE;
   ledMode = LED_MODE_RED;
 }
 
 void ledSetGreen() {
-  ledRed = 0;
-  ledGreen = 255;
-  ledBlue = 0;
+  ledRed = _LED_MIN_VALUE;
+  ledGreen = _LED_MAX_VALUE;
+  ledBlue = _LED_MIN_VALUE;
   ledMode = LED_MODE_GREEN;
 }
 
 void ledSetBlue() {
-  ledRed = 0;
-  ledGreen = 0;
-  ledBlue = 255;
+  ledRed = _LED_MIN_VALUE;
+  ledGreen = _LED_MIN_VALUE;
+  ledBlue = _LED_MAX_VALUE;
   ledMode = LED_MODE_BLUE;
 }
 
 void ledSetCyan() {
-  ledRed = 0;
-  ledGreen = 255;
-  ledBlue = 255;
+  ledRed = _LED_MIN_VALUE;
+  ledGreen = _LED_MAX_VALUE;
+  ledBlue = _LED_MAX_VALUE;
   ledMode = LED_MODE_CYAN;
 }
 
 void ledSetMagenta() {
-  ledRed = 255;
-  ledGreen = 0;
-  ledBlue = 255;
+  ledRed = _LED_MAX_VALUE;
+  ledGreen = _LED_MIN_VALUE;
+  ledBlue = _LED_MAX_VALUE;
   ledMode = LED_MODE_MAGENTA;
 }
 
 void ledSetYellow() {
-  ledRed = 255;
-  ledGreen = 255;
-  ledBlue = 0;
+  ledRed = _LED_MAX_VALUE;
+  ledGreen = _LED_MAX_VALUE;
+  ledBlue = _LED_MIN_VALUE;
   ledMode = LED_MODE_YELLOW;
 }
 
 void ledSetWhite() {
-  ledGreen = 255;
-  ledBlue = 255;
-  ledRed = 255;
+  ledGreen = _LED_MAX_VALUE;
+  ledBlue = _LED_MAX_VALUE;
+  ledRed = _LED_MAX_VALUE;
   ledMode = LED_MODE_WHITE;
 }
 
 void ledSetWave() {
   ledMode = LED_MODE_WAVE;
-  ledStep = ledStepWave;
+  ledStep = ledStepWaveSeconds;
 }
 
 void ledSetManualOn() {
-  ledStep = ledStepSwitchColor;
+  ledStep = ledStepSwitchColorSeconds;
   if (ledControlMode==CONTROL_MODE_MANUAL) {
     ledSwitchToMode(ledManualMode);
   }
   else if (ledMode==LED_MODE_BLACK) {
-    ledRed = 255;
-    ledGreen = 255;
-    ledBlue = 255;
+    ledRed = _LED_MAX_VALUE;
+    ledGreen = _LED_MAX_VALUE;
+    ledBlue = _LED_MAX_VALUE;
   }
 }
 
 void ledSetManualOff() {
-  ledRed = 0;
-  ledGreen = 0;
-  ledBlue = 0;
-  ledStep = ledStepSwitchColor;
+  ledRed = _LED_MIN_VALUE;
+  ledGreen = _LED_MIN_VALUE;
+  ledBlue = _LED_MIN_VALUE;
+  ledStep = ledStepSwitchColorSeconds;
 }

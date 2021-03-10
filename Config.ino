@@ -27,11 +27,11 @@ void configLoad() {
   schedulerStartNightHour = configGetValue(EEPROM_schedulerStartNightHour_addr);
   schedulerStartNightMinute = configGetValue(EEPROM_schedulerStartNightMinute_addr);
   
-  ledMorningBrightness = configGetValue(EEPROM_ledMorningBrightness_addr);
-  ledAfternoonBrightness = configGetValue(EEPROM_ledAfternoonBrightness_addr);
-  ledEveningBrightness = configGetValue(EEPROM_ledEveningBrightness_addr);
-  ledNightBrightness = configGetValue(EEPROM_ledNightBrightness_addr);
-  ledManualBrightness = configGetValue(EEPROM_ledManualBrightness_addr);
+  ledMorningBrightness = configGetUint32Value(EEPROM_ledMorningBrightness_addr);
+  ledAfternoonBrightness = configGetUint32Value(EEPROM_ledAfternoonBrightness_addr);
+  ledEveningBrightness = configGetUint32Value(EEPROM_ledEveningBrightness_addr);
+  ledNightBrightness = configGetUint32Value(EEPROM_ledNightBrightness_addr);
+  ledManualBrightness = configGetUint32Value(EEPROM_ledManualBrightness_addr);
 
   fanStartTemperature = configGetValue(EEPROM_fanStartTemperature_addr);
   fanMaxSpeedTemperature = configGetValue(EEPROM_fanMaxSpeedTemperature_addr);
@@ -57,23 +57,23 @@ void configLoad() {
 
 }
 
-byte configGetValue(int addr) {
+byte configGetValue(int addr) {   //1 byte
   return EEPROM.read(addr);
 }
 
-float configGetFloatValue(int addr) {
+float configGetFloatValue(int addr) { //4 bytes
   float ret;
   EEPROM.get(addr,ret);
   return ret;
 }
 
-float configGetDoubleValue(int addr) {
+float configGetDoubleValue(int addr) {  //4bytes
   double ret;
   EEPROM.get(addr,ret);
   return ret;
 }
 
-uint32_t configGetUint32Value(int addr) {
+uint32_t configGetUint32Value(int addr) { //4 bytes
   uint32_t ret;
   EEPROM.get(addr,ret);
   return ret;
@@ -116,20 +116,20 @@ void configSaveString  (String str, int addr, int maxSize) {
 void configSaveLedBrightness(int type, int value) {
   if (ledControlMode==CONTROL_MODE_PART_OF_DAY) {
     if (type==SCHEDULER_MODE_MORNING) {
-      EEPROM.write(EEPROM_ledMorningBrightness_addr,(byte)value); 
+      configSaveUint32Value(value, EEPROM_ledMorningBrightness_addr); 
     }
     else if (type==SCHEDULER_MODE_AFTERNOON) {
-      EEPROM.write(EEPROM_ledAfternoonBrightness_addr,(byte)value); 
+      configSaveUint32Value(value, EEPROM_ledAfternoonBrightness_addr); 
     }
     else if (type==SCHEDULER_MODE_EVENING) {
-      EEPROM.write(EEPROM_ledEveningBrightness_addr,(byte)value); 
+      configSaveUint32Value(value, EEPROM_ledEveningBrightness_addr); 
     }
     else if (type==SCHEDULER_MODE_NIGHT) {
-      EEPROM.write(EEPROM_ledNightBrightness_addr,(byte)value); 
+      configSaveUint32Value(value, EEPROM_ledNightBrightness_addr); 
     }
   }
   else {
-    EEPROM.write(EEPROM_ledManualBrightness_addr,(byte)value); 
+    configSaveUint32Value(value, EEPROM_ledManualBrightness_addr); 
   }
 }
 
@@ -143,5 +143,3 @@ void configSaveSchedulerTimers() {
   EEPROM.write(EEPROM_schedulerStartNightHour_addr,schedulerStartNightHour);
   EEPROM.write(EEPROM_schedulerStartNightMinute_addr,schedulerStartNightMinute);
 }
-
-
