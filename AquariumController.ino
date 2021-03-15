@@ -19,20 +19,16 @@
 #define _DEBUG_NOTICE   4
 #define _DEBUG_MQTT     8
 
-//#define DEBUG_LEVEL _DEBUG_ERROR + _DEBUG_WARNING + _DEBUG_MQTT + _DEBUG_NOTICE
+#define DEBUG_LEVEL _DEBUG_ERROR + _DEBUG_WARNING + _DEBUG_MQTT + _DEBUG_NOTICE
 
-#define DEBUG_LEVEL 0
+//#define DEBUG_LEVEL 0
 
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
-#include <Servo.h>
 #include <Wire.h>
 #include <EEPROM.h>
 #include <Timezone.h>       // https://github.com/JChristensen/Timezone
 #include <Keypad.h>         // https://playground.arduino.cc/Code/Keypad#Download Must be patched. Replace: #define OPEN LOW with #define KBD_OPEN LOW, #define CLOSED HIGH with #define KBD_CLOSED HIGH in Key.h and Keypad.h. Replace OPEN with KBD_OPEN, CLOSE with KBD_CLOSE in Keypad.cpp 
-#include <ELClient.h>       // https://github.com/jeelabs/el-client
-#include <ELClientCmd.h>    // https://github.com/jeelabs/el-client
-#include <ELClientMqtt.h>   // https://github.com/jeelabs/el-client
 #include <RTClib.h>         // https://github.com/adafruit/RTClib
 #include <QuickStats.h>     // https://github.com/dndubins/QuickStats
 #include <dht.h>            // https://github.com/RobTillaart/Arduino/tree/master/libraries/DHTlib/
@@ -89,8 +85,11 @@ char keys[KBD_ROWS][KBD_COLS] = {
   {'7', '8', '9', 'R'},
   {'L', '0', 'R', 'E'}
 };
-byte KBD_ROW_PINS[KBD_ROWS] = {30, 29, 28, 27, 26}; //connect to the row pinouts of the keypad
-byte KBD_COL_PINS[KBD_COLS] = {22, 23, 24, 25}; //connect to the column pinouts of the keypad
+//byte KBD_ROW_PINS[KBD_ROWS] = {30, 29, 28, 27, 26}; //connect to the row pinouts of the keypad
+//byte KBD_COL_PINS[KBD_COLS] = {22, 23, 24, 25}; //connect to the column pinouts of the keypad
+
+byte KBD_ROW_PINS[KBD_ROWS] = {23, 25, 27, 29, 31}; //connect to the row pinouts of the keypad
+byte KBD_COL_PINS[KBD_COLS] = {39, 37, 35, 33}; //connect to the column pinouts of the keypad
 
 //********************************
 //Main variables
@@ -102,7 +101,7 @@ const char getWifiStatus[] PROGMEM = "get wifistatus";
 const char getMqttStatus[] PROGMEM = "get mqttstatus";
 const char getHostname[] PROGMEM = "get hostname";
 const char getSsid[] PROGMEM = "get ssid";
-const char getMqttserver[] PROGMEM = "get mqttserverń";
+const char getMqttserver[] PROGMEM = "get mqttserver";
 
 const char mqttSubscribeCommand[] PROGMEM = "subscribe ";
 const char mqttPublishretainedCommand[] PROGMEM = "publishretained ";
@@ -409,7 +408,7 @@ byte buzzerOnErrors = 1;
 //LED
 //********************************
 #define _LED_MIN_VALUE 0
-#define _LED_MAX_VALUE 2048
+#define _LED_MAX_VALUE 255
 #define _LED_RANGE_VALUES _LED_MAX_VALUE - _LED_MIN_VALUE
 
 #define LED_MODE_NONE    0
@@ -502,6 +501,7 @@ String mqtt_pass = "";
 
 String mqttElDeviceName = "";
 bool hostnameReceived = false;
+bool mqttserverReceived = false;
 bool subscriptionSent = false;
 
 const char published[] PROGMEM = "published";
@@ -637,6 +637,7 @@ const char setBootTime[] PROGMEM = "get/BootTime";
 //Keyboard
 //********************************
 char lastKey;
+double lastKeyMillis = 0;
 Keypad keypad = Keypad(makeKeymap(keys), KBD_ROW_PINS, KBD_COL_PINS, KBD_ROWS, KBD_COLS);
 
 //********************************
@@ -730,6 +731,9 @@ void setup() {
   
   //Buzzer
   buzzerInit();
+
+  String command = setBufferFromFlash(getHostname);
+  mqttSendCommand(command);
 
 }
 

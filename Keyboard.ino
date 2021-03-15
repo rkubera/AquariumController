@@ -15,5 +15,6 @@ void keyboardCheckMillisEvent() {
   char key = keypad.getKey();
   if (key) {
     lastKey=key;
+    lastKeyMillis = millis();
   }
 }

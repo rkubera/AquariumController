@@ -12,7 +12,7 @@
 // it use info from http://full-chip.net/arduino-proekty/97-cifrovoy-fm-priemnik-na-arduino-i-module-rda5807-s-graficheskim-displeem-i-funkciey-rds.html
 // original look like is from http://seta43.hol.es/radiofm.html
 
-Servo redLed, greenLed, blueLed;
+//Servo redLed, greenLed, blueLed;
 
 void ledInit() {
 

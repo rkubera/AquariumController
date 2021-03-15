@@ -227,7 +227,8 @@ void mqttParseCommand(String line) {
           wifi_ssid = payload;   
         }
         else if(cmd=="mqttserver") {
-          mqtt_server = payload;   
+          mqtt_server = payload;
+          eventMqttServerReceived();
         }
       }
     }

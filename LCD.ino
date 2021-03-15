@@ -110,10 +110,22 @@ static const byte ASCII[][5] PROGMEM = {
     ,{0x00, 0x06, 0x09, 0x09, 0x06} // 7f &#195;&#162;&#194;&#134;&#194;&#146;
 };
 
+void lcdSetBrigtness(int brigthness) {
+  brigthness = map (brigthness,0,1000,0,128);
+  analogWrite(LCD_PIN_LED, brigthness);
+}
+
 void lcdInit() {
   lcdInitialise();
   lcdClear();
   //analogWrite(LCD_PIN_LED, 255);
+}
+
+String lcdTrimMessage(String message) {
+  if (message.length()>12) {
+    message = message.substring(0,9)+"...";
+  }
+  return message;
 }
 
 void lcdCharacter(char character) {
@@ -161,7 +173,9 @@ void lcdInitialise(void) {
 
   digitalWrite(LCD_PIN_RESET, LOW);
   digitalWrite(LCD_PIN_RESET, HIGH);
+
   analogWrite(LCD_PIN_LED, 128);
+  lcdSetBrigtness(1000);
 
   lcdWrite(LCD_CMD, 0x21);  // LCD Extended Commands.
   lcdWrite(LCD_CMD, 0xB5);  // Set LCD Vop (Contrast). //B1

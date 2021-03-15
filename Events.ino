@@ -136,15 +136,23 @@ void eventWifiConnected() {
     mqttSendCommand(command);
   }
 
+  if (mqttserverReceived==false && hostnameReceived==true) {
+    String command = setBufferFromFlash(getMqttserver);
+    mqttSendCommand(command);
+  }
+
   if (wifiStatus == WIFI_STATUS_DISCONNECTED) {
     String command = setBufferFromFlash(getMqttStatus);
     mqttSendCommand(command);
-    
   }
   wifiStatus = WIFI_STATUS_CONNECTED;
   
   //IMPORTANT!!!
   criticalEvent();
+}
+
+void eventMqttServerReceived() {
+  hostnameReceived = true;
 }
 
 void eventHostnameReceived() {
@@ -161,6 +169,8 @@ void eventWifiDisconnected() {
   wifiStatus = WIFI_STATUS_DISCONNECTED;
   String command = setBufferFromFlash(getWifiStatus);
   mqttSendCommand(command);
+  hostnameReceived = false;
+
 
   //IMPORTANT!!!
   criticalEvent();
