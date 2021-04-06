@@ -21,10 +21,6 @@ void ledInit() {
   //blueLed.attach(LED_BLUE_PIN);
   
   ledWaveIdx = 0;
-
-  //Power
-  pinMode(LCD_GND,LOW);
-  pinMode(LCD_POWER,HIGH);
   
   pinMode(LED_RED_PIN, OUTPUT);
   pinMode(LED_GREEN_PIN, OUTPUT);

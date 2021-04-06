@@ -7,29 +7,23 @@
  *                                                *
  * ************************************************/
 
-static uint32_t clockDelta = 0;
 static bool clockInited = false;
 
 void clockInit() {
   clockInited = true;
-
-/*
-  if (!clockRtc.begin()) {
-    Serial.println(F("Couldn't find RTC"));
-  }
-  if (!clockRtc.isrunning()) {
-    Serial.println(F("RTC is NOT running!"));
-  }
-*/
-  uint32_t mytime = configGetUint32Value(EEPROM_unix_timestamp_addr);
-  clockDelta = mytime-(millis()/1000);
-  
   myDST = TimeChangeRule {"EDT", timezoneRule1Week, timezoneRule1DayOfWeek, timezoneRule1Month, timezoneRule1Hour, timezoneRule1Offset*60}; 
   mySTD = TimeChangeRule {"EST", timezoneRule2Week, timezoneRule1DayOfWeek, timezoneRule2Month, timezoneRule2Hour, timezoneRule1Offset*60}; 
   myTZ.setRules (myDST, mySTD);
-  //clockGetActualTimezoneOffset();
-  //clockSetLocalTime();
-  
+}
+
+void printDateTime(time_t t, const char *tz)
+{
+    char buf[32];
+    char m[4];    // temporary storage for month string (DateStrings.cpp uses shared buffer)
+    strcpy(m, monthShortStr(month(t)));
+    sprintf(buf, "%.2d:%.2d:%.2d %s %.2d %s %d %s",
+        hour(t), minute(t), second(t), dayShortStr(weekday(t)), day(t), m, year(t), tz);
+    Serial.println(buf);
 }
 
 void clockMqttPublishAll() {
@@ -91,35 +85,23 @@ String clockTimezoneCodeToMonth (int value) {
 }
 
 char clockGetActualTimezoneOffset() {
-  static char oldTimezoneActualOffset;
-
-  time_t utcTime = clockGetGlobalDateTime();
+  
+  time_t utcTime = now();
   time_t localTime = myTZ.toLocal(utcTime, &tcr);
 
-  DateTime nowUtcTime, nowLocalTime;
-  nowUtcTime = DateTime(utcTime);
-  nowLocalTime = DateTime(localTime);
-
-  uint32_t nowUtcUnixTime = nowUtcTime.unixtime();
-  uint32_t nowLocalUnixTime = nowLocalTime.unixtime();
-
-  uint32_t secs = nowLocalUnixTime-nowUtcUnixTime;
-  timezoneActualOffset = (secs/3600);
-  if (oldTimezoneActualOffset!=timezoneActualOffset) {
-    oldTimezoneActualOffset = timezoneActualOffset;
-    sprintf(bufferOut,"%+d", timezoneRule1Offset);
-    mqttElPublish(setBufferFromFlash(getActualTimezoneOffset), (String)bufferOut);
-  }
+  int secs = localTime- utcTime;
   
+  timezoneActualOffset = (secs/3600);
+  sprintf(bufferOut,"%+d", timezoneActualOffset);
+  mqttElPublish(setBufferFromFlash(getActualTimezoneOffset), (String)bufferOut);
   return timezoneActualOffset;
 }
 
 void clockUpdateTimezoneRules() {
   myDST = TimeChangeRule {"EDT", timezoneRule1Week, timezoneRule1DayOfWeek, timezoneRule1Month, timezoneRule1Hour, timezoneRule1Offset*60}; 
-  mySTD = TimeChangeRule {"EST", timezoneRule2Week, timezoneRule1DayOfWeek, timezoneRule2Month, timezoneRule2Hour, timezoneRule1Offset*60}; 
+  mySTD = TimeChangeRule {"EST", timezoneRule2Week, timezoneRule2DayOfWeek, timezoneRule2Month, timezoneRule2Hour, timezoneRule2Offset*60}; 
   myTZ.setRules (myDST, mySTD);
   clockGetActualTimezoneOffset();
-  clockSetLocalTime();
   clockMqttPublishHourDate();
 }
 
@@ -134,30 +116,23 @@ void clockMqttPublishHourDate() {
 }
 void clockMinuteEvent() { 
   static bool bootTimeSet = false;
-
-  DateTime btime = DateTime(boot_time);
-  if (bootTimeSet==false && MQTT_STATUS_CONNECTED && hostnameReceived == true && mqttElDeviceName!="") {
-    String bootTimeStr = String(btime.year())+"/"+String(btime.month())+"/"+String(btime.day())+" "+String(btime.hour())+":"+String(btime.minute());
-    mqttElPublish( setBufferFromFlash(setBootTime), bootTimeStr);
-    bootTimeSet = true;
-  }
   clockNTPSynchronize();
 }
 
 
 void clockMillisEvent() {
+
+  time_t utc = now();
+  time_t local = myTZ.toLocal(utc, &tcr);
+    
+  printDateTime(utc, "UTC");
+  printDateTime(local, tcr -> abbrev);
+    
   static double lastMillisSavedTime = -3600000;
 
-  time_t my_time = clockGetGlobalDateTime();
-  DateTime btime = DateTime(my_time);
-  uint32_t mytime = btime.unixtime();
-  if (abs(millis()-lastMillisSavedTime)>3600000 && wifiStatus == WIFI_STATUS_CONNECTED) {
-    lastMillisSavedTime = millis();
-    configSaveUint32Value(mytime, EEPROM_unix_timestamp_addr);
-  }
+  time_t my_time = now();
+  
   static byte clockLastMinute;
-  time_t local = clockGetLocalTime();
-   
   byte mymin = minute(local);
   
   if (clockLastMinute!=mymin) {
@@ -179,18 +154,19 @@ void clockSetLocalTime() {
   
   //convert to utc
   time_t utc = myTZ.toUTC(tSet);
-  clockSetGlobalDateTime(utc);
+  setTime(utc);
+  
 }
 
 time_t clockGetLocalTime() {
-  time_t utcTime = clockGetGlobalDateTime();
+
+  time_t utcTime = now();
   time_t localTime = myTZ.toLocal(utcTime, &tcr);
-  DateTime btime = DateTime(localTime);
   
   globalSecond = second(localTime);
   globalMinute = minute(localTime);
   globalHour = hour(localTime);
-  globalWeekDay = btime.dayOfTheWeek();
+  globalWeekDay = weekday(localTime);
   globalMonthDay = day(localTime);
   globalMonth = month(localTime);
   globalYear = year(localTime);
@@ -212,17 +188,12 @@ void clockNTPSynchronize() {
   }
 }
 
-void clockNTPSynchronize_cb(long ntpTime) {
+void clockNTPSynchronize_cb(time_t ntpTime) {
   if (ntpTime>0) {
     clockLastSynchro = millis();
-    clockDelta = ntpTime-(millis()/1000);
-    
+    setTime(ntpTime);
     if (DEBUG_LEVEL & _DEBUG_NOTICE) {
       Serial.println(F("Clock NTP Synchro ok"));
-    }
-    
-    if (boot_time==0) {
-      boot_time = ntpTime;
     }
     clockUpdateTimezoneRules();
   }
@@ -231,49 +202,4 @@ void clockNTPSynchronize_cb(long ntpTime) {
       Serial.println(F("Clock NTP Synchro failed"));
     }
   }
-}
-
-time_t clockGetGlobalDateTime(){
-  DateTime now;
-  if (abs(millis()-clockLastSynchro)>60000 && wifiStatus == WIFI_STATUS_CONNECTED) {
-    clockNTPSynchronize();
-  }
-  if (1==0 && clockRtc.isrunning()) {
-    now = clockRtc.now();
-    if (boot_time==0) {
-      if (now.year()>2000 && now.year()<2100) {
-        boot_time = now.unixtime();
-      }
-    }
-  }
-  else {
-    uint32_t mytime = (millis()/1000)+clockDelta;
-    now = DateTime(mytime);
-  }
-  time_t tSet;
-  tmElements_t tmSet;
-  tmSet.Year = now.year()-1970;
-  tmSet.Month = now.month();
-  tmSet.Day = now.day();
-  tmSet.Hour = now.hour();
-  tmSet.Minute = now.minute();
-  tmSet.Second = now.second();
-  tSet = makeTime(tmSet);
-  return tSet;
-}
-
-void clockSetGlobalDateTime(time_t tSet){
-  if (clockRtc.isrunning()) {
-    clockRtc.adjust(DateTime(year(tSet), month(tSet), day(tSet), hour(tSet), minute(tSet), second(tSet)));
-  }
-  /*
-  DateTime now = DateTime(tSet);
-  uint32_t mytime = now.unixtime();
-  clockDelta = mytime-(millis()/1000);
-
-  if (DEBUG_LEVEL & _DEBUG_NOTICE) {
-    Serial.print("Clock Delta=");
-    Serial.println(clockDelta);
-  }
-  */
 }

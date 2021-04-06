@@ -29,7 +29,6 @@
 #include <EEPROM.h>
 #include <Timezone.h>       // https://github.com/JChristensen/Timezone
 #include <Keypad.h>         // https://playground.arduino.cc/Code/Keypad#Download Must be patched. Replace: #define OPEN LOW with #define KBD_OPEN LOW, #define CLOSED HIGH with #define KBD_CLOSED HIGH in Key.h and Keypad.h. Replace OPEN with KBD_OPEN, CLOSE with KBD_CLOSE in Keypad.cpp 
-#include <RTClib.h>         // https://github.com/adafruit/RTClib
 #include <QuickStats.h>     // https://github.com/dndubins/QuickStats
 #include <dht.h>            // https://github.com/RobTillaart/Arduino/tree/master/libraries/DHTlib/
 
@@ -193,7 +192,6 @@ double timerHourEventDate;
 double lastLEDMicros;
 const int bufferOutSize = 100;
 char bufferOut[bufferOutSize];
-uint32_t boot_time = 0;
 QuickStats stats;
 
 int publishValue = -1;
@@ -344,8 +342,6 @@ byte timezoneRule2Month;
 //********************************
 //Clock
 //********************************
-
-RTC_DS1307 clockRtc;
 
 TimeChangeRule myDST;
 TimeChangeRule mySTD;
@@ -576,7 +572,6 @@ const char getTimezoneRule2Offset[] PROGMEM = "get/TimezoneRule2Offset";
 const char getTimezoneRule1Month[] PROGMEM = "get/TimezoneRule1Month";
 const char getTimezoneRule2Month[] PROGMEM = "get/TimezoneRule2Month";
 const char getLedState[] PROGMEM = "get/LedState";
-const char setBootTime[] PROGMEM = "get/BootTime";
 
 
 //********************************

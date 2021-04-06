@@ -11,7 +11,9 @@ typedef int (*menuCallbackFunction) (int arg1);
 menuCallbackFunction menu_callbacks [7] {menuMainMenu, menuNetwork, menuTime, doAction1, doAction1, doAction1, doAction1};
 
 static int menu_actual_menu = 0;
+static int menu_submenus = 0;
 static int menu_actual_submenu = 0;
+static int menuElements = sizeof(menu_callbacks) / sizeof(menu_callbacks[0]);
 
 void menuInit() {
   
@@ -30,7 +32,6 @@ void doAction1(int key) {
 
 void menuShowCMillis() {
   static unsigned long lastMenuMillis = millis();
-  int menuElements = sizeof(menu_callbacks) / sizeof(menu_callbacks[0]);
   if (abs(millis()-lastKeyMillis)<5000) {
     lcdSetBrigtness(1000);
   }
@@ -60,6 +61,7 @@ void menuShowCMillis() {
       }
     }
     menu_callbacks[menu_actual_menu](lastKey);
+    menuNav(menu_actual_menu,menu_submenus,menu_actual_submenu);
     lastKey = char(0);
   }
 }
@@ -170,4 +172,18 @@ void menuMainMenu(int key) {
   }
   lcdString(bufferOut);
   lcdString ((char*)"%");
+}
+
+void menuNav (int act_menu, int sub_menus, int act_submenu) {
+  int menuElements = sizeof(menu_callbacks) / sizeof(menu_callbacks[0]);
+  gotoXY(0,5);
+  lcdCharacter(LEFT_ARROW);
+  lcdCharacter(RIGHT_ARROW);
+  String message = String(menu_actual_menu+1)+"/"+String(menuElements)+" ";
+  lcdString(message.c_str());
+
+  lcdCharacter(UP_ARROW);
+  lcdCharacter(DOWN_ARROW);
+  message = String(menu_actual_submenu)+"/"+String(menu_submenus);
+  lcdString(message.c_str());
 }

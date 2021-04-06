@@ -6,9 +6,23 @@
  * https://github.com/rkubera/AquariumController  *
  *                                                *
  * ************************************************/
+#define  UP_ARROW         0x00
+#define  DOWN_ARROW       0x01
+#define  RIGHT_ARROW      0x02
+#define  LEFT_ARROW       0x03
+#define  DOTTS            0x04
  
 static const byte DEGREE[][5] PROGMEM = {
    {B00000000, B00000110, B00001001, B00001001, B00000110}
+};
+
+static const byte SPECIAL[][5] PROGMEM = {
+     {0x08, 0x04, 0x7F, 0x04, 0x08} // 0 UP_ARROW
+    ,{0x10, 0x20, 0x7F, 0x20, 0x10} // 1 DOWN_ARROW
+    ,{0x08, 0x08, 0x2A, 0x1C, 0x08} // 2 RIGHT_ARROW
+    ,{0x08, 0x1C, 0x2A, 0x08, 0x08} // 3 LEFT_ARROW
+    ,{0x40, 0x00, 0x40, 0x00, 0x40} // 3 DOTTS
+    
 };
 
 static const byte ASCII[][5] PROGMEM = {
@@ -110,6 +124,8 @@ static const byte ASCII[][5] PROGMEM = {
     ,{0x00, 0x06, 0x09, 0x09, 0x06} // 7f &#195;&#162;&#194;&#134;&#194;&#146;
 };
 
+#define KEY_UP_ARROW 0x80 
+
 void lcdSetBrigtness(int brigthness) {
   brigthness = map (brigthness,0,1000,0,128);
   analogWrite(LCD_PIN_LED, brigthness);
@@ -123,7 +139,10 @@ void lcdInit() {
 
 String lcdTrimMessage(String message) {
   if (message.length()>12) {
-    message = message.substring(0,9)+"...";
+    //message = message.substring(0,12)+"...";
+    message = message.substring(0,12);
+    message[11] = DOTTS;
+    message[12] = 0;
   }
   return message;
 }
@@ -131,31 +150,52 @@ String lcdTrimMessage(String message) {
 void lcdCharacter(char character) {
   unsigned char z,z1;
 
-  if (character<0x20) character = 0x20;
-  z1=character - 0x20;
-
-  lcdWrite(LCD_D, 0x00);
-  for (int index = 0; index < 5; index++) {
-    z=pgm_read_byte(&(ASCII[z1][index]));
-    lcdWrite(LCD_D, z);   
+  if (character<0x20) {
+    z1 = character;
+    lcdWrite(LCD_D, 0x00);
+    for (int index = 0; index < 5; index++) {
+      z=pgm_read_byte(&(SPECIAL[z1][index]));
+      lcdWrite(LCD_D, z);   
+    }
+    lcdWrite(LCD_D, 0x00);
   }
-  lcdWrite(LCD_D, 0x00);
+  else {
+    z1=character - 0x20;       
+    lcdWrite(LCD_D, 0x00);
+    for (int index = 0; index < 5; index++) {
+      z=pgm_read_byte(&(ASCII[z1][index]));
+      lcdWrite(LCD_D, z);
+    }
+    lcdWrite(LCD_D, 0x00);
+  }
   criticalEventNoMqtt();
 }
 
 void lcdCharacterX(char character) {
   unsigned char z,z1;
 
-  if (character<0x20) character = 0x20;
-  z1=character - 0x20;       
-  lcdWrite(LCD_D, 0x00);
-  for (int index = 0; index < 5; index++) {
-    z=pgm_read_byte(&(ASCII[z1][index]));
-    lcdWrite(LCD_D, z);
-    lcdWrite(LCD_D, z);
+  if (character<0x20) {
+    z1 = character;
+    lcdWrite(LCD_D, 0x00);
+    for (int index = 0; index < 5; index++) {
+      z=pgm_read_byte(&(SPECIAL[z1][index]));
+      lcdWrite(LCD_D, z);
+      lcdWrite(LCD_D, z);
+    }
+    lcdWrite(LCD_D, 0x00);
   }
-  lcdWrite(LCD_D, 0x00);
-}  
+  else {
+    z1=character - 0x20;       
+    lcdWrite(LCD_D, 0x00);
+    for (int index = 0; index < 5; index++) {
+      z=pgm_read_byte(&(ASCII[z1][index]));
+      lcdWrite(LCD_D, z);
+      lcdWrite(LCD_D, z);
+    }
+    lcdWrite(LCD_D, 0x00);
+  }
+  criticalEventNoMqtt();
+}
 
 void lcdClear(void) {
   for (int index = 0; index < LCD_X * LCD_Y / 8; index++) {
@@ -174,11 +214,11 @@ void lcdInitialise(void) {
   digitalWrite(LCD_PIN_RESET, LOW);
   digitalWrite(LCD_PIN_RESET, HIGH);
 
-  analogWrite(LCD_PIN_LED, 128);
+  //analogWrite(LCD_PIN_LED, 128);
   lcdSetBrigtness(1000);
 
   lcdWrite(LCD_CMD, 0x21);  // LCD Extended Commands.
-  lcdWrite(LCD_CMD, 0xB5);  // Set LCD Vop (Contrast). //B1
+  lcdWrite(LCD_CMD, 0xB1);  // Set LCD Vop (Contrast). //B1
   lcdWrite(LCD_CMD, 0x04);  // Set Temp coefficent. //0x04
   lcdWrite(LCD_CMD, 0x14);  // LCD bias mode 1:48. //0x13
   lcdWrite(LCD_CMD, 0x0C);  // LCD in normal mode. 0x0d for inverse

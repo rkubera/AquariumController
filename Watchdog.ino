@@ -8,7 +8,7 @@
  * ************************************************/
  
 void watchdogInit() {
-  watchdogStartTime = clockGetGlobalDateTime();
+  watchdogStartTime = now();
   wdt_enable(WDTO_8S);
   wdt_reset();
 }
