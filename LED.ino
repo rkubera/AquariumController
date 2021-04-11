@@ -183,7 +183,7 @@ void ledSetActualMode() {
     if (ledModeNext==LED_MODE_BLACK) {
       int seconds = nextHourMinute-nowHourMinute;
       if (seconds>=0 && seconds<=ledFadeInFromBlackSeconds) {
-        ledAutoBrightness = (_LED_RANGE_VALUES/ledFadeInFromBlackSeconds)*seconds;
+        ledAutoBrightness = double(_LED_RANGE_VALUES) / double(ledFadeInFromBlackSeconds) * double(seconds);
       }
       if (seconds<=1) {
         ledActualRed=_LED_MIN_VALUE;
@@ -199,7 +199,7 @@ void ledSetActualMode() {
     if (ledModePrev == LED_MODE_BLACK) {
       int seconds = nowHourMinute-prevHourMinute;
       if (seconds>=0 && seconds<=ledFadeInFromBlackSeconds) {
-        ledAutoBrightness = (_LED_RANGE_VALUES/ledFadeInFromBlackSeconds)*seconds;
+        ledAutoBrightness = double(_LED_RANGE_VALUES) / double(ledFadeInFromBlackSeconds) * double(seconds);
       }
     }
   }
@@ -531,21 +531,19 @@ void letSetColor (int r, int g, int b) {
   analogWrite (LED_GREEN_PIN, ledGreenLevel);
   analogWrite (LED_BLUE_PIN, ledBlueLevel);
 
-/*
+
   Serial.print("fullledBrightness=");
   Serial.print(fullledBrightness);
   Serial.print(" ledActualBrightness=");
   Serial.print(ledActualBrightness);
   Serial.print(" ledAutoBrightness=");
   Serial.print(ledAutoBrightness);
-  Serial.print("red=");
+  Serial.print(" red=");
   Serial.print(ledRedLevel);
   Serial.print(" green=");
   Serial.print(ledGreenLevel);
   Serial.print(" blue=");
   Serial.println(ledBlueLevel);
-  */
-  
 }
 
 void ledSetBlack() {

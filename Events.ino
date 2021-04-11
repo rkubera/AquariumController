@@ -119,7 +119,7 @@ void eventTimerMinute() {
   clockMinuteEvent();
   
   fanMinuteEvent();
-
+  
   //IMPORTANT!!!
   criticalEvent();
 }

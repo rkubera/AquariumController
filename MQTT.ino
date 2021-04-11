@@ -15,7 +15,7 @@ void mqttSendCommand(String command, bool callCriticalEvent) {
   Serial3.println(command+char(0));
   Serial3.flush();
   if ((DEBUG_LEVEL & _DEBUG_MQTT) || (DEBUG_LEVEL & _DEBUG_NOTICE)) {
-    Serial.println(command);
+    Serial.println(command+char(0));
   }
   if (callCriticalEvent==true) {
     criticalEvent();

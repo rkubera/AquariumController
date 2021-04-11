@@ -11,19 +11,11 @@ static bool clockInited = false;
 
 void clockInit() {
   clockInited = true;
+  time_t savedTime = configGetUint32Value(EEPROM_unix_timestamp_addr);
+  setTime(savedTime);
   myDST = TimeChangeRule {"EDT", timezoneRule1Week, timezoneRule1DayOfWeek, timezoneRule1Month, timezoneRule1Hour, timezoneRule1Offset*60}; 
-  mySTD = TimeChangeRule {"EST", timezoneRule2Week, timezoneRule1DayOfWeek, timezoneRule2Month, timezoneRule2Hour, timezoneRule1Offset*60}; 
+  mySTD = TimeChangeRule {"EST", timezoneRule2Week, timezoneRule2DayOfWeek, timezoneRule2Month, timezoneRule2Hour, timezoneRule2Offset*60}; 
   myTZ.setRules (myDST, mySTD);
-}
-
-void printDateTime(time_t t, const char *tz)
-{
-    char buf[32];
-    char m[4];    // temporary storage for month string (DateStrings.cpp uses shared buffer)
-    strcpy(m, monthShortStr(month(t)));
-    sprintf(buf, "%.2d:%.2d:%.2d %s %.2d %s %d %s",
-        hour(t), minute(t), second(t), dayShortStr(weekday(t)), day(t), m, year(t), tz);
-    Serial.println(buf);
 }
 
 void clockMqttPublishAll() {
@@ -113,10 +105,22 @@ void clockMqttPublishHourDate() {
   bufferOut[10] = 0;
   mqttElPublish( setBufferFromFlash(getActualDate), bufferOut );
   mqttElPublish( setBufferFromFlash(getActualDayOfWeek), setBufferFromFlash(daysOfTheWeek[globalWeekDay]));
+  schedulerGetActualPartOfDay();
 }
+
 void clockMinuteEvent() { 
-  static bool bootTimeSet = false;
-  clockNTPSynchronize();
+  if (clockInited==false) return;
+  static double lastSyncMillis = -10000;
+  if (wifiStatus == WIFI_STATUS_CONNECTED) {
+    if (abs(millis()-lastSyncMillis)>10000) {
+      lastSyncMillis = millis();
+      if (DEBUG_LEVEL & _DEBUG_NOTICE) {
+        Serial.println(F("Clock NTP Synchro start"));
+      }
+      String command = "get timestamp";
+      mqttSendCommand(command);
+    }
+  }
 }
 
 
@@ -125,13 +129,12 @@ void clockMillisEvent() {
   time_t utc = now();
   time_t local = myTZ.toLocal(utc, &tcr);
     
-  printDateTime(utc, "UTC");
-  printDateTime(local, tcr -> abbrev);
-    
   static double lastMillisSavedTime = -3600000;
+  if (abs(millis()-lastMillisSavedTime)>3600000 && wifiStatus == WIFI_STATUS_CONNECTED) {
+     lastMillisSavedTime = millis();
+     configSaveUint32Value(utc, EEPROM_unix_timestamp_addr);
+  }
 
-  time_t my_time = now();
-  
   static byte clockLastMinute;
   byte mymin = minute(local);
   
@@ -155,7 +158,6 @@ void clockSetLocalTime() {
   //convert to utc
   time_t utc = myTZ.toUTC(tSet);
   setTime(utc);
-  
 }
 
 time_t clockGetLocalTime() {
@@ -171,21 +173,6 @@ time_t clockGetLocalTime() {
   globalMonth = month(localTime);
   globalYear = year(localTime);
   return localTime;
-}
-
-void clockNTPSynchronize() {
-  if (clockInited==false) return;
-  static double lastSyncMillis = -10000;
-  if (wifiStatus == WIFI_STATUS_CONNECTED) {
-    if (abs(millis()-lastSyncMillis)>10000) {
-      lastSyncMillis = millis();
-      if (DEBUG_LEVEL & _DEBUG_NOTICE) {
-        Serial.println(F("Clock NTP Synchro start"));
-      }
-      String command = "get timestamp";
-      mqttSendCommand(command);
-    }
-  }
 }
 
 void clockNTPSynchronize_cb(time_t ntpTime) {

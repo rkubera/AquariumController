@@ -19,9 +19,9 @@
 #define _DEBUG_NOTICE   4
 #define _DEBUG_MQTT     8
 
-#define DEBUG_LEVEL _DEBUG_ERROR + _DEBUG_WARNING + _DEBUG_MQTT + _DEBUG_NOTICE
+//#define DEBUG_LEVEL _DEBUG_ERROR + _DEBUG_WARNING + _DEBUG_MQTT + _DEBUG_NOTICE
 
-//#define DEBUG_LEVEL 0
+#define DEBUG_LEVEL 0
 
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
@@ -87,8 +87,11 @@ char keys[KBD_ROWS][KBD_COLS] = {
 //byte KBD_ROW_PINS[KBD_ROWS] = {30, 29, 28, 27, 26}; //connect to the row pinouts of the keypad
 //byte KBD_COL_PINS[KBD_COLS] = {22, 23, 24, 25}; //connect to the column pinouts of the keypad
 
-byte KBD_ROW_PINS[KBD_ROWS] = {23, 25, 27, 29, 31}; //connect to the row pinouts of the keypad
-byte KBD_COL_PINS[KBD_COLS] = {39, 37, 35, 33}; //connect to the column pinouts of the keypad
+//byte KBD_ROW_PINS[KBD_ROWS] = {23, 25, 27, 29, 31}; //connect to the row pinouts of the keypad
+//byte KBD_COL_PINS[KBD_COLS] = {39, 37, 35, 33}; //connect to the column pinouts of the keypad
+
+byte KBD_ROW_PINS[KBD_ROWS] = {39, 37, 35, 33, 31}; //connect to the row pinouts of the keypad
+byte KBD_COL_PINS[KBD_COLS] = {23, 25, 27, 29}; //connect to the column pinouts of the keypad
 
 //********************************
 //Main variables
@@ -452,10 +455,11 @@ int ledBlue = _LED_MIN_VALUE;
 
 byte ledStepSwitchColorSeconds = 4;
 byte ledStepWaveSeconds = 10;
+int ledFadeInFromBlackSeconds = 120;
 
 byte ledStep = ledStepSwitchColorSeconds;
 
-int ledFadeInFromBlackSeconds = 120;
+
 
 byte ledWaveIdx;
 byte ledLastMode = LED_MODE_NONE;
