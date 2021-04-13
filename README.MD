@@ -15,7 +15,6 @@ Alfa release, not for production/test usage
 - LED strips controller (optional)
 - internal fan with pwm and temperature controller (optional)
 - buzzer (optional)
-- real time clock (optional)
 
 ## Integration and networking:
 - MQTT integration

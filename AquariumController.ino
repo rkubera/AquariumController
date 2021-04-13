@@ -75,6 +75,9 @@
 
 #define FAN_PIN 3
 
+//********************************
+//Keyboard
+//********************************
 const byte KBD_ROWS = 5; //four rows
 const byte KBD_COLS = 4; //three columns
 char keys[KBD_ROWS][KBD_COLS] = {
@@ -131,6 +134,9 @@ const char charYellow[] PROGMEM = "yellow";
 const char charWhite[] PROGMEM = "white";
 const char charWave[] PROGMEM = "wave";
 
+const char charCustom1[] PROGMEM = "custom1";
+const char charCustom2[] PROGMEM = "custom2";
+
 const char charManual[] PROGMEM = "manual";
 const char charPartofday[] PROGMEM = "partofday";
 const char charTreshold[] PROGMEM = "treshold";
@@ -171,6 +177,11 @@ const char charState[] PROGMEM = "State";
 
 const char charMaxDeviation[] PROGMEM = "MaxDeviation";
 
+
+//********************************
+//Control
+//********************************
+
 #define CONTROL_MODE_MANUAL             0
 #define CONTROL_MODE_PART_OF_DAY        1
 #define CONTROL_MODE_TRESHOLD           2
@@ -182,22 +193,14 @@ const char charMaxDeviation[] PROGMEM = "MaxDeviation";
 #define OUTPUT_TYPE_RELAY               2
 
 #define MQTT_MIN_REFRESH_MILLIS         5000
+QuickStats stats;
 
+//********************************
+//Fan
+//********************************
 byte fanStartTemperature = 30;
 byte fanMaxSpeedTemperature = 35;
 byte maxInternalTemperature = 50;
-
-double timerMillisEventDate;
-double timerTenSecondsEventDate;
-double timerSecondEventDate;
-double timerMinuteEventDate;
-double timerHourEventDate;
-double lastLEDMicros;
-const int bufferOutSize = 100;
-char bufferOut[bufferOutSize];
-QuickStats stats;
-
-int publishValue = -1;
 
 //********************************
 //PWMOutputs
@@ -393,6 +396,11 @@ byte schedulerStartNightMinute = 00;
 //********************************
 double lastCriticalEvent =0;
 #define CRITICAL_EVENT_MIN_MILLIS 30
+double timerMillisEventDate;
+double timerTenSecondsEventDate;
+double timerSecondEventDate;
+double timerMinuteEventDate;
+double timerHourEventDate;
 
 //********************************
 //Buzzer
@@ -420,14 +428,17 @@ byte buzzerOnErrors = 1;
 #define LED_MODE_MAGENTA 7
 #define LED_MODE_YELLOW  8
 #define LED_MODE_BLACK   9
+#define LED_MODE_CUSTOM1 10
+#define LED_MODE_CUSTOM2 11
 
 #define LED_BRIGHTNESS_AUTO -1
 
 byte ledControlMode = CONTROL_MODE_MANUAL;
 byte ledManualMode = LED_MODE_NONE;
 
-byte ledTimer = 100;
-byte ledActualTimer = 0;
+unsigned long ledCustomColor1 = 0xFFFFFF;
+unsigned long ledCustomColor2 = 0xFFFFFF;
+
 int ledBrightness = 0;
 int ledActualBrightness = 0;
 
@@ -452,14 +463,11 @@ int ledRed = _LED_MIN_VALUE;
 int ledGreen = _LED_MIN_VALUE;
 int ledBlue = _LED_MIN_VALUE;
 
-
 byte ledStepSwitchColorSeconds = 4;
 byte ledStepWaveSeconds = 10;
 int ledFadeInFromBlackSeconds = 120;
 
-byte ledStep = ledStepSwitchColorSeconds;
-
-
+byte ledTransitionTime = ledStepSwitchColorSeconds;
 
 byte ledWaveIdx;
 byte ledLastMode = LED_MODE_NONE;
@@ -471,6 +479,8 @@ byte ledLastMode = LED_MODE_NONE;
 byte ledManualOnOff = LED_MANUAL_ONOFF_AUTO;
 
 double ledRedLevel, ledGreenLevel, ledBlueLevel;
+
+unsigned long lastEventMillis;
 
 //********************************
 //LCD
@@ -511,10 +521,10 @@ const char published[] PROGMEM = "published";
 
 byte mqttStatus = MQTT_STATUS_DISCONNECTED;
 
-const char setLedColorMorning[] PROGMEM = "set/LedColorMorning";                 //red, green, blue, white, cyan, magenta, yellow, white, wave, black
-const char setLedColorAfternoon[] PROGMEM = "set/LedColorAfternoon";             //red, green, blue, white, cyan, magenta, yellow, white, wave, black
-const char setLedColorEvening[] PROGMEM = "set/LedColorEvening";                 //red, green, blue, white, cyan, magenta, yellow, white, wave, black
-const char setLedColorNight[] PROGMEM = "set/LedColorNight";                     //red, green, blue, white, cyan, magenta, yellow, white, wave, black
+const char setLedColorMorning[] PROGMEM = "set/LedColorMorning";                 //red, green, blue, white, cyan, magenta, yellow, white, wave, black, custom1, custom2
+const char setLedColorAfternoon[] PROGMEM = "set/LedColorAfternoon";             //red, green, blue, white, cyan, magenta, yellow, white, wave, black, custom1, custom2
+const char setLedColorEvening[] PROGMEM = "set/LedColorEvening";                 //red, green, blue, white, cyan, magenta, yellow, white, wave, black, custom1, custom2
+const char setLedColorNight[] PROGMEM = "set/LedColorNight";                     //red, green, blue, white, cyan, magenta, yellow, white, wave, black, custom1, custom2
 const char setBrightness[] PROGMEM = "set/Brightness";                           //0-2048
 const char setActualTime[] PROGMEM = "set/ActualTime";                           //HH:mm in 24 hours format
 const char setActualDate[] PROGMEM = "set/ActualDate";                           //yyyy/mm/dd
@@ -526,7 +536,7 @@ const char setFanStartTemperature[] PROGMEM = "set/FanStartTemp";               
 const char setFanMaxSpeedTemperature[] PROGMEM = "set/FanMaxSpeedTemp";          //integer value
 const char setMaxInternalTemperature[] PROGMEM = "set/MaxIntTemp";               //integer value
 const char setLedControlMode[] PROGMEM = "set/LedControlMode";                   //manual, partofday
-const char setLedManualMode[] PROGMEM = "set/LedManualMode";                     //red, green, blue, white, cyan, magenta, yellow, white, wave, black
+const char setLedManualMode[] PROGMEM = "set/LedManualMode";                     //red, green, blue, white, cyan, magenta, yellow, white, wave, black, custom1, custom2
 const char setBuzzerOnStart[] PROGMEM = "set/BuzzerOnStart";                     //on, off
 const char setBuzzerOnErrors[] PROGMEM = "set/BuzzerOnErrors";                   //on, off
 const char setTimezoneRule1Week[] PROGMEM = "set/TimezoneRule1Week";             //first, second, third, fourth, last
@@ -540,6 +550,9 @@ const char setTimezoneRule2Offset[] PROGMEM = "set/TimezoneRule2Offset";        
 const char setTimezoneRule1Month[] PROGMEM = "set/TimezoneRule1Month";           //january, february, march, april, may, june, july, august, september, october, november, december
 const char setTimezoneRule2Month[] PROGMEM = "set/TimezoneRule2Month";           //january, february, march, april, may, june, july, august, september, october, november, december
 const char setLedState[] PROGMEM = "set/LedState";                               //on, off
+const char setCustomColor1[] PROGMEM = "set/CustomColor1";
+const char setCustomColor2[] PROGMEM = "set/CustomColor2";
+
 const char getBrightness[] PROGMEM = "get/Brightness";
 const char getActualTime[] PROGMEM = "get/ActualTime";
 const char getActualDate[] PROGMEM = "get/ActualDate";
@@ -576,6 +589,8 @@ const char getTimezoneRule2Offset[] PROGMEM = "get/TimezoneRule2Offset";
 const char getTimezoneRule1Month[] PROGMEM = "get/TimezoneRule1Month";
 const char getTimezoneRule2Month[] PROGMEM = "get/TimezoneRule2Month";
 const char getLedState[] PROGMEM = "get/LedState";
+const char getCustomColor1[] PROGMEM = "get/CustomColor1";
+const char getCustomColor2[] PROGMEM = "get/CustomColor2";
 
 
 //********************************
@@ -628,6 +643,9 @@ const char getLedState[] PROGMEM = "get/LedState";
 
 #define EEPROM_unix_timestamp_addr                          95 //(4 bytes)
 
+#define EEPROM_ledCustomColor1_addr                         100 //(4 bytes)
+#define EEPROM_ledCustomColor2_addr                         104 //(4 bytes)
+
 #define EEPROM_sensors_addr                                 2048      //8*50 = 400
 #define EEPROM_relays_addr                                  EEPROM_sensors_addr+(SENSORS_SENSOR_EEPROM_BYTES*SENSORS_COUNT) //4*20 = 80
 #define EEPROM_pwm_outputs_addr                             EEPROM_relays_addr+(RELAYS_RELAY_EEPROM_BYTES*RELAYS_COUNT)
@@ -664,6 +682,10 @@ byte fanPWM = 255;
 //********************************
 //Main program
 //********************************
+
+const int bufferOutSize = 100;
+char bufferOut[bufferOutSize];
+int publishValue = -1;
 
 void setup() {
 

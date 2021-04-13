@@ -55,6 +55,8 @@ void configLoad() {
   timezoneRule1Month = configGetValue(EEPROM_timezoneRule1Month_addr);
   timezoneRule2Month = configGetValue(EEPROM_timezoneRule2Month_addr);
 
+  ledCustomColor1 = configGetUint32Value(EEPROM_ledCustomColor1_addr);
+  ledCustomColor2 = configGetUint32Value(EEPROM_ledCustomColor2_addr);
 }
 
 byte configGetValue(int addr) {   //1 byte
@@ -114,23 +116,7 @@ void configSaveString  (String str, int addr, int maxSize) {
 }
 
 void configSaveLedBrightness(int type, int value) {
-  if (ledControlMode==CONTROL_MODE_PART_OF_DAY) {
-    if (type==SCHEDULER_MODE_MORNING) {
-      configSaveUint32Value(value, EEPROM_ledMorningBrightness_addr); 
-    }
-    else if (type==SCHEDULER_MODE_AFTERNOON) {
-      configSaveUint32Value(value, EEPROM_ledAfternoonBrightness_addr); 
-    }
-    else if (type==SCHEDULER_MODE_EVENING) {
-      configSaveUint32Value(value, EEPROM_ledEveningBrightness_addr); 
-    }
-    else if (type==SCHEDULER_MODE_NIGHT) {
-      configSaveUint32Value(value, EEPROM_ledNightBrightness_addr); 
-    }
-  }
-  else {
-    configSaveUint32Value(value, EEPROM_ledManualBrightness_addr); 
-  }
+  configSaveUint32Value(value, EEPROM_ledMorningBrightness_addr);
 }
 
 void configSaveSchedulerTimers() {

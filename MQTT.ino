@@ -12,10 +12,23 @@ void mqttSendCommand(String command) {
 }
 
 void mqttSendCommand(String command, bool callCriticalEvent) {
-  Serial3.println(command+char(0));
+  int i;
+  int len = command.length();
+  for (i=0; i<len; i++) {
+    Serial3.print(command[i]);
+    criticalEvent();
+  }
+  Serial3.println();
+  //Serial3.println(command+char(0));
   Serial3.flush();
+  
   if ((DEBUG_LEVEL & _DEBUG_MQTT) || (DEBUG_LEVEL & _DEBUG_NOTICE)) {
-    Serial.println(command+char(0));
+    for (i=0; i<len; i++) {
+      Serial.print(command[i]);
+      criticalEvent();
+    }
+    Serial.println();
+    //Serial.println(command+char(0));
   }
   if (callCriticalEvent==true) {
     criticalEvent();
@@ -320,28 +333,12 @@ void mqttElData(String topic, String RawValue) {
     return;
   }
 
-  //Brigtness
+    //Brigtness
   if (endpoint==setBufferFromFlash(setBrightness)) {
+    ledMorningBrightness = stringToInt(Value);
     int actualPartOfDay = schedulerGetActualPartOfDay();
-    if (ledControlMode==CONTROL_MODE_PART_OF_DAY) {
-      
-      if (actualPartOfDay==SCHEDULER_MODE_MORNING) {
-        ledMorningBrightness = stringToInt(Value);
-      }
-      else if (actualPartOfDay==SCHEDULER_MODE_AFTERNOON) {
-        ledAfternoonBrightness = stringToInt(Value);
-      }
-      else if (actualPartOfDay==SCHEDULER_MODE_EVENING) {
-        ledEveningBrightness = stringToInt(Value);
-      }
-      else {
-        ledNightBrightness = stringToInt(Value);
-      }
-    }
-    else {
-      ledManualBrightness = stringToInt(Value);
-    }
     configSaveLedBrightness(actualPartOfDay, stringToInt(Value));
+
     ledSetBrightness(stringToInt(Value));
     mqttElPublish(setBufferFromFlash(getBrightness), (String)stringToInt(Value), false);
     return;
@@ -980,6 +977,21 @@ void mqttElData(String topic, String RawValue) {
   }
   
   //LED
+
+  if (endpoint == setBufferFromFlash(setCustomColor1)) {
+    ledCustomColor1 = stringToLong(Value);
+    configSaveUint32Value(ledCustomColor1, EEPROM_ledCustomColor1_addr);
+    mqttElPublish(setBufferFromFlash(getCustomColor1), Value, false);
+    return;
+  }
+
+  if (endpoint == setBufferFromFlash(setCustomColor2)) {
+    ledCustomColor2 = stringToLong(Value);
+    configSaveUint32Value(ledCustomColor1, EEPROM_ledCustomColor1_addr);
+    mqttElPublish(setBufferFromFlash(getCustomColor2), Value, false);
+    return;
+  }
+  
   if (endpoint == setBufferFromFlash(setLedControlMode)) {
     if (Value == setBufferFromFlash(charManual)) {
       ledSetBrightness(LED_BRIGHTNESS_AUTO);
@@ -1030,6 +1042,12 @@ void mqttElData(String topic, String RawValue) {
     }
     if (Value == setBufferFromFlash(charWave)) {
       tempLedMode = LED_MODE_WAVE;
+    }
+    if (Value == setBufferFromFlash(charCustom1)) {
+      tempLedMode = LED_MODE_CUSTOM1;
+    }
+    if (Value == setBufferFromFlash(charCustom2)) {
+      tempLedMode = LED_MODE_CUSTOM2;
     }
     if (endpoint == setBufferFromFlash(setLedManualMode)) {
       if (ledManualMode!=tempLedMode) {

@@ -119,6 +119,16 @@ int stringToInt(String str) {
   return str.toInt();
 }
 
+unsigned long stringToLong(String str) {
+  return atol(str.c_str());
+}
+
+String longToString (unsigned long value) {
+  char buff[30];
+  sprintf (buff, "%d", value);
+  return (String) buff;
+}
+
 String intToString (int value) {
   sprintf (bufferOut, "%d", value);
   return (String) bufferOut;

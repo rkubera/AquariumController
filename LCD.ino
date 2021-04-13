@@ -6,6 +6,7 @@
  * https://github.com/rkubera/AquariumController  *
  *                                                *
  * ************************************************/
+ 
 #define  UP_ARROW         0x00
 #define  DOWN_ARROW       0x01
 #define  RIGHT_ARROW      0x02
@@ -218,7 +219,7 @@ void lcdInitialise(void) {
   lcdSetBrigtness(1000);
 
   lcdWrite(LCD_CMD, 0x21);  // LCD Extended Commands.
-  lcdWrite(LCD_CMD, 0xB1);  // Set LCD Vop (Contrast). //B1
+  lcdWrite(LCD_CMD, 0xB9);  // Set LCD Vop (Contrast). //B1
   lcdWrite(LCD_CMD, 0x04);  // Set Temp coefficent. //0x04
   lcdWrite(LCD_CMD, 0x14);  // LCD bias mode 1:48. //0x13
   lcdWrite(LCD_CMD, 0x0C);  // LCD in normal mode. 0x0d for inverse
