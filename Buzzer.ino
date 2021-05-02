@@ -111,6 +111,22 @@ int noteDurations[] = {
   4, 8, 8, 4, 4, 4, 4, 4
 };
 
+void unblockedDelay(unsigned long duration) {
+  unsigned long delayMillis = millis();
+  while ((millis()-delayMillis)<duration) { 
+    criticalEvent();
+  }
+}
+
+void playTone (int pin, int frequency, unsigned long duration) {
+  unsigned long toneMillis = millis();
+  tone (pin,frequency);
+  while ((millis()-toneMillis)<duration) { 
+    criticalEvent();
+  }
+  noTone(pin);
+}
+
 void buzzerInit() {
   if (buzzerOnStart==BUZZER_OFF) {
     return;
@@ -121,12 +137,12 @@ void buzzerInit() {
     // to calculate the note duration, take one second divided by the note type.
     //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
     int noteDuration = 1000 / noteDurations[thisNote];
-    tone(BUZZER_PIN, melody[thisNote], noteDuration);
+    playTone(BUZZER_PIN, melody[thisNote], noteDuration);
 
     // to distinguish the notes, set a minimum time between them.
     // the note's duration + 30% seems to work well:
     int pauseBetweenNotes = noteDuration * 1.30;
-    delay(pauseBetweenNotes);
+    unblockedDelay(pauseBetweenNotes);
     // stop the tone playing:
     noTone(BUZZER_PIN);
   }
@@ -162,12 +178,10 @@ void beepErrors() {
       lastMillis = millis();
       if (errorsCount>0) {
         int noteDuration = 1000 / 4;
-        tone(BUZZER_PIN, NOTE_C4, noteDuration);
-        delay(100);
-        tone(BUZZER_PIN, NOTE_G3, noteDuration);
+        playTone(BUZZER_PIN, NOTE_C4, noteDuration);
+        unblockedDelay(100);
+        playTone(BUZZER_PIN, NOTE_G3, noteDuration);
       }
     }
   }
 }
-
-

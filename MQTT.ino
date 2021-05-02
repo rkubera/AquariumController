@@ -110,7 +110,7 @@ void mqttConnectToServer() {
 
 void mqttInit() {
   Serial3.begin(9600);
-  delay(1000);
+  //delay(1000);
   Serial3.flush();
   mqttConnectToServer();
 }
@@ -610,6 +610,7 @@ void mqttElData(String topic, String RawValue) {
       sprintf(bufferOut,"%02d:%02d", schedulerStartMorningHour, schedulerStartMorningMinute);
       bufferOut[5] = 0;
       mqttElPublish( setBufferFromFlash(getMorningTime), bufferOut, false );
+      schedulerPublishActualPartOfDay();
       return;
   }
 
@@ -620,6 +621,7 @@ void mqttElData(String topic, String RawValue) {
       sprintf(bufferOut,"%02d:%02d", schedulerStartAfternoonHour, schedulerStartAfternoonMinute);
       bufferOut[5] = 0;
       mqttElPublish( setBufferFromFlash(getAfternoonTime), bufferOut, false );
+      schedulerPublishActualPartOfDay();
       return;
   }
 
@@ -630,6 +632,7 @@ void mqttElData(String topic, String RawValue) {
       sprintf(bufferOut,"%02d:%02d", schedulerStartEveningHour, schedulerStartEveningMinute);
       bufferOut[5] = 0;
       mqttElPublish( setBufferFromFlash(getEveningTime), bufferOut, false );
+      schedulerPublishActualPartOfDay();
       return;
   }
 
@@ -640,6 +643,7 @@ void mqttElData(String topic, String RawValue) {
       sprintf(bufferOut,"%02d:%02d", schedulerStartNightHour, schedulerStartNightMinute);
       bufferOut[5] = 0;
       mqttElPublish( setBufferFromFlash(getNightTime), bufferOut, false );
+      schedulerPublishActualPartOfDay();
       return;
   }
 

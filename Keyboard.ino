@@ -17,4 +17,16 @@ void keyboardCheckMillisEvent() {
     lastKey=key;
     lastKeyMillis = millis();
   }
+  if (key=='*') {
+    if (ledActualState == LED_MANUAL_ONOFF_OFF) {
+      ledManualOnOff = LED_MANUAL_ONOFF_ON;
+      mqttElPublish("cmnd/POWER1","ON", false);
+      mqttElPublish( setBufferFromFlash(getLedState), setBufferFromFlash(charOn), false);
+    }
+    else {
+      ledManualOnOff = LED_MANUAL_ONOFF_OFF;
+      mqttElPublish("cmnd/POWER1","OFF", false);
+      mqttElPublish( setBufferFromFlash(getLedState), setBufferFromFlash(charOff), false);
+    }
+  }
 }

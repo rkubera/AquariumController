@@ -105,7 +105,8 @@ void clockMqttPublishHourDate() {
   bufferOut[10] = 0;
   mqttElPublish( setBufferFromFlash(getActualDate), bufferOut );
   mqttElPublish( setBufferFromFlash(getActualDayOfWeek), setBufferFromFlash(daysOfTheWeek[globalWeekDay]));
-  schedulerGetActualPartOfDay();
+  //schedulerGetActualPartOfDay();
+  schedulerPublishActualPartOfDay();
 }
 
 void clockMinuteEvent() { 

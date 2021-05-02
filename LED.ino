@@ -60,7 +60,6 @@ String ledColorValueToString (byte Value) {
 }
 
 void ledMqttPublishAll() {
-  
   String actualControlMode;
   if (ledControlMode==CONTROL_MODE_PART_OF_DAY) {
     actualControlMode = setBufferFromFlash(charPartofday);
@@ -121,11 +120,7 @@ void ledSwitchToMode(int myMode) {
 }
 
 void ledSetActualMode() {
-
-  bool bypassBrihtnessChange = false;
   double fullledBrightness;
-  static unsigned long fadeLastMillis = 0;
-
   //Part of day mode
   if (ledControlMode==CONTROL_MODE_PART_OF_DAY) {
     int ledModeNext;
@@ -177,56 +172,42 @@ void ledSetActualMode() {
       nextHourMinute = startMorningHourMinute;
       prevHourMinute = startNightHourMinute;
     }
+    
+    byte fadeMode = LED_FADEMODE_DEFAULT;
+    if (ledModePrev==LED_MODE_BLACK && ledMode!=LED_MODE_BLACK) {
+      fadeMode = LED_FADEMODE_FADEIN;
+    }
+
+    if (ledMode==LED_MODE_BLACK && ledModePrev!=LED_MODE_BLACK) {
+      fadeMode = LED_FADEMODE_FADEOUT;
+    }
 
     //LedStep
-    if (ledMode == LED_MODE_WAVE) {
-      ledTransitionTime = ledStepWaveSeconds;
-    }
-    else {
-      ledTransitionTime = ledStepSwitchColorSeconds;
-    }
-    
-    //Auto Brightness
-    ledAutoBrightness = _LED_RANGE_VALUES;
-    
-    //Fade in black
-    if (ledModeNext==LED_MODE_BLACK) {
-      int seconds = nextHourMinute-nowHourMinute;
+    ledTransitionTime = ledStepSwitchColorSeconds;
+
+    static bool manualChangedOnOff = false;
+    if (fadeMode == LED_FADEMODE_FADEIN) {
+      int seconds = nowHourMinute - prevHourMinute;
       if (seconds>=0 && seconds<=ledFadeInFromBlackSeconds) {
-        if (fadeLastMillis==0) {
-          fadeLastMillis = millis();
+        if (ledManualOnOff==LED_MANUAL_ONOFF_OFF || ledManualOnOff==LED_MANUAL_ONOFF_ON) {
+           manualChangedOnOff = true;
         }
-        double miliSeconds = millis() - fadeLastMillis;
-        bypassBrihtnessChange = true;
-        ledAutoBrightness = double(ledBrightness) - (double(ledBrightness) / double(ledFadeInFromBlackSeconds) * double(miliSeconds) / 1000);
-      
-        if (seconds<=1) {
-          ledActualRed=_LED_MIN_VALUE;
-          ledActualGreen=_LED_MIN_VALUE;
-          ledActualBlue=_LED_MIN_VALUE;
-          ledRed=_LED_MIN_VALUE;
-          ledGreen=_LED_MIN_VALUE;
-          ledBlue=_LED_MIN_VALUE;
-        }
-      }
-      else {
-        fadeLastMillis = 0;
+        if (manualChangedOnOff==false) ledTransitionTime = ledFadeInFromBlackSeconds;
       }
     }
-    
-    //Fade from black
-    else if (ledModePrev == LED_MODE_BLACK) {
-      int seconds = nowHourMinute-prevHourMinute;
+    else if (fadeMode == LED_FADEMODE_FADEOUT) {
+      int seconds = nowHourMinute - prevHourMinute;
       if (seconds>=0 && seconds<=ledFadeInFromBlackSeconds) {
-        if (fadeLastMillis==0) {
-          fadeLastMillis = millis();
+        if (ledManualOnOff==LED_MANUAL_ONOFF_OFF || ledManualOnOff==LED_MANUAL_ONOFF_ON) {
+           manualChangedOnOff = true;
         }
-        double miliSeconds = millis() - fadeLastMillis;
-        bypassBrihtnessChange = true;
-        ledAutoBrightness = double(ledBrightness) / double(ledFadeInFromBlackSeconds) * double(miliSeconds/1000);
+        if (manualChangedOnOff==false) ledTransitionTime = ledFadeInFromBlackSeconds;
       }
-      else {
-        fadeLastMillis = 0;
+    }
+    else if (fadeMode == LED_FADEMODE_DEFAULT) {
+      manualChangedOnOff = false;
+      if (ledMode == LED_MODE_WAVE) {
+        ledTransitionTime = ledStepWaveSeconds;
       }
     }
   }
@@ -235,8 +216,6 @@ void ledSetActualMode() {
   else if (ledControlMode==CONTROL_MODE_MANUAL) {
     //ledSetBrightness(ledManualBrightness);
     ledMode = ledManualMode;
-    ledAutoBrightness = _LED_RANGE_VALUES;
-    fadeLastMillis = 0;
 
     //LedStep
     if (ledMode == LED_MODE_WAVE) {
@@ -245,10 +224,6 @@ void ledSetActualMode() {
     else {
       ledTransitionTime = ledStepSwitchColorSeconds;
     }
-    
-  }
-  else {
-    fadeLastMillis = 0;
   }
 
   //Set LED destination color
@@ -282,11 +257,10 @@ void ledSetActualMode() {
   }
 
   //Change actual color and brightness to destination color
-  unsigned long millisDelta = abs((micros()/1000) - (lastEventMillis));
+  double millisDelta = abs((micros()/1000) - (lastEventMillis));
   lastEventMillis = micros()/1000;
-  double ledStepFullMillis = ledTransitionTime*1000;
   double ledStepMillis = millisDelta*_LED_RANGE_VALUES;
-  ledStepMillis = round(double(ledStepMillis/ledStepFullMillis));
+  ledStepMillis = ledStepMillis/ledTransitionTime/1000;
 
   if (ledActualRed>ledRed) {
     ledActualRed = ledActualRed-ledStepMillis;
@@ -315,20 +289,15 @@ void ledSetActualMode() {
     if (ledActualBlue>_LED_MAX_VALUE) ledActualBlue = _LED_MAX_VALUE;
   }
 
-  if (bypassBrihtnessChange == false) {
-    if (ledActualBrightness<ledBrightness) {
-      ledActualBrightness = ledActualBrightness+ledStepMillis;
-      if (ledActualBrightness>_LED_RANGE_VALUES) ledActualBrightness = _LED_RANGE_VALUES;
-    }
-    if (ledActualBrightness>ledBrightness) {
-      ledActualBrightness = ledActualBrightness-ledStepMillis;
-      if (ledActualBrightness<0) ledActualBrightness = 0;
-    }
-    fullledBrightness = (double)ledActualBrightness/_LED_RANGE_VALUES;
+  if (ledActualBrightness<ledBrightness) {
+    ledActualBrightness = ledActualBrightness+ledStepMillis;
+    if (ledActualBrightness>_LED_RANGE_VALUES) ledActualBrightness = _LED_RANGE_VALUES;
   }
-  else {
-    fullledBrightness = (double)ledAutoBrightness/_LED_RANGE_VALUES;
+  if (ledActualBrightness>ledBrightness) {
+    ledActualBrightness = ledActualBrightness-ledStepMillis;
+    if (ledActualBrightness<0) ledActualBrightness = 0;
   }
+  fullledBrightness = (double)ledActualBrightness/_LED_RANGE_VALUES;
   
   letSetColor (ledActualRed, ledActualGreen, ledActualBlue, fullledBrightness);
 }
@@ -434,11 +403,10 @@ void ledModeWave() {
 }
 
 void ledMicrosEvent() {
-    if (ledMode == LED_MODE_WAVE) {
-      ledModeWave();
-    }
-    
-    ledSetActualMode();
+  if (ledMode == LED_MODE_WAVE) {
+    ledModeWave();
+  }
+  ledSetActualMode();
 }
 
 void ledSetBrightness(int value) {
@@ -473,21 +441,25 @@ void letSetColor (int r, int g, int b , double fullledBrightness) {
   analogWrite (LED_GREEN_PIN, ledGreenLevel);
   analogWrite (LED_BLUE_PIN, ledBlueLevel);
 
-  /*
+/*
   Serial.print("ledTransitionTime=");
   Serial.print(ledTransitionTime);
   Serial.print(" fullledBrightness=");
   Serial.print(fullledBrightness);
   Serial.print(" ledActualBrightness=");
   Serial.print(ledActualBrightness);
-  Serial.print(" ledAutoBrightness=");
-  Serial.print(ledAutoBrightness);
-  Serial.print(" red=");
+  Serial.print(" ledRed=");
   Serial.print(ledRedLevel);
-  Serial.print(" green=");
+  Serial.print(" ledGreen=");
   Serial.print(ledGreenLevel);
+  Serial.print(" ledBlue=");
+  Serial.print(ledBlueLevel);
+  Serial.print(" red=");
+  Serial.print(ledRed);
+  Serial.print(" green=");
+  Serial.print(ledGreen);
   Serial.print(" blue=");
-  Serial.println(ledBlueLevel);
+  Serial.println(ledBlue);
   */
   
 }
@@ -502,25 +474,24 @@ void ledSetCustom(byte custommode) {
       CustomColor = ledCustomColor2;
       break;
   }
-
-   unsigned long result = 0;
-   unsigned long myAnd = 0x0000FF;
-   unsigned long myColor = CustomColor;
+  unsigned long result = 0;
+  unsigned long myAnd = 0x0000FF;
+  unsigned long myColor = CustomColor;
    
-   result = myColor & myAnd;
-   ledBlue = result;
+  result = myColor & myAnd;
+  ledBlue = result;
 
-   myColor = CustomColor;
-   myAnd = 0x00FF00;
-   result = myColor & myAnd;
-   result = result>>8;
-   ledGreen = result;
+  myColor = CustomColor;
+  myAnd = 0x00FF00;
+  result = myColor & myAnd;
+  result = result>>8;
+  ledGreen = result;
 
-   myColor = CustomColor;
-   myAnd = 0xFF0000;
-   result = myColor & myAnd;
-   result = result>>16;
-   ledRed = result;
+  myColor = CustomColor;
+  myAnd = 0xFF0000;
+  result = myColor & myAnd;
+  result = result>>16;
+  ledRed = result;
 }
 
 void ledSetBlack() {
@@ -584,6 +555,7 @@ void ledSetWave() {
 }
 
 void ledSetManualOn() {
+  ledActualState = LED_MANUAL_ONOFF_ON;
   if (ledControlMode==CONTROL_MODE_MANUAL) {
     ledSwitchToMode(ledManualMode);
   }
@@ -595,6 +567,7 @@ void ledSetManualOn() {
 }
 
 void ledSetManualOff() {
+  ledActualState = LED_MANUAL_ONOFF_OFF;
   ledRed = _LED_MIN_VALUE;
   ledGreen = _LED_MIN_VALUE;
   ledBlue = _LED_MIN_VALUE;

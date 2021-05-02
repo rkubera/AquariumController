@@ -27,10 +27,15 @@ void schedulerMqttPublishAll() {
 
 int schedulerGetActualPartOfDay() {
   time_t local = clockGetLocalTime();
-  return schedulerGetPartOfDay(hour(local), minute(local));
+  return schedulerGetPartOfDay(hour(local), minute(local), false);
 }
 
-int schedulerGetPartOfDay(double h, double m) {
+int schedulerPublishActualPartOfDay() {
+  time_t local = clockGetLocalTime();
+  return schedulerGetPartOfDay(hour(local), minute(local), true);
+}
+
+int schedulerGetPartOfDay(double h, double m,  bool forcePublish) {
   static int schedulerLastActualMode;
   double nowHourMinute = 0+(m*60)+(h*3600);
   double startMorningHourMinute = 0+((double)schedulerStartMorningMinute*60)+((double)schedulerStartMorningHour*3600);
@@ -41,7 +46,7 @@ int schedulerGetPartOfDay(double h, double m) {
   //Morning
   if (startMorningHourMinute<=startAfternoonHourMinute) {
     if (nowHourMinute>=startMorningHourMinute && nowHourMinute<startAfternoonHourMinute) {
-      if (schedulerLastActualMode!=SCHEDULER_MODE_MORNING) {
+      if (schedulerLastActualMode!=SCHEDULER_MODE_MORNING || forcePublish==true) {
         schedulerLastActualMode = SCHEDULER_MODE_MORNING;
         mqttElPublish(setBufferFromFlash(getActualPartOfDay), setBufferFromFlash(schedulerMorning));
       }
@@ -50,7 +55,7 @@ int schedulerGetPartOfDay(double h, double m) {
   }
   if (startMorningHourMinute>startAfternoonHourMinute) {
     if (nowHourMinute>=startMorningHourMinute || nowHourMinute<startAfternoonHourMinute) {
-      if (schedulerLastActualMode!=SCHEDULER_MODE_MORNING) {
+      if (schedulerLastActualMode!=SCHEDULER_MODE_MORNING || forcePublish==true) {
         schedulerLastActualMode = SCHEDULER_MODE_MORNING;
         mqttElPublish(setBufferFromFlash(getActualPartOfDay), setBufferFromFlash(schedulerMorning));
       }
@@ -61,7 +66,7 @@ int schedulerGetPartOfDay(double h, double m) {
   //Afternoon
   if (startAfternoonHourMinute<=startEveningHourMinute) {
     if (nowHourMinute>=startAfternoonHourMinute && nowHourMinute<startEveningHourMinute) {
-      if (schedulerLastActualMode!=SCHEDULER_MODE_AFTERNOON) {
+      if (schedulerLastActualMode!=SCHEDULER_MODE_AFTERNOON || forcePublish==true) {
         schedulerLastActualMode = SCHEDULER_MODE_AFTERNOON;
         mqttElPublish(setBufferFromFlash(getActualPartOfDay), setBufferFromFlash(schedulerAfternoon));
       }
@@ -70,7 +75,7 @@ int schedulerGetPartOfDay(double h, double m) {
   }
   if (startAfternoonHourMinute>startEveningHourMinute) {
     if (nowHourMinute>=startAfternoonHourMinute || nowHourMinute<startEveningHourMinute) {
-      if (schedulerLastActualMode!=SCHEDULER_MODE_AFTERNOON) {
+      if (schedulerLastActualMode!=SCHEDULER_MODE_AFTERNOON|| forcePublish==true) {
         schedulerLastActualMode = SCHEDULER_MODE_AFTERNOON;
         mqttElPublish(setBufferFromFlash(getActualPartOfDay), setBufferFromFlash(schedulerAfternoon));
       }
@@ -81,7 +86,7 @@ int schedulerGetPartOfDay(double h, double m) {
    //Evening
   if (startEveningHourMinute<=startNightHourMinute) {
     if (nowHourMinute>=startEveningHourMinute && nowHourMinute<startNightHourMinute) {
-      if (schedulerLastActualMode!=SCHEDULER_MODE_EVENING) {
+      if (schedulerLastActualMode!=SCHEDULER_MODE_EVENING || forcePublish==true) {
         schedulerLastActualMode = SCHEDULER_MODE_EVENING;
         mqttElPublish(setBufferFromFlash(getActualPartOfDay), setBufferFromFlash(schedulerEvening));
       }
@@ -90,7 +95,7 @@ int schedulerGetPartOfDay(double h, double m) {
   }
   if (startEveningHourMinute>startNightHourMinute) {
     if (nowHourMinute>=startEveningHourMinute || nowHourMinute<startNightHourMinute) {
-      if (schedulerLastActualMode!=SCHEDULER_MODE_EVENING) {
+      if (schedulerLastActualMode!=SCHEDULER_MODE_EVENING || forcePublish==true) {
         schedulerLastActualMode = SCHEDULER_MODE_EVENING;
         mqttElPublish(setBufferFromFlash(getActualPartOfDay), setBufferFromFlash(schedulerEvening));
       }
@@ -99,7 +104,7 @@ int schedulerGetPartOfDay(double h, double m) {
   }
   
   //Night
-  if (schedulerLastActualMode!=SCHEDULER_MODE_NIGHT) {
+  if (schedulerLastActualMode!=SCHEDULER_MODE_NIGHT || forcePublish==true) {
     schedulerLastActualMode = SCHEDULER_MODE_NIGHT;
     mqttElPublish(setBufferFromFlash(getActualPartOfDay), setBufferFromFlash(schedulerNight));
   }

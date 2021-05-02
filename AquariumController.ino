@@ -431,6 +431,11 @@ byte buzzerOnErrors = 1;
 #define LED_MODE_CUSTOM1 10
 #define LED_MODE_CUSTOM2 11
 
+#define LED_FADEMODE_DEFAULT 0
+#define LED_FADEMODE_FADEIN 1
+#define LED_FADEMODE_FADEOUT 2
+
+
 #define LED_BRIGHTNESS_AUTO -1
 
 byte ledControlMode = CONTROL_MODE_MANUAL;
@@ -448,16 +453,15 @@ int ledEveningBrightness = 0;
 int ledNightBrightness = 0;
 int ledManualBrightness = 0;
 
-int ledAutoBrightness = _LED_RANGE_VALUES;
 byte ledMode = LED_MODE_NONE;
 byte ledModeMorning = LED_MODE_NONE;
 byte ledModeAfternoon = LED_MODE_NONE;
 byte ledModeEvening = LED_MODE_NONE;
 byte ledModeNight = LED_MODE_NONE;
 
-int ledActualRed = _LED_MIN_VALUE;
-int ledActualGreen = _LED_MIN_VALUE;
-int ledActualBlue = _LED_MIN_VALUE;
+double ledActualRed = _LED_MIN_VALUE;
+double ledActualGreen = _LED_MIN_VALUE;
+double ledActualBlue = _LED_MIN_VALUE;
 
 int ledRed = _LED_MIN_VALUE;
 int ledGreen = _LED_MIN_VALUE;
@@ -475,6 +479,8 @@ byte ledLastMode = LED_MODE_NONE;
 #define LED_MANUAL_ONOFF_AUTO 0
 #define LED_MANUAL_ONOFF_OFF 1
 #define LED_MANUAL_ONOFF_ON 2
+
+int ledActualState = LED_MANUAL_ONOFF_OFF;
 
 byte ledManualOnOff = LED_MANUAL_ONOFF_AUTO;
 
@@ -707,6 +713,9 @@ void setup() {
   //Clock
   clockInit();
 
+  //LED
+  ledInit();
+
   //Fan
   initFan();
 
@@ -718,9 +727,6 @@ void setup() {
 
   //Scheduler
   schedulerInit();
-
-  //LED
-  ledInit();
   
   //DHT
   dhtInit();
@@ -783,4 +789,5 @@ void loop() {
     eventTimerHour();
     timerHourEventDate = millis();
   }
+  
 }
