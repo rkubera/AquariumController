@@ -128,8 +128,12 @@ static const byte ASCII[][5] PROGMEM = {
 #define KEY_UP_ARROW 0x80 
 
 void lcdSetBrigtness(int brigthness) {
-  brigthness = map (brigthness,0,1000,0,128);
-  analogWrite(LCD_PIN_LED, brigthness);
+  //brigthness = map (brigthness,0,1000,0,128);
+  //analogWrite(LCD_PIN_LED, brigthness);
+
+  brigthness = map (brigthness,0,1000,0,500);
+  pwmSetValue(LCD_PIN_LED, brigthness);
+  
 }
 
 void lcdInit() {

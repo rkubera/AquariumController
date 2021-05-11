@@ -64,7 +64,9 @@ class pwmOutputClass {
             break;
     }
     pinMode(digitalPin, OUTPUT);
-    analogWrite(digitalPin,0);
+    //analogWrite(digitalPin,0);
+    pwmSetValue(digitalPin,0);
+    
     pwmOutputPin = pin+1;
     
     pwmOutputPID.Init(&pwmOutputPIDInput,&pwmOutputPIDOutput,&pwmOutputSensorsSetpoint,pwmOutputPIDKp,pwmOutputPIDKi,pwmOutputPIDKd,PID_P_ON_E,pwmOutputDirection);
@@ -186,7 +188,8 @@ class pwmOutputClass {
   }
 
   void pwmOutputSetValue(byte pwmOutputVal) {
-    analogWrite(digitalPin,pwmOutputVal);
+    //analogWrite(digitalPin,pwmOutputVal);
+    pwmSetValue(digitalPin,0);
   }
   
   void saveConfig(int EEPROM_addr) {
@@ -456,5 +459,3 @@ double pwmOutputsGetPwmOutputDouble(byte pwmOutputNr, byte valueType) {
   }
   return 0;
 }
-
-

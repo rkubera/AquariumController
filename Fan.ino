@@ -9,7 +9,8 @@
  
 void initFan() {
   pinMode(FAN_PIN, OUTPUT);
-  analogWrite (FAN_PIN, 255);
+  //analogWrite (FAN_PIN, 255);
+  pwmSetValue (FAN_PIN, 255);
   //fanMqttPublishAll();
 }
 
@@ -44,7 +45,8 @@ void fanEvent(bool stopFan) {
       fanPWM = 0;
     }
   }
-  analogWrite (FAN_PIN, fanPWM);
+  //analogWrite (FAN_PIN, fanPWM);
+  pwmSetValue (FAN_PIN, fanPWM);
   if (abs(fanStartTime-millis())>MQTT_MIN_REFRESH_MILLIS) {
     fanStartTime = millis();
     if (fanLastPWM!=fanPWM) {

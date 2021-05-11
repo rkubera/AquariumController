@@ -16,22 +16,22 @@ void mqttSendCommand(String command, bool callCriticalEvent) {
   int len = command.length();
   for (i=0; i<len; i++) {
     Serial3.print(command[i]);
-    criticalEvent();
+    criticalEventNoMqtt();
   }
   Serial3.println();
   //Serial3.println(command+char(0));
   Serial3.flush();
-  
   if ((DEBUG_LEVEL & _DEBUG_MQTT) || (DEBUG_LEVEL & _DEBUG_NOTICE)) {
     for (i=0; i<len; i++) {
       Serial.print(command[i]);
-      criticalEvent();
+      criticalEventNoMqtt();
     }
     Serial.println();
+    Serial.flush();
     //Serial.println(command+char(0));
   }
   if (callCriticalEvent==true) {
-    criticalEvent();
+    criticalEventNoMqtt();
   }
 }
 
@@ -333,7 +333,8 @@ void mqttElData(String topic, String RawValue) {
     return;
   }
 
-    //Brigtness
+  //Brigtness
+  /*
   if (endpoint==setBufferFromFlash(setBrightness)) {
     ledMorningBrightness = stringToInt(Value);
     int actualPartOfDay = schedulerGetActualPartOfDay();
@@ -343,7 +344,48 @@ void mqttElData(String topic, String RawValue) {
     mqttElPublish(setBufferFromFlash(getBrightness), (String)stringToInt(Value), false);
     return;
   }
+  */
+  if (endpoint==setBufferFromFlash(setMorningBrightness)) {
+    ledMorningBrightness = stringToInt(Value);
+    configSaveUint32Value(stringToInt(Value), EEPROM_ledMorningBrightness_addr);
 
+    ledSetBrightness(stringToInt(Value));
+    mqttElPublish(setBufferFromFlash(getMorningBrightness), (String)stringToInt(Value), false);
+    return;
+  }
+  if (endpoint==setBufferFromFlash(setAfternoonBrightness)) {
+    ledAfternoonBrightness = stringToInt(Value);
+    configSaveUint32Value(stringToInt(Value), EEPROM_ledAfternoonBrightness_addr);
+
+    ledSetBrightness(stringToInt(Value));
+    mqttElPublish(setBufferFromFlash(getAfternoonBrightness), (String)stringToInt(Value), false);
+    return;
+  }
+  if (endpoint==setBufferFromFlash(setEveningBrightness)) {
+    ledEveningBrightness = stringToInt(Value);
+    configSaveUint32Value(stringToInt(Value), EEPROM_ledEveningBrightness_addr);
+
+    ledSetBrightness(stringToInt(Value));
+    mqttElPublish(setBufferFromFlash(getEveningBrightness), (String)stringToInt(Value), false);
+    return;
+  }
+  if (endpoint==setBufferFromFlash(setNightBrightness)) {
+    ledNightBrightness = stringToInt(Value);
+    configSaveUint32Value(stringToInt(Value), EEPROM_ledNightBrightness_addr);
+
+    ledSetBrightness(stringToInt(Value));
+    mqttElPublish(setBufferFromFlash(getNightBrightness), (String)stringToInt(Value), false);
+    return;
+  }
+  if (endpoint==setBufferFromFlash(setManualBrightness)) {
+    ledManualBrightness = stringToInt(Value);
+    configSaveUint32Value(stringToInt(Value), EEPROM_ledManualBrightness_addr);
+
+    ledSetBrightness(stringToInt(Value));
+    mqttElPublish(setBufferFromFlash(getManualBrightness), (String)stringToInt(Value), false);
+    return;
+  }
+  
   //Date
   if (endpoint == setBufferFromFlash(setActualDate)) {
     globalYear = parseYearFromString(Value);
@@ -604,47 +646,47 @@ void mqttElData(String topic, String RawValue) {
 
   //Daily settings
   if (endpoint == setBufferFromFlash(setMorningTime)) {
-      schedulerStartMorningHour = parseHourFromString(Value);
-      schedulerStartMorningMinute = parseMinuteFromString(Value);
-      configSaveSchedulerTimers();
-      sprintf(bufferOut,"%02d:%02d", schedulerStartMorningHour, schedulerStartMorningMinute);
-      bufferOut[5] = 0;
-      mqttElPublish( setBufferFromFlash(getMorningTime), bufferOut, false );
-      schedulerPublishActualPartOfDay();
-      return;
+    schedulerStartMorningHour = parseHourFromString(Value);
+    schedulerStartMorningMinute = parseMinuteFromString(Value);
+    configSaveSchedulerTimers();
+    sprintf(bufferOut,"%02d:%02d", schedulerStartMorningHour, schedulerStartMorningMinute);
+    bufferOut[5] = 0;
+    mqttElPublish( setBufferFromFlash(getMorningTime), bufferOut, false );
+    schedulerPublishActualPartOfDay();
+    return;
   }
 
   if (endpoint == setBufferFromFlash(setAfternoonTime)) {
-      schedulerStartAfternoonHour = parseHourFromString(Value);
-      schedulerStartAfternoonMinute = parseMinuteFromString(Value);
-      configSaveSchedulerTimers();
-      sprintf(bufferOut,"%02d:%02d", schedulerStartAfternoonHour, schedulerStartAfternoonMinute);
-      bufferOut[5] = 0;
-      mqttElPublish( setBufferFromFlash(getAfternoonTime), bufferOut, false );
-      schedulerPublishActualPartOfDay();
-      return;
+    schedulerStartAfternoonHour = parseHourFromString(Value);
+    schedulerStartAfternoonMinute = parseMinuteFromString(Value);
+    configSaveSchedulerTimers();
+    sprintf(bufferOut,"%02d:%02d", schedulerStartAfternoonHour, schedulerStartAfternoonMinute);
+    bufferOut[5] = 0;
+    mqttElPublish( setBufferFromFlash(getAfternoonTime), bufferOut, false );
+    schedulerPublishActualPartOfDay();
+    return;
   }
 
   if (endpoint == setBufferFromFlash(setEveningTime)) {
-      schedulerStartEveningHour = parseHourFromString(Value);
-      schedulerStartEveningMinute = parseMinuteFromString(Value);
-      configSaveSchedulerTimers();
-      sprintf(bufferOut,"%02d:%02d", schedulerStartEveningHour, schedulerStartEveningMinute);
-      bufferOut[5] = 0;
-      mqttElPublish( setBufferFromFlash(getEveningTime), bufferOut, false );
-      schedulerPublishActualPartOfDay();
-      return;
+    schedulerStartEveningHour = parseHourFromString(Value);
+    schedulerStartEveningMinute = parseMinuteFromString(Value);
+    configSaveSchedulerTimers();
+    sprintf(bufferOut,"%02d:%02d", schedulerStartEveningHour, schedulerStartEveningMinute);
+    bufferOut[5] = 0;
+    mqttElPublish( setBufferFromFlash(getEveningTime), bufferOut, false );
+    schedulerPublishActualPartOfDay();
+    return;
   }
 
   if (endpoint == setBufferFromFlash(setNightTime)) {
-      schedulerStartNightHour = parseHourFromString(Value);
-      schedulerStartNightMinute = parseMinuteFromString(Value);
-      configSaveSchedulerTimers();
-      sprintf(bufferOut,"%02d:%02d", schedulerStartNightHour, schedulerStartNightMinute);
-      bufferOut[5] = 0;
-      mqttElPublish( setBufferFromFlash(getNightTime), bufferOut, false );
-      schedulerPublishActualPartOfDay();
-      return;
+    schedulerStartNightHour = parseHourFromString(Value);
+    schedulerStartNightMinute = parseMinuteFromString(Value);
+    configSaveSchedulerTimers();
+    sprintf(bufferOut,"%02d:%02d", schedulerStartNightHour, schedulerStartNightMinute);
+    bufferOut[5] = 0;
+    mqttElPublish( setBufferFromFlash(getNightTime), bufferOut, false );
+    schedulerPublishActualPartOfDay();
+    return;
   }
 
   //Sensors
@@ -653,45 +695,45 @@ void mqttElData(String topic, String RawValue) {
     int i = j+1;
     sensorsEndpoint = setBufferFromFlash(charSetSensor)+intToString(i)+setBufferFromFlash(charName);
     if (endpoint == sensorsEndpoint) {
-      sensorsSaveSensorName(i,RawValue);
       mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(i)+setBufferFromFlash(charName),RawValue.substring(0,NAME_LENGTH), false);
+      sensorsSaveSensorName(i,RawValue);
       return;
     }
     sensorsEndpoint = setBufferFromFlash(charSetSensor)+intToString(i)+setBufferFromFlash(charSensorType);
     if (endpoint == sensorsEndpoint) {
       byte bValue = sensorsGetByteSensorType(Value);
       if (bValue!=255) {
-        sensorsSetSensor(i, SENSORS_VALUE_TYPE, bValue);
         mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(i)+setBufferFromFlash(charSensorType),Value, false);
+        sensorsSetSensor(i, SENSORS_VALUE_TYPE, bValue);
       }
       return;
     }
     sensorsEndpoint = setBufferFromFlash(charSetSensor)+intToString(i)+setBufferFromFlash(charSensorCalibValue1);
     if (endpoint == sensorsEndpoint) {
-      sensorsSetSensor(i, SENSORS_VALUE_CALIB_VALUE1, stringToFloat(Value));
       float myValue = sensorsGetSensor(i, SENSORS_VALUE_CALIB_VALUE1);
       mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(i)+setBufferFromFlash(charSensorCalibValue1),floatToString(myValue), false);
+      sensorsSetSensor(i, SENSORS_VALUE_CALIB_VALUE1, stringToFloat(Value));
       return;
     }
     sensorsEndpoint = setBufferFromFlash(charSetSensor)+intToString(i)+setBufferFromFlash(charSensorCalibRawValue1);
     if (endpoint == sensorsEndpoint) {
-      sensorsSetSensor(i, SENSORS_VALUE_CALIB_RAW_VALUE1, stringToFloat(Value));
       int myValue = sensorsGetSensor(i, SENSORS_VALUE_CALIB_RAW_VALUE1);
       mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(i)+setBufferFromFlash(charSensorCalibRawValue1),intToString(myValue), false);
+      sensorsSetSensor(i, SENSORS_VALUE_CALIB_RAW_VALUE1, stringToFloat(Value));
       return;
     }
     sensorsEndpoint = setBufferFromFlash(charSetSensor)+intToString(i)+setBufferFromFlash(charSensorCalibValue2);
     if (endpoint == sensorsEndpoint) {
-      sensorsSetSensor(i, SENSORS_VALUE_CALIB_VALUE2, stringToFloat(Value));
       float myValue = sensorsGetSensor(i, SENSORS_VALUE_CALIB_VALUE2);
       mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(i)+setBufferFromFlash(charSensorCalibValue2),floatToString(myValue), false);
+      sensorsSetSensor(i, SENSORS_VALUE_CALIB_VALUE2, stringToFloat(Value));
       return;
     }
     sensorsEndpoint = setBufferFromFlash(charSetSensor)+intToString(i)+setBufferFromFlash(charSensorCalibRawValue2);
     if (endpoint == sensorsEndpoint) {
-      sensorsSetSensor(i, SENSORS_VALUE_CALIB_RAW_VALUE2, stringToFloat(Value));
       int myValue = sensorsGetSensor(i, SENSORS_VALUE_CALIB_RAW_VALUE2);
       mqttElPublish(setBufferFromFlash(charGetSensor)+intToString(i)+setBufferFromFlash(charSensorCalibRawValue2),intToString(myValue), false);
+      sensorsSetSensor(i, SENSORS_VALUE_CALIB_RAW_VALUE2, stringToFloat(Value));
       return;
     }
   }
@@ -702,8 +744,8 @@ void mqttElData(String topic, String RawValue) {
     int i = j+1;
     relaysEndpoint = setBufferFromFlash(charSetRelay)+intToString(i)+setBufferFromFlash(charName);
     if (endpoint == relaysEndpoint) {
-      relaysSaveRelayName(i,RawValue);
       mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(i)+setBufferFromFlash(charName),RawValue.substring(0,NAME_LENGTH), false);
+      relaysSaveRelayName(i,RawValue);
       return;
     }
     
@@ -721,8 +763,8 @@ void mqttElData(String topic, String RawValue) {
         bValue = CONTROL_MODE_TRESHOLD;
       }
       if (bValue!=255) {
-        relaysSetRelay(i, RELAY_CONTROL_MODE, bValue);
         mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(i)+setBufferFromFlash(charControlMode),Value, false);
+        relaysSetRelay(i, RELAY_CONTROL_MODE, bValue);
       }
       return;
     }
@@ -748,12 +790,13 @@ void mqttElData(String topic, String RawValue) {
     relaysEndpoint = setBufferFromFlash(charSetRelay)+intToString(i)+setBufferFromFlash(charControlDirection);
     if (endpoint == relaysEndpoint) {
       if (Value == setBufferFromFlash(charDirect)) {
-        relaysSetRelay(i, RELAY_CONTROL_DIRECTION,CONTROL_DIRECT);
         mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(i)+setBufferFromFlash(charControlDirection),setBufferFromFlash(charDirect), false);
+        relaysSetRelay(i, RELAY_CONTROL_DIRECTION,CONTROL_DIRECT);
       }
       if (Value == setBufferFromFlash(charReverse)) {
-        relaysSetRelay(i, RELAY_CONTROL_DIRECTION,PID_REVERSE);
         mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(i)+setBufferFromFlash(charControlDirection),setBufferFromFlash(charReverse), false);
+        relaysSetRelay(i, RELAY_CONTROL_DIRECTION,PID_REVERSE);
+
       }
       return;
     }
@@ -761,12 +804,12 @@ void mqttElData(String topic, String RawValue) {
     relaysEndpoint = setBufferFromFlash(charSetRelay)+intToString(i)+setBufferFromFlash(charState);
     if (endpoint == relaysEndpoint) {
       if (Value == setBufferFromFlash(charOn)) {
-        relaysSetRelay(i, RELAY_MANUAL_ONOFF, RELAY_MANUAL_ONOFF_ON);
         mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(i)+setBufferFromFlash(charState),setBufferFromFlash(charOn), false);
+        relaysSetRelay(i, RELAY_MANUAL_ONOFF, RELAY_MANUAL_ONOFF_ON);
       }
       if (Value == setBufferFromFlash(charOff)) {
-        relaysSetRelay(i, RELAY_MANUAL_ONOFF, RELAY_MANUAL_ONOFF_OFF);
         mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(i)+setBufferFromFlash(charState),setBufferFromFlash(charOff), false);
+        relaysSetRelay(i, RELAY_MANUAL_ONOFF, RELAY_MANUAL_ONOFF_OFF);
       }
       return;
     }
@@ -789,32 +832,32 @@ void mqttElData(String topic, String RawValue) {
 
       if (endpoint == relaysEndpoint+setBufferFromFlash(charMorningMode)) {
         if (tempRelayMode!= RELAY_MODE_NONE) {
-          relaysSetRelay(i, RELAY_MODE_MORNING, tempRelayMode);
           mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(i)+setBufferFromFlash(charMorningMode),Value, false);
+          relaysSetRelay(i, RELAY_MODE_MORNING, tempRelayMode);
           return;
         }
       }
 
       if (endpoint == relaysEndpoint+setBufferFromFlash(charAfternoonMode)) {
         if (tempRelayMode!= RELAY_MODE_NONE) {
-          relaysSetRelay(i, RELAY_MODE_AFTERNOON, tempRelayMode);
           mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(i)+setBufferFromFlash(charAfternoonMode),Value, false);
+          relaysSetRelay(i, RELAY_MODE_AFTERNOON, tempRelayMode);
           return;
         }
       }
 
       if (endpoint == relaysEndpoint+setBufferFromFlash(charEveningMode)) {
         if (tempRelayMode!= RELAY_MODE_NONE) {
-          relaysSetRelay(i, RELAY_MODE_EVENING, tempRelayMode);
           mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(i)+setBufferFromFlash(charEveningMode),Value, false);
+          relaysSetRelay(i, RELAY_MODE_EVENING, tempRelayMode);
           return;
         }
       }
 
       if (endpoint == relaysEndpoint+setBufferFromFlash(charNightMode)) {
         if (tempRelayMode!= RELAY_MODE_NONE) {
-          relaysSetRelay(i, RELAY_MODE_NIGHT, tempRelayMode);
           mqttElPublish(setBufferFromFlash(charGetRelay)+intToString(i)+setBufferFromFlash(charNightMode),Value, false);
+          relaysSetRelay(i, RELAY_MODE_NIGHT, tempRelayMode);
           return;
         }
       }
@@ -827,8 +870,8 @@ void mqttElData(String topic, String RawValue) {
     int i = j+1;
     pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charName);
     if (endpoint == pwmOutputsEndpoint) {
-      pwmOutputsSavePwmOutputName(i,RawValue);
       mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charName),RawValue.substring(0,NAME_LENGTH), false);
+      pwmOutputsSavePwmOutputName(i,RawValue);
       return;
     }
     
@@ -849,8 +892,8 @@ void mqttElData(String topic, String RawValue) {
         bValue = CONTROL_MODE_PID;
       }
       if (bValue!=255) {
-        pwmOutputsSetPwmOutput(i, PWMOUTPUT_CONTROL_MODE, bValue);
         mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charControlMode),Value, false);
+        pwmOutputsSetPwmOutput(i, PWMOUTPUT_CONTROL_MODE, bValue);
         pwmOutputsCheckTresholdDirection(i,OUTPUT_TYPE_PWM);
       }
       return;
@@ -859,55 +902,55 @@ void mqttElData(String topic, String RawValue) {
     pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charControlDirection);
     if (endpoint == pwmOutputsEndpoint) {
       if (Value == setBufferFromFlash(charDirect)) {
-        pwmOutputsSetPwmOutput(i, PWMOUTPUT_CONTROL_DIRECTION,CONTROL_DIRECT);
         mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charControlDirection),setBufferFromFlash(charDirect), false);
+        pwmOutputsSetPwmOutput(i, PWMOUTPUT_CONTROL_DIRECTION,CONTROL_DIRECT);
       }
       if (Value == setBufferFromFlash(charReverse)) {
-        pwmOutputsSetPwmOutput(i, PWMOUTPUT_CONTROL_DIRECTION,PID_REVERSE);
         mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charControlDirection),setBufferFromFlash(charReverse), false);
+        pwmOutputsSetPwmOutput(i, PWMOUTPUT_CONTROL_DIRECTION,PID_REVERSE);
       }
       return;
     }
 
     pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charMaxDeviation);
     if (endpoint == pwmOutputsEndpoint) {
+      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charMaxDeviation),Value, false);
       pwmOutputsSetPwmOutputDouble(i, PWMOUTPUT_MAX_DEVIATION, stringToDouble(Value));
       Value = floatToString(pwmOutputsGetPwmOutputDouble(i,PWMOUTPUT_MAX_DEVIATION));
-      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charMaxDeviation),Value, false);
       pwmOutputsCheckTresholdDirection(i, OUTPUT_TYPE_PWM);
       return;
     }
     
     pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charSensorsSetpoint);
     if (endpoint == pwmOutputsEndpoint) {
+      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charSensorsSetpoint),Value, false);
       pwmOutputsSetPwmOutputDouble(i, PWMOUTPUT_SENSORS_SETPOINT, stringToDouble(Value));
       Value = floatToString(pwmOutputsGetPwmOutputDouble(i,PWMOUTPUT_SENSORS_SETPOINT));
-      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charSensorsSetpoint),Value, false);
       pwmOutputsCheckTresholdDirection(i, OUTPUT_TYPE_PWM);
       return;
     }
 
     pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charPidKp);
     if (endpoint == pwmOutputsEndpoint) {
+      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charPidKp),Value, false);
       pwmOutputsSetPwmOutputDouble(i, PWMOUTPUT_PID_KP, stringToDouble(Value));
       Value = doubleToString(pwmOutputsGetPwmOutputDouble(i,PWMOUTPUT_PID_KP));
-      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charPidKp),Value, false);
       return;
     }
 
     pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charPidKi);
     if (endpoint == pwmOutputsEndpoint) {
+      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charPidKi),Value, false);
       pwmOutputsSetPwmOutputDouble(i, PWMOUTPUT_PID_KI, stringToDouble(Value));
       Value = doubleToString(pwmOutputsGetPwmOutputDouble(i,PWMOUTPUT_PID_KI));
-      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charPidKi),Value, false);
       return;
     }
 
     pwmOutputsEndpoint = setBufferFromFlash(charSetPwmOutput)+intToString(i)+setBufferFromFlash(charPidKd);
     if (endpoint == pwmOutputsEndpoint) {
+      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charPidKd),Value, false);
       pwmOutputsSetPwmOutputDouble(i, PWMOUTPUT_PID_KD, stringToDouble(Value));
       Value = doubleToString(pwmOutputsGetPwmOutputDouble(i,PWMOUTPUT_PID_KD));
-      mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charPidKd),Value, false);
       return;
     }
     
@@ -915,22 +958,22 @@ void mqttElData(String topic, String RawValue) {
     if (endpoint == pwmOutputsEndpoint) {
       if (pwmOutputsGetPwmOutput(i, PWMOUTPUT_CONTROL_MODE) == CONTROL_MODE_PID || pwmOutputsGetPwmOutput(i, PWMOUTPUT_CONTROL_MODE) == CONTROL_MODE_TRESHOLD) {
         if (pwmOutputsGetPwmOutput(i, PWMOUTPUT_OUTPUT_VALUE)==0) {
-          pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_OFF);
           mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charState),setBufferFromFlash(charOff), false);
+          pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_OFF);
         }
         else {
-          pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_ON);
           mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charState),setBufferFromFlash(charOn), false);
+          pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_ON);
         }
       }
       else {
         if (Value == setBufferFromFlash(charOn)) {
-          pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_ON);
           mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charState),setBufferFromFlash(charOn), false);
+          pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_ON);
         }
         if (Value == setBufferFromFlash(charOff)) {
-          pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_OFF);
           mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charState),setBufferFromFlash(charOff), false);
+          pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_ONOFF,PWMOUTPUT_MANUAL_ONOFF_OFF);
         }
       }
       return;
@@ -944,70 +987,67 @@ void mqttElData(String topic, String RawValue) {
           || endpoint == pwmOutputsEndpoint+setBufferFromFlash(charManualMode)) {
       
       if (endpoint == pwmOutputsEndpoint+setBufferFromFlash(charMorningMode)) {
+        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charMorningMode),Value, false);
         pwmOutputsSetPwmOutput(i, PWMOUTPUT_MODE_MORNING, stringToInt(Value));
         Value = intToString(pwmOutputsGetPwmOutput(i,PWMOUTPUT_MODE_MORNING));
-        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charMorningMode),Value, false);
         return;
       }
 
       if (endpoint == pwmOutputsEndpoint+setBufferFromFlash(charAfternoonMode)) {
+        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charAfternoonMode),Value, false);
         pwmOutputsSetPwmOutput(i, PWMOUTPUT_MODE_AFTERNOON, stringToInt(Value));
         Value = intToString(pwmOutputsGetPwmOutput(i,PWMOUTPUT_MODE_AFTERNOON));
-        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charAfternoonMode),Value, false);
         return;
       }
 
       if (endpoint == pwmOutputsEndpoint+setBufferFromFlash(charEveningMode)) {
+        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charEveningMode),Value, false);
         pwmOutputsSetPwmOutput(i, PWMOUTPUT_MODE_EVENING, stringToInt(Value));
         Value = intToString(pwmOutputsGetPwmOutput(i,PWMOUTPUT_MODE_EVENING));
-        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charEveningMode),Value, false);
         return;
       }
 
       if (endpoint == pwmOutputsEndpoint+setBufferFromFlash(charNightMode)) {
+        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charNightMode),Value, false);
         pwmOutputsSetPwmOutput(i, PWMOUTPUT_MODE_NIGHT, stringToInt(Value));
         Value = intToString(pwmOutputsGetPwmOutput(i,PWMOUTPUT_MODE_NIGHT));
-        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charNightMode),Value, false);
         return;
       }
 
       if (endpoint == pwmOutputsEndpoint+setBufferFromFlash(charManualMode)) {
+        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charManualMode),Value, false);
         pwmOutputsSetPwmOutput(i, PWMOUTPUT_MANUAL_MODE, stringToInt(Value));
         Value = intToString(pwmOutputsGetPwmOutput(i,PWMOUTPUT_MANUAL_MODE));
-        mqttElPublish(setBufferFromFlash(charGetPwmOutput)+intToString(i)+setBufferFromFlash(charManualMode),Value, false);
         return;
       }
     }
   }
   
   //LED
-
   if (endpoint == setBufferFromFlash(setCustomColor1)) {
     ledCustomColor1 = stringToLong(Value);
-    configSaveUint32Value(ledCustomColor1, EEPROM_ledCustomColor1_addr);
     mqttElPublish(setBufferFromFlash(getCustomColor1), Value, false);
+    configSaveUint32Value(ledCustomColor1, EEPROM_ledCustomColor1_addr);
     return;
   }
 
   if (endpoint == setBufferFromFlash(setCustomColor2)) {
     ledCustomColor2 = stringToLong(Value);
-    configSaveUint32Value(ledCustomColor1, EEPROM_ledCustomColor1_addr);
     mqttElPublish(setBufferFromFlash(getCustomColor2), Value, false);
+    configSaveUint32Value(ledCustomColor1, EEPROM_ledCustomColor1_addr);
     return;
   }
   
   if (endpoint == setBufferFromFlash(setLedControlMode)) {
     if (Value == setBufferFromFlash(charManual)) {
-      ledSetBrightness(LED_BRIGHTNESS_AUTO);
+      mqttElPublish(setBufferFromFlash(getLedControlMode), Value, false);
       ledControlMode = CONTROL_MODE_MANUAL;
       configSaveValue(ledControlMode,EEPROM_ledControlMode_addr);
-      mqttElPublish(setBufferFromFlash(getLedControlMode), Value, false);
     }
     else if (Value == setBufferFromFlash(charPartofday)) {
-      ledSetBrightness(LED_BRIGHTNESS_AUTO);
+      mqttElPublish(setBufferFromFlash(getLedControlMode), Value, false);
       ledControlMode = CONTROL_MODE_PART_OF_DAY;
       configSaveValue(ledControlMode,EEPROM_ledControlMode_addr);
-      mqttElPublish(setBufferFromFlash(getLedControlMode), Value, false);
     }
     return;
   }
@@ -1055,36 +1095,36 @@ void mqttElData(String topic, String RawValue) {
     }
     if (endpoint == setBufferFromFlash(setLedManualMode)) {
       if (ledManualMode!=tempLedMode) {
-        configSaveValue(tempLedMode,EEPROM_ledManualMode_addr);
         mqttElPublish(setBufferFromFlash(getLedManualMode), Value, false);
+        configSaveValue(tempLedMode,EEPROM_ledManualMode_addr);
         ledManualMode = tempLedMode;
       }
     }
     else if (endpoint == setBufferFromFlash(setLedColorMorning)) {
       if (ledModeMorning!=tempLedMode) {
-        configSaveValue(tempLedMode,EEPROM_ledModeMorning_addr);
         mqttElPublish(setBufferFromFlash(getLedColorMorning), Value, false);
+        configSaveValue(tempLedMode,EEPROM_ledModeMorning_addr);
         ledModeMorning = tempLedMode;
       }
     }
     else if (endpoint == setBufferFromFlash(setLedColorAfternoon)) {
       if (ledModeAfternoon!=tempLedMode) {
-        configSaveValue(tempLedMode,EEPROM_ledModeAfternoon_addr);
         mqttElPublish(setBufferFromFlash(getLedColorAfternoon), Value, false);
+        configSaveValue(tempLedMode,EEPROM_ledModeAfternoon_addr);
         ledModeAfternoon = tempLedMode;
       }
     }
     else if (endpoint == setBufferFromFlash(setLedColorEvening)) {
       if (ledModeEvening!=tempLedMode) {
-        configSaveValue(tempLedMode,EEPROM_ledModeEvening_addr);
         mqttElPublish(setBufferFromFlash(getLedColorEvening), Value, false);
+        configSaveValue(tempLedMode,EEPROM_ledModeEvening_addr);
         ledModeEvening = tempLedMode;
       }
     }
     else {
       if (ledModeNight!=tempLedMode) {
-        configSaveValue(tempLedMode,EEPROM_ledModeNight_addr);
         mqttElPublish(setBufferFromFlash(getLedColorNight), Value, false);
+        configSaveValue(tempLedMode,EEPROM_ledModeNight_addr);
         ledModeNight = tempLedMode;
       }
     }
