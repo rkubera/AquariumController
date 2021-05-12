@@ -510,15 +510,10 @@ void letSetColor (int r, int g, int b , double fullledBrightness) {
   ledGreenLevel = map (ledGreenLevel, _LED_MIN_VALUE, _LED_MAX_VALUE, 0, 255);
   ledBlueLevel = map (ledBlueLevel, _LED_MIN_VALUE, _LED_MAX_VALUE, 0, 255);
 
-  /*
   analogWrite (LED_RED_PIN, ledRedLevel);
   analogWrite (LED_GREEN_PIN, ledGreenLevel);
   analogWrite (LED_BLUE_PIN, ledBlueLevel);
-  */
 
-  pwmSetValue (LED_RED_PIN, ledRedLevel);
-  pwmSetValue (LED_GREEN_PIN, ledGreenLevel);
-  pwmSetValue (LED_BLUE_PIN, ledBlueLevel);
 
 /*
   Serial.print("ledTransitionTime=");

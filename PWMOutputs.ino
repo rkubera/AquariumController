@@ -64,8 +64,7 @@ class pwmOutputClass {
             break;
     }
     pinMode(digitalPin, OUTPUT);
-    //analogWrite(digitalPin,0);
-    pwmSetValue(digitalPin,0);
+    analogWrite(digitalPin,0);
     
     pwmOutputPin = pin+1;
     
@@ -188,8 +187,7 @@ class pwmOutputClass {
   }
 
   void pwmOutputSetValue(byte pwmOutputVal) {
-    //analogWrite(digitalPin,pwmOutputVal);
-    pwmSetValue(digitalPin,0);
+    analogWrite(digitalPin,pwmOutputVal);
   }
   
   void saveConfig(int EEPROM_addr) {

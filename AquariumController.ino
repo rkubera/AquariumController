@@ -19,13 +19,12 @@
 #define _DEBUG_NOTICE   4
 #define _DEBUG_MQTT     8
 
-#define DEBUG_LEVEL _DEBUG_ERROR + _DEBUG_WARNING + _DEBUG_MQTT + _DEBUG_NOTICE
+//#define DEBUG_LEVEL _DEBUG_ERROR + _DEBUG_WARNING + _DEBUG_MQTT + _DEBUG_NOTICE
 
-//#define DEBUG_LEVEL 0
+#define DEBUG_LEVEL 0
 
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
-#include <Wire.h>
 #include <EEPROM.h>
 #include <Timezone.h>       // https://github.com/JChristensen/Timezone
 #include <Keypad.h>         // https://playground.arduino.cc/Code/Keypad#Download Must be patched. Replace: #define OPEN LOW with #define KBD_OPEN LOW, #define CLOSED HIGH with #define KBD_CLOSED HIGH in Key.h and Keypad.h. Replace OPEN with KBD_OPEN, CLOSE with KBD_CLOSE in Keypad.cpp 
@@ -55,9 +54,9 @@
 #define ANALOG_IN_PIN_6 10
 #define ANALOG_IN_PIN_7 11
 
-#define LED_RED_PIN 11        //11
+#define LED_RED_PIN 13        //11
 #define LED_GREEN_PIN 12      //12
-#define LED_BLUE_PIN 13       //13
+#define LED_BLUE_PIN 11       //13
 
 #define LCD_PIN_SCE   49  // ZMIANA Z 33
 #define LCD_PIN_RESET 51  // ZMIANA Z 34
@@ -706,121 +705,9 @@ int publishValue = -1;
 boolean toggle = 0;
 int toggle_counter = 0;
 
-#define POS_LED_RED_PIN                 0
-#define POS_LED_GREEN_PIN               1
-#define POS_LED_BLUE_PIN                2
-#define POS_DIGITAL_PWM_12V_OUT_PIN_1   3
-#define POS_DIGITAL_PWM_12V_OUT_PIN_2   4
-#define POS_DIGITAL_PWM_OUT_PIN_1       5
-#define POS_DIGITAL_PWM_OUT_PIN_2       6
-#define POS_DIGITAL_PWM_OUT_PIN_3       7
-#define POS_DIGITAL_PWM_OUT_PIN_4       8
-#define POS_FAN_PIN                     9
-#define POS_LCD_PIN_LED                 10
-
-byte pwmPinsArray[] = {LED_RED_PIN, LED_GREEN_PIN, LED_BLUE_PIN, DIGITAL_PWM_12V_OUT_PIN_1, DIGITAL_PWM_12V_OUT_PIN_2,  DIGITAL_PWM_OUT_PIN_1, DIGITAL_PWM_OUT_PIN_2, DIGITAL_PWM_OUT_PIN_3, DIGITAL_PWM_OUT_PIN_4, FAN_PIN, LCD_PIN_LED};
-int pwmValuesArray[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-int pwmCountersArray[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-bool pwmTogglesArray[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-bool pwmSetValue (int pin, int value) {
-  analogWrite(pin,value);
-  return;
-  int pos = 0;
-  switch (pin) {
-    case LED_RED_PIN: pos = POS_LED_RED_PIN; break;
-    case LED_GREEN_PIN: pos = POS_LED_GREEN_PIN; break;
-    case LED_BLUE_PIN: pos = POS_LED_BLUE_PIN; break;
-    case DIGITAL_PWM_12V_OUT_PIN_1: pos = POS_DIGITAL_PWM_12V_OUT_PIN_1; break;
-    case DIGITAL_PWM_12V_OUT_PIN_2: pos = POS_DIGITAL_PWM_12V_OUT_PIN_2; break;
-    case DIGITAL_PWM_OUT_PIN_1: pos = POS_DIGITAL_PWM_OUT_PIN_1; break;
-    case DIGITAL_PWM_OUT_PIN_2: pos = POS_DIGITAL_PWM_OUT_PIN_2; break;
-    case DIGITAL_PWM_OUT_PIN_3: pos = POS_DIGITAL_PWM_OUT_PIN_3; break;
-    case DIGITAL_PWM_OUT_PIN_4: pos = POS_DIGITAL_PWM_OUT_PIN_4; break;
-    case FAN_PIN: pos = POS_FAN_PIN; break;
-    case LCD_PIN_LED: pos = POS_LCD_PIN_LED; break;
-    default: return false;
-  }
-  pwmValuesArray[pos] = value;
-  return true;
-}
-
-/*
-static byte vect_cunter = 0;
-ISR(TIMER1_COMPA_vect){
-  //for (byte vect_cunter=0; vect_cunter<1; vect_cunter++) {
-    if (pwmValuesArray[i]==0) {
-       digitalWrite(pwmPinsArray[i],LOW);
-    }
-    else if (pwmValuesArray[i]==1000) {
-       digitalWrite(pwmPinsArray[i],HIGH);
-    }
-    else {
-      if (pwmTogglesArray[vect_cunter]) {
-        digitalWrite(pwmPinsArray[vect_cunter],HIGH);
-        if (pwmCountersArray[vect_cunter]>=pwmValuesArray[vect_cunter]) {
-          pwmTogglesArray[vect_cunter] = 0;
-          pwmCountersArray[vect_cunter] = -1;
-        }
-      }
-      else {
-        digitalWrite(pwmPinsArray[vect_cunter],LOW);
-        if (pwmCountersArray[vect_cunter]>_LED_MAX_VALUE) {
-          pwmTogglesArray[vect_cunter] = 1;
-          pwmCountersArray[vect_cunter] = -1;
-        }
-      }
-      pwmCountersArray[vect_cunter] = pwmCountersArray[vect_cunter]+1;
-    }
-  //}
-}
-*/
-/*
-ISR(TIMER1_COMPA_vect){
-  toggle_counter++;
-  if (toggle){
-    digitalWrite(13,HIGH);
-    if (toggle_counter>1) {
-      toggle = 0;
-      toggle_counter = 0;
-    }
-  }
-  else{
-    digitalWrite(13,LOW);
-    if (toggle_counter>1024) {
-      toggle = 1;
-      toggle_counter = 0;
-    }
-  }
-}
-*/
-
 void setup() {
-  /*
-  for (byte i=0; i<11; i++) {
-    pinMode (pwmPinsArray[i],OUTPUT);
-    analogWrite(pwmPinsArray[i], 0);  //Disable interrupts
-  }
-  //Timer 1 Set 2KHz frequency
-  cli();
-  TCCR1A = 0;// set entire TCCR1A register to 0
-  TCCR1B = 0;// same for TCCR1B
-  TCNT1  = 0;//initialize counter value to 0
-  // set compare match register for 1hz increments
-  //OCR1A = 15624;// = (16*10^6) / (1*1024) - 1 (must be <65536)
-  OCR1A = 249;// = (16*10^6) / (1*1024) - 1 (must be <65536)
-  // turn on CTC mode
-  TCCR1B |= (1 << WGM12);
-  // Set CS12 and CS10 bits for 1024 prescaler
-  //TCCR1B |= (1 << CS12) | (1 << CS10);  
-  TCCR1B |= (1 << CS10);  
-  // enable timer compare interrupt
-  TIMSK1 |= (1 << OCIE1A);
-  sei();
-  */
     //Init
   Serial.begin(115200);
-  Wire.begin();
 
   //Watchdog
   watchdogInit();
@@ -888,6 +775,7 @@ void setup() {
 }
 
 void loop() {
+
   if (abs(millis() - timerMillisEventDate) > 1) {
     eventTimerMillis();
     timerMillisEventDate = millis();
