@@ -107,11 +107,12 @@ int melody[] = {
   NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3, 0, NOTE_B3, NOTE_C4
 };
 
-int noteDurations[] = {
+byte noteDurations[] = {
   4, 8, 8, 4, 4, 4, 4, 4
 };
 
 void unblockedDelay(unsigned long duration) {
+  duration = duration*0.7;
   unsigned long delayMillis = millis();
   while ((millis()-delayMillis)<duration) { 
     criticalEvent();
@@ -119,6 +120,7 @@ void unblockedDelay(unsigned long duration) {
 }
 
 void playTone (int pin, int frequency, unsigned long duration) {
+  duration = duration*0.7;
   unsigned long toneMillis = millis();
   tone (pin,frequency);
   while ((millis()-toneMillis)<duration) { 

@@ -23,7 +23,6 @@
 
 #define DEBUG_LEVEL 0
 
-#include <avr/pgmspace.h>
 #include <avr/wdt.h>
 #include <EEPROM.h>
 #include <Timezone.h>       // https://github.com/JChristensen/Timezone
@@ -54,9 +53,9 @@
 #define ANALOG_IN_PIN_6 10
 #define ANALOG_IN_PIN_7 11
 
-#define LED_RED_PIN 13        //11
-#define LED_GREEN_PIN 12      //12
-#define LED_BLUE_PIN 11       //13
+#define LED_RED_PIN 11
+#define LED_GREEN_PIN 12
+#define LED_BLUE_PIN 13
 
 #define LCD_PIN_SCE   49  // ZMIANA Z 33
 #define LCD_PIN_RESET 51  // ZMIANA Z 34
