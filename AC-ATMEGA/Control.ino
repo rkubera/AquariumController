@@ -1,0 +1,245 @@
+/**************************************************
+ *                                                *
+ * AquaController by Radek Kubera (rkubera)       *
+ * all rights reserved                            *
+ * free of charge for non-commercial use only     *
+ * https://github.com/rkubera/AquariumController  *
+ *                                                *
+ * ************************************************/
+
+//PID class Based on: https://github.com/br3ttb/Arduino-PID-Library/
+/**********************************************************************************************
+ * Arduino PID Library - Version 1.2.1
+ * by Brett Beauregard <br3ttb@gmail.com> brettbeauregard.com
+ *
+ * This Library is licensed under the MIT License
+ **********************************************************************************************/
+#if ARDUINO >= 100
+  #include "Arduino.h"
+#else
+  #include "WProgram.h"
+#endif
+
+class PID {
+  public:
+
+/*Constructor (...)*********************************************************
+ *    The parameters specified here are those for for which we can't set up
+ *    reliable defaults, so we need to have the user set them.
+ ***************************************************************************/
+  void Init (double* Input, double* Output, double* Setpoint, double Kp, double Ki, double Kd, int POn, int ControllerDirection) {
+    myOutput = Output;
+    myInput = Input;
+    mySetpoint = Setpoint;
+    inAuto = false;
+      
+    PID::SetOutputLimits(0, 255);         //default output limit corresponds to
+                                          //the arduino pwm limits
+      
+    SampleTime = 100;                     //default Controller Sample Time is 0.1 seconds
+      
+    PID::SetControllerDirection(ControllerDirection);
+    PID::SetTunings(Kp, Ki, Kd, POn);
+      
+    lastTime = millis()-SampleTime;
+ };
+
+/* SetMode(...)****************************************************************
+ * Allows the controller Mode to be set to manual (0) or Automatic (non-zero)
+ * when the transition from manual to auto occurs, the controller is
+ * automatically initialized
+ ******************************************************************************/
+  void SetMode(int Mode) {
+    bool newAuto = (Mode == PID_AUTOMATIC);
+    if(newAuto && !inAuto) {  /*we just went from manual to auto*/
+      PID::Initialize();
+    }
+    inAuto = newAuto;
+  }
+  
+/* Compute() **********************************************************************
+ *     This, as they say, is where the magic happens.  this function should be called
+ *   every time "void loop()" executes.  the function will decide for itself whether a new
+ *   pid Output needs to be computed.  returns true when the output is computed,
+ *   false when nothing has been done.
+ **********************************************************************************/
+  bool Compute() {
+    if(!inAuto) return false;
+    unsigned long now = millis();
+    unsigned long timeChange = (now - lastTime);
+    if(timeChange>=SampleTime) {
+      /*Compute all the working error variables*/
+      double input = *myInput;
+      if (!isfinite(input) || !isfinite(*mySetpoint)) return false;
+      double error = *mySetpoint - input;
+      double dInput = (input - lastInput);
+      if (!isfinite(error) || !isfinite(dInput) || !isfinite(kp) || !isfinite(ki) || !isfinite(kd) ||
+          !isfinite(ki*error) || !isfinite(kp*dInput) || !isfinite(kp*error) || !isfinite(kd*dInput)) {
+        *myOutput=0; outputSum=0; lastInput=input; lastTime=now;
+        arithmeticValid=false; return false;
+      }
+      outputSum+= (ki * error);
+      
+      /*Add Proportional on Measurement, if P_ON_M is specified*/
+      if(!pOnE) outputSum-= kp * dInput;
+      
+      if(outputSum > outMax) outputSum= outMax;
+      else if(outputSum < outMin) outputSum= outMin;
+      
+      /*Add Proportional on Error, if P_ON_E is specified*/
+      double output;
+      if(pOnE) output = kp * error;
+      else output = 0;
+      
+      /*Compute Rest of PID Output*/
+      output += outputSum - kd * dInput;
+      
+      if(output > outMax) output = outMax;
+      else if(output < outMin) output = outMin;
+      if (!isfinite(output)) {
+        *myOutput=0; outputSum=0; lastInput=input; lastTime=now;
+        arithmeticValid=false; return false;
+      }
+      arithmeticValid=true;
+      *myOutput = output;
+      
+      /*Remember some variables for next time*/
+      lastInput = input;
+      lastTime = now;
+      return true;
+    }
+    else return false;
+  }
+
+/* SetOutputLimits(...)****************************************************
+ *     This function will be used far more often than SetInputLimits.  while
+ *  the input to the controller will generally be in the 0-1023 range (which is
+ *  the default already,)  the output will be a little different.  maybe they'll
+ *  be doing a time window and will need 0-8000 or something.  or maybe they'll
+ *  want to clamp it from 0-125.  who knows.  at any rate, that can all be done
+ *  here.
+ **************************************************************************/
+  void SetOutputLimits (double Min, double Max) {
+     if(!isfinite(Min) || !isfinite(Max) || Min >= Max) return;
+     outMin = Min;
+     outMax = Max;
+  
+     if(inAuto)
+     {
+       if(*myOutput > outMax) *myOutput = outMax;
+       else if(*myOutput < outMin) *myOutput = outMin;
+  
+       if(outputSum > outMax) outputSum= outMax;
+       else if(outputSum < outMin) outputSum= outMin;
+     }
+  }
+
+/* SetTunings(...)*************************************************************
+ * Set Tunings using the last-rembered POn setting
+ ******************************************************************************/
+  void SetTunings(double Kp, double Ki, double Kd){
+    SetTunings(Kp, Ki, Kd, pOn); 
+  }
+
+/* SetTunings(...)*************************************************************
+ * This function allows the controller's dynamic performance to be adjusted.
+ * it's called automatically from the constructor, but tunings can also
+ * be adjusted on the fly during normal operation
+ ******************************************************************************/
+  void SetTunings(double Kp, double Ki, double Kd, int POn) {
+    if (!isfinite(Kp) || !isfinite(Ki) || !isfinite(Kd) || Kp<0 || Ki<0 || Kd<0) return;
+    
+    pOn = POn;
+    pOnE = POn == PID_P_ON_E;
+    
+    
+    double SampleTimeInSec = ((double)SampleTime)/1000;
+    kp = Kp;
+    ki = Ki * SampleTimeInSec;
+    kd = Kd / SampleTimeInSec;
+    
+    if(controllerDirection ==PID_REVERSE)
+    {
+      kp = (0 - kp);
+      ki = (0 - ki);
+      kd = (0 - kd);
+    }
+  }
+
+/* SetControllerDirection(...)*************************************************
+ * The PID will either be connected to a DIRECT acting process (+Output leads
+ * to +Input) or a REVERSE acting process(+Output leads to -Input.)  we need to
+ * know which one, because otherwise we may increase the output when we should
+ * be decreasing.  This is called from the constructor.
+ ******************************************************************************/
+  void SetControllerDirection (int Direction) {
+     if(Direction != PID_REVERSE && Direction != CONTROL_DIRECT) return;
+     if(Direction !=controllerDirection)
+     {
+        kp = (0 - kp);
+        ki = (0 - ki);
+        kd = (0 - kd);
+     }
+     controllerDirection = Direction;
+  }
+
+/* SetSampleTime(...) *********************************************************
+ * sets the period, in Milliseconds, at which the calculation is performed
+ ******************************************************************************/
+  void SetSampleTime(int NewSampleTime) {
+    if (NewSampleTime > 0) {
+      double ratio  = (double)NewSampleTime / (double)SampleTime;
+      ki *= ratio;
+      kd /= ratio;
+      SampleTime = (uint16_t)NewSampleTime;
+    }
+  }
+  
+/* Status Funcions*************************************************************
+ * Just because you set the Kp=-1 doesn't mean it actually happened.  these
+ * functions query the internal state of the PID.  they're here for display
+ * purposes.  this are the functions the PID Front-end uses for example
+ ******************************************************************************/
+  bool GetArithmeticValid() { return arithmeticValid; }
+  int GetMode(){ return  inAuto ? PID_AUTOMATIC : PID_MANUAL;}
+  int GetDirection(){ return controllerDirection;}
+
+  private:
+/* Initialize()****************************************************************
+ *  does all the things that need to happen to ensure a bumpless transfer
+ *  from manual to automatic mode.
+ ******************************************************************************/
+  void Initialize() {
+    outputSum = isfinite(*myOutput) ? *myOutput : 0;
+    lastInput = *myInput;
+    if(outputSum > outMax) outputSum = outMax;
+    else if(outputSum < outMin) outputSum = outMin;
+  }
+  
+  bool arithmeticValid=true;
+    
+  double kp = 0;                  // * (P)roportional Tuning Parameter
+  double ki = 0;                  // * (I)ntegral Tuning Parameter
+  double kd = 0;                  // * (D)erivative Tuning Parameter
+
+  byte controllerDirection = CONTROL_DIRECT;
+  byte pOn;
+
+  double *myInput;              // * Pointers to the Input, Output, and Setpoint variables
+  double *myOutput;             //   This creates a hard link between the variables and the 
+  double *mySetpoint;           //   PID, freeing the user from having to constantly tell us
+                                //   what these values are.  with pointers we'll just know.
+        
+  unsigned long lastTime;
+  double outputSum, lastInput;
+
+  uint16_t SampleTime;
+  double outMin, outMax;
+  bool inAuto, pOnE;
+};
+
+/**********************************************************************************************
+/End of PID Class based on: https://github.com/br3ttb/Arduino-PID-Library/
+ **********************************************************************************************/
+
+

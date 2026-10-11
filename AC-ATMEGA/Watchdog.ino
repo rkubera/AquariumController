@@ -1,0 +1,13 @@
+/**************************************************
+ *                                                *
+ * AquaController by Radek Kubera (rkubera)       *
+ * all rights reserved                            *
+ * free of charge for non-commercial use only     *
+ * https://github.com/rkubera/AquariumController  *
+ *                                                *
+ * ************************************************/
+ 
+void watchdogInit() {
+  wdt_enable(WDTO_8S);
+  wdt_reset();
+}

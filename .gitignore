@@ -1,0 +1,6 @@
+# Arduino build output
+**/build/
+# Local editor and operating-system files
+.DS_Store
+__pycache__/
+*.pyc

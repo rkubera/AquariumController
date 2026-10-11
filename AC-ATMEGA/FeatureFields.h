@@ -1,0 +1,12 @@
+#pragma once
+#include "ControllerFeatures.h"
+static const uint16_t AC_FIELD_FEATURES[] PROGMEM={0,0,0,0,0,0,0,8,8,8,6,6,6,6,518,6,5,0,0,8,0,0,7,7,7,0,4,4,0,0,0,0,0,0,0,4,0,0,0,0,0,0,18,274,18,18,274,18,274,18,18,18,274,274,274,274,274,18,34,290,34,34,290,34,290,34,34,34,290,290,290,290,290,34,50,306,50,50,306,50,306,50,50,50,306,306,306,306,306,50,66,322,66,66,322,66,322,66,66,66,322,322,322,322,322,66,82,338,82,82,338,82,338,82,82,82,338,338,338,338,338,82,98,354,98,98,354,98,354,98,98,98,354,354,354,354,354,98,17,273,17,17,273,273,17,17,17,273,273,17,33,289,33,33,289,289,33,33,33,289,289,33,49,305,49,49,305,305,49,49,49,305,305,49,65,321,65,65,321,321,65,65,65,321,321,65,0,19,19,19,19,19,19,19,19,19,19,19,19,35,35,35,35,35,35,35,35,35,35,35,35,51,51,51,51,51,51,51,51,51,51,51,51,67,67,67,67,67,67,67,67,67,67,67,67,83,83,83,83,83,83,83,83,83,83,83,83,99,99,99,99,99,99,99,99,99,99,99,99,115,115,115,115,115,115,115,115,115,115,115,115,131,131,131,131,131,131,131,131,131,131,131,131,0,0,0,0,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+static bool acFieldSupported(uint16_t id,const ControllerFeatures& caps){
+ if(!id||id>sizeof(AC_FIELD_FEATURES)/sizeof(AC_FIELD_FEATURES[0]))return false;
+ uint16_t descriptor=pgm_read_word(AC_FIELD_FEATURES+id-1);uint8_t group=descriptor&15,channel=(descriptor>>4)&15;
+ if((descriptor&256)&&!caps.inputs)return false;
+ if((descriptor&512)&&!caps.diagnostics())return false;
+ switch(group){case 1:return channel<=caps.relays;case 2:return channel<=caps.pwm;case 3:return channel<=caps.inputs;case 4:return caps.has(ControllerFeatures::Dht);case 5:return caps.has(ControllerFeatures::Rtc);case 6:return caps.has(ControllerFeatures::Buzzer);case 7:return caps.has(ControllerFeatures::Fan);case 8:return caps.diagnostics();default:return true;}
+}
+static uint16_t acActiveRestoreCount(const ControllerFeatures& caps){uint16_t count=0;for(uint16_t i=0;i<AC_RESTORE_COUNT;++i)if(acFieldSupported(acRestoreId(i),caps))++count;return count;}
+static uint16_t acActiveRestoreId(uint16_t step,const ControllerFeatures& caps){for(uint16_t i=0;i<AC_RESTORE_COUNT;++i){uint16_t id=acRestoreId(i);if(acFieldSupported(id,caps)){if(!step)return id;--step;}}return 0;}
