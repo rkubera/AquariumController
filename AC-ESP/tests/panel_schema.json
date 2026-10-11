@@ -34,7 +34,7 @@
           {
             "key": "state",
             "type": "switch",
-            "name": "LED: Stan",
+            "name": "LED: State",
             "command": "",
             "on": "ON",
             "off": "OFF"
@@ -42,7 +42,7 @@
           {
             "key": "brightness",
             "type": "slider",
-            "name": "LED: Aktualna jasność (%)",
+            "name": "LED: Current brightness (%)",
             "command": "",
             "min": 0,
             "max": 100,
@@ -58,15 +58,15 @@
       },
       {
         "type": "select",
-        "name": "LED: Tryb",
+        "name": "LED: Mode",
         "options": [
           {
             "value": "manual",
-            "name": "manual"
+            "name": "Manual"
           },
           {
             "value": "partofday",
-            "name": "partofday"
+            "name": "Time of day"
           }
         ],
         "id": "M_b2e7d268",
@@ -80,47 +80,47 @@
       },
       {
         "type": "select",
-        "name": "LED: Kolor ręczny",
+        "name": "LED: Manual color",
         "options": [
           {
             "value": "black",
-            "name": "black"
+            "name": "Black"
           },
           {
             "value": "red",
-            "name": "red"
+            "name": "Red"
           },
           {
             "value": "green",
-            "name": "green"
+            "name": "Green"
           },
           {
             "value": "blue",
-            "name": "blue"
+            "name": "Blue"
           },
           {
             "value": "cyan",
-            "name": "cyan"
+            "name": "Cyan"
           },
           {
             "value": "magenta",
-            "name": "magenta"
+            "name": "Magenta"
           },
           {
             "value": "yellow",
-            "name": "yellow"
+            "name": "Yellow"
           },
           {
             "value": "white",
-            "name": "white"
+            "name": "White"
           },
           {
             "value": "wave",
-            "name": "wave"
+            "name": "Wave"
           },
           {
             "value": "custom",
-            "name": "custom"
+            "name": "Custom"
           }
         ],
         "id": "M_f35844ff",
@@ -138,47 +138,47 @@
       },
       {
         "type": "select",
-        "name": "LED: Rano — kolor",
+        "name": "LED: Morning — color",
         "options": [
           {
             "value": "black",
-            "name": "black"
+            "name": "Black"
           },
           {
             "value": "red",
-            "name": "red"
+            "name": "Red"
           },
           {
             "value": "green",
-            "name": "green"
+            "name": "Green"
           },
           {
             "value": "blue",
-            "name": "blue"
+            "name": "Blue"
           },
           {
             "value": "cyan",
-            "name": "cyan"
+            "name": "Cyan"
           },
           {
             "value": "magenta",
-            "name": "magenta"
+            "name": "Magenta"
           },
           {
             "value": "yellow",
-            "name": "yellow"
+            "name": "Yellow"
           },
           {
             "value": "white",
-            "name": "white"
+            "name": "White"
           },
           {
             "value": "wave",
-            "name": "wave"
+            "name": "Wave"
           },
           {
             "value": "custom",
-            "name": "custom"
+            "name": "Custom"
           }
         ],
         "id": "M_e4365a67",
@@ -196,7 +196,7 @@
       },
       {
         "type": "slider",
-        "name": "LED: Rano — jasność (%)",
+        "name": "LED: Morning — brightness (%)",
         "min": 0,
         "max": 100,
         "step": 1,
@@ -215,47 +215,47 @@
       },
       {
         "type": "select",
-        "name": "LED: Popołudnie — kolor",
+        "name": "LED: Afternoon — color",
         "options": [
           {
             "value": "black",
-            "name": "black"
+            "name": "Black"
           },
           {
             "value": "red",
-            "name": "red"
+            "name": "Red"
           },
           {
             "value": "green",
-            "name": "green"
+            "name": "Green"
           },
           {
             "value": "blue",
-            "name": "blue"
+            "name": "Blue"
           },
           {
             "value": "cyan",
-            "name": "cyan"
+            "name": "Cyan"
           },
           {
             "value": "magenta",
-            "name": "magenta"
+            "name": "Magenta"
           },
           {
             "value": "yellow",
-            "name": "yellow"
+            "name": "Yellow"
           },
           {
             "value": "white",
-            "name": "white"
+            "name": "White"
           },
           {
             "value": "wave",
-            "name": "wave"
+            "name": "Wave"
           },
           {
             "value": "custom",
-            "name": "custom"
+            "name": "Custom"
           }
         ],
         "id": "M_71bf461f",
@@ -273,7 +273,7 @@
       },
       {
         "type": "slider",
-        "name": "LED: Popołudnie — jasność (%)",
+        "name": "LED: Afternoon — brightness (%)",
         "min": 0,
         "max": 100,
         "step": 1,
@@ -292,47 +292,47 @@
       },
       {
         "type": "select",
-        "name": "LED: Wieczór — kolor",
+        "name": "LED: Evening — color",
         "options": [
           {
             "value": "black",
-            "name": "black"
+            "name": "Black"
           },
           {
             "value": "red",
-            "name": "red"
+            "name": "Red"
           },
           {
             "value": "green",
-            "name": "green"
+            "name": "Green"
           },
           {
             "value": "blue",
-            "name": "blue"
+            "name": "Blue"
           },
           {
             "value": "cyan",
-            "name": "cyan"
+            "name": "Cyan"
           },
           {
             "value": "magenta",
-            "name": "magenta"
+            "name": "Magenta"
           },
           {
             "value": "yellow",
-            "name": "yellow"
+            "name": "Yellow"
           },
           {
             "value": "white",
-            "name": "white"
+            "name": "White"
           },
           {
             "value": "wave",
-            "name": "wave"
+            "name": "Wave"
           },
           {
             "value": "custom",
-            "name": "custom"
+            "name": "Custom"
           }
         ],
         "id": "M_c13e66e7",
@@ -350,7 +350,7 @@
       },
       {
         "type": "slider",
-        "name": "LED: Wieczór — jasność (%)",
+        "name": "LED: Evening — brightness (%)",
         "min": 0,
         "max": 100,
         "step": 1,
@@ -369,47 +369,47 @@
       },
       {
         "type": "select",
-        "name": "LED: Noc — kolor",
+        "name": "LED: Night — color",
         "options": [
           {
             "value": "black",
-            "name": "black"
+            "name": "Black"
           },
           {
             "value": "red",
-            "name": "red"
+            "name": "Red"
           },
           {
             "value": "green",
-            "name": "green"
+            "name": "Green"
           },
           {
             "value": "blue",
-            "name": "blue"
+            "name": "Blue"
           },
           {
             "value": "cyan",
-            "name": "cyan"
+            "name": "Cyan"
           },
           {
             "value": "magenta",
-            "name": "magenta"
+            "name": "Magenta"
           },
           {
             "value": "yellow",
-            "name": "yellow"
+            "name": "Yellow"
           },
           {
             "value": "white",
-            "name": "white"
+            "name": "White"
           },
           {
             "value": "wave",
-            "name": "wave"
+            "name": "Wave"
           },
           {
             "value": "custom",
-            "name": "custom"
+            "name": "Custom"
           }
         ],
         "id": "M_c09682f9",
@@ -427,7 +427,7 @@
       },
       {
         "type": "slider",
-        "name": "LED: Noc — jasność (%)",
+        "name": "LED: Night — brightness (%)",
         "min": 0,
         "max": 100,
         "step": 1,
@@ -448,12 +448,12 @@
   },
   {
     "id": "relays",
-    "name": "Przekaźniki",
+    "name": "Relays",
     "order": 10,
     "fields": [
       {
         "type": "edit",
-        "name": "R1: Nazwa",
+        "name": "R1: Name",
         "id": "M_22be3062",
         "persist": true,
         "default": "",
@@ -467,19 +467,19 @@
       },
       {
         "type": "select",
-        "name": "R1: Tryb",
+        "name": "R1: Mode",
         "options": [
           {
             "value": "manual",
-            "name": "manual"
+            "name": "Manual"
           },
           {
             "value": "partofday",
-            "name": "partofday"
+            "name": "Time of day"
           },
           {
             "value": "treshold",
-            "name": "treshold"
+            "name": "Threshold"
           }
         ],
         "id": "M_ee1455c9",
@@ -493,7 +493,7 @@
       },
       {
         "type": "switch",
-        "name": "R1: Stan",
+        "name": "R1: State",
         "id": "M_9ab64b8a",
         "persist": false,
         "ha": {
@@ -505,15 +505,15 @@
       },
       {
         "type": "select",
-        "name": "R1: Kierunek",
+        "name": "R1: Direction",
         "options": [
           {
             "value": "direct",
-            "name": "direct"
+            "name": "Direct"
           },
           {
             "value": "reverse",
-            "name": "reverse"
+            "name": "Reverse"
           }
         ],
         "id": "M_b97662b7",
@@ -531,43 +531,43 @@
       },
       {
         "type": "select",
-        "name": "R1: Wejście analogowe",
+        "name": "R1: Analog input",
         "options": [
           {
             "value": "none",
-            "name": "none"
+            "name": "None"
           },
           {
             "value": "sensor1",
-            "name": "sensor1"
+            "name": "Sensor1"
           },
           {
             "value": "sensor2",
-            "name": "sensor2"
+            "name": "Sensor2"
           },
           {
             "value": "sensor3",
-            "name": "sensor3"
+            "name": "Sensor3"
           },
           {
             "value": "sensor4",
-            "name": "sensor4"
+            "name": "Sensor4"
           },
           {
             "value": "sensor5",
-            "name": "sensor5"
+            "name": "Sensor5"
           },
           {
             "value": "sensor6",
-            "name": "sensor6"
+            "name": "Sensor6"
           },
           {
             "value": "sensor7",
-            "name": "sensor7"
+            "name": "Sensor7"
           },
           {
             "value": "sensor8",
-            "name": "sensor8"
+            "name": "Sensor8"
           }
         ],
         "id": "M_b5dfdf8f",
@@ -585,7 +585,7 @@
       },
       {
         "type": "edit",
-        "name": "R1: Wartość zadana",
+        "name": "R1: Setpoint",
         "id": "M_805a6e2a",
         "persist": true,
         "default": "0",
@@ -601,7 +601,7 @@
       },
       {
         "type": "edit",
-        "name": "R1: Połowa szerokości histerezy",
+        "name": "R1: Hysteresis half-width",
         "id": "M_bf8a6d7c",
         "persist": true,
         "default": "0",
@@ -617,7 +617,7 @@
       },
       {
         "type": "switch",
-        "name": "R1: Rano",
+        "name": "R1: Morning",
         "id": "M_fbb23b5c",
         "persist": true,
         "default": false,
@@ -634,7 +634,7 @@
       },
       {
         "type": "switch",
-        "name": "R1: Popołudnie",
+        "name": "R1: Afternoon",
         "id": "M_4718b314",
         "persist": true,
         "default": false,
@@ -651,7 +651,7 @@
       },
       {
         "type": "switch",
-        "name": "R1: Wieczór",
+        "name": "R1: Evening",
         "id": "M_04365844",
         "persist": true,
         "default": false,
@@ -668,7 +668,7 @@
       },
       {
         "type": "switch",
-        "name": "R1: Noc",
+        "name": "R1: Night",
         "id": "M_7f32a382",
         "persist": true,
         "default": false,
@@ -699,7 +699,7 @@
       },
       {
         "type": "edit",
-        "name": "R2: Nazwa",
+        "name": "R2: Name",
         "id": "M_307edc53",
         "persist": true,
         "default": "",
@@ -713,19 +713,19 @@
       },
       {
         "type": "select",
-        "name": "R2: Tryb",
+        "name": "R2: Mode",
         "options": [
           {
             "value": "manual",
-            "name": "manual"
+            "name": "Manual"
           },
           {
             "value": "partofday",
-            "name": "partofday"
+            "name": "Time of day"
           },
           {
             "value": "treshold",
-            "name": "treshold"
+            "name": "Threshold"
           }
         ],
         "id": "M_519ed402",
@@ -739,7 +739,7 @@
       },
       {
         "type": "switch",
-        "name": "R2: Stan",
+        "name": "R2: State",
         "id": "M_3a4880a5",
         "persist": false,
         "ha": {
@@ -751,15 +751,15 @@
       },
       {
         "type": "select",
-        "name": "R2: Kierunek",
+        "name": "R2: Direction",
         "options": [
           {
             "value": "direct",
-            "name": "direct"
+            "name": "Direct"
           },
           {
             "value": "reverse",
-            "name": "reverse"
+            "name": "Reverse"
           }
         ],
         "id": "M_ba03507a",
@@ -777,43 +777,43 @@
       },
       {
         "type": "select",
-        "name": "R2: Wejście analogowe",
+        "name": "R2: Analog input",
         "options": [
           {
             "value": "none",
-            "name": "none"
+            "name": "None"
           },
           {
             "value": "sensor1",
-            "name": "sensor1"
+            "name": "Sensor1"
           },
           {
             "value": "sensor2",
-            "name": "sensor2"
+            "name": "Sensor2"
           },
           {
             "value": "sensor3",
-            "name": "sensor3"
+            "name": "Sensor3"
           },
           {
             "value": "sensor4",
-            "name": "sensor4"
+            "name": "Sensor4"
           },
           {
             "value": "sensor5",
-            "name": "sensor5"
+            "name": "Sensor5"
           },
           {
             "value": "sensor6",
-            "name": "sensor6"
+            "name": "Sensor6"
           },
           {
             "value": "sensor7",
-            "name": "sensor7"
+            "name": "Sensor7"
           },
           {
             "value": "sensor8",
-            "name": "sensor8"
+            "name": "Sensor8"
           }
         ],
         "id": "M_16230834",
@@ -831,7 +831,7 @@
       },
       {
         "type": "edit",
-        "name": "R2: Wartość zadana",
+        "name": "R2: Setpoint",
         "id": "M_f6501d79",
         "persist": true,
         "default": "0",
@@ -847,7 +847,7 @@
       },
       {
         "type": "edit",
-        "name": "R2: Połowa szerokości histerezy",
+        "name": "R2: Hysteresis half-width",
         "id": "M_31618a11",
         "persist": true,
         "default": "0",
@@ -863,7 +863,7 @@
       },
       {
         "type": "switch",
-        "name": "R2: Rano",
+        "name": "R2: Morning",
         "id": "M_eb737f4b",
         "persist": true,
         "default": false,
@@ -880,7 +880,7 @@
       },
       {
         "type": "switch",
-        "name": "R2: Popołudnie",
+        "name": "R2: Afternoon",
         "id": "M_620f21c7",
         "persist": true,
         "default": false,
@@ -897,7 +897,7 @@
       },
       {
         "type": "switch",
-        "name": "R2: Wieczór",
+        "name": "R2: Evening",
         "id": "M_3007435f",
         "persist": true,
         "default": false,
@@ -914,7 +914,7 @@
       },
       {
         "type": "switch",
-        "name": "R2: Noc",
+        "name": "R2: Night",
         "id": "M_eafd667d",
         "persist": true,
         "default": false,
@@ -945,7 +945,7 @@
       },
       {
         "type": "edit",
-        "name": "R3: Nazwa",
+        "name": "R3: Name",
         "id": "M_9de298e8",
         "persist": true,
         "default": "",
@@ -959,19 +959,19 @@
       },
       {
         "type": "select",
-        "name": "R3: Tryb",
+        "name": "R3: Mode",
         "options": [
           {
             "value": "manual",
-            "name": "manual"
+            "name": "Manual"
           },
           {
             "value": "partofday",
-            "name": "partofday"
+            "name": "Time of day"
           },
           {
             "value": "treshold",
-            "name": "treshold"
+            "name": "Threshold"
           }
         ],
         "id": "M_bd5e2447",
@@ -985,7 +985,7 @@
       },
       {
         "type": "switch",
-        "name": "R3: Stan",
+        "name": "R3: State",
         "id": "M_ae20f4b4",
         "persist": false,
         "ha": {
@@ -997,15 +997,15 @@
       },
       {
         "type": "select",
-        "name": "R3: Kierunek",
+        "name": "R3: Direction",
         "options": [
           {
             "value": "direct",
-            "name": "direct"
+            "name": "Direct"
           },
           {
             "value": "reverse",
-            "name": "reverse"
+            "name": "Reverse"
           }
         ],
         "id": "M_cd2560e5",
@@ -1023,43 +1023,43 @@
       },
       {
         "type": "select",
-        "name": "R3: Wejście analogowe",
+        "name": "R3: Analog input",
         "options": [
           {
             "value": "none",
-            "name": "none"
+            "name": "None"
           },
           {
             "value": "sensor1",
-            "name": "sensor1"
+            "name": "Sensor1"
           },
           {
             "value": "sensor2",
-            "name": "sensor2"
+            "name": "Sensor2"
           },
           {
             "value": "sensor3",
-            "name": "sensor3"
+            "name": "Sensor3"
           },
           {
             "value": "sensor4",
-            "name": "sensor4"
+            "name": "Sensor4"
           },
           {
             "value": "sensor5",
-            "name": "sensor5"
+            "name": "Sensor5"
           },
           {
             "value": "sensor6",
-            "name": "sensor6"
+            "name": "Sensor6"
           },
           {
             "value": "sensor7",
-            "name": "sensor7"
+            "name": "Sensor7"
           },
           {
             "value": "sensor8",
-            "name": "sensor8"
+            "name": "Sensor8"
           }
         ],
         "id": "M_519c2d81",
@@ -1077,7 +1077,7 @@
       },
       {
         "type": "edit",
-        "name": "R3: Wartość zadana",
+        "name": "R3: Setpoint",
         "id": "M_2f5c7b1c",
         "persist": true,
         "default": "0",
@@ -1093,7 +1093,7 @@
       },
       {
         "type": "edit",
-        "name": "R3: Połowa szerokości histerezy",
+        "name": "R3: Hysteresis half-width",
         "id": "M_a6513792",
         "persist": true,
         "default": "0",
@@ -1109,7 +1109,7 @@
       },
       {
         "type": "switch",
-        "name": "R3: Rano",
+        "name": "R3: Morning",
         "id": "M_038943ca",
         "persist": true,
         "default": false,
@@ -1126,7 +1126,7 @@
       },
       {
         "type": "switch",
-        "name": "R3: Popołudnie",
+        "name": "R3: Afternoon",
         "id": "M_05ccfab6",
         "persist": true,
         "default": false,
@@ -1143,7 +1143,7 @@
       },
       {
         "type": "switch",
-        "name": "R3: Wieczór",
+        "name": "R3: Evening",
         "id": "M_5f596df6",
         "persist": true,
         "default": false,
@@ -1160,7 +1160,7 @@
       },
       {
         "type": "switch",
-        "name": "R3: Noc",
+        "name": "R3: Night",
         "id": "M_e0f03a54",
         "persist": true,
         "default": false,
@@ -1191,7 +1191,7 @@
       },
       {
         "type": "edit",
-        "name": "R4: Nazwa",
+        "name": "R4: Name",
         "id": "M_d424d409",
         "persist": true,
         "default": "",
@@ -1205,19 +1205,19 @@
       },
       {
         "type": "select",
-        "name": "R4: Tryb",
+        "name": "R4: Mode",
         "options": [
           {
             "value": "manual",
-            "name": "manual"
+            "name": "Manual"
           },
           {
             "value": "partofday",
-            "name": "partofday"
+            "name": "Time of day"
           },
           {
             "value": "treshold",
-            "name": "treshold"
+            "name": "Threshold"
           }
         ],
         "id": "M_ad328a90",
@@ -1231,7 +1231,7 @@
       },
       {
         "type": "switch",
-        "name": "R4: Stan",
+        "name": "R4: State",
         "id": "M_3b0814c7",
         "persist": false,
         "ha": {
@@ -1243,15 +1243,15 @@
       },
       {
         "type": "select",
-        "name": "R4: Kierunek",
+        "name": "R4: Direction",
         "options": [
           {
             "value": "direct",
-            "name": "direct"
+            "name": "Direct"
           },
           {
             "value": "reverse",
-            "name": "reverse"
+            "name": "Reverse"
           }
         ],
         "id": "M_cdc7b6c0",
@@ -1269,43 +1269,43 @@
       },
       {
         "type": "select",
-        "name": "R4: Wejście analogowe",
+        "name": "R4: Analog input",
         "options": [
           {
             "value": "none",
-            "name": "none"
+            "name": "None"
           },
           {
             "value": "sensor1",
-            "name": "sensor1"
+            "name": "Sensor1"
           },
           {
             "value": "sensor2",
-            "name": "sensor2"
+            "name": "Sensor2"
           },
           {
             "value": "sensor3",
-            "name": "sensor3"
+            "name": "Sensor3"
           },
           {
             "value": "sensor4",
-            "name": "sensor4"
+            "name": "Sensor4"
           },
           {
             "value": "sensor5",
-            "name": "sensor5"
+            "name": "Sensor5"
           },
           {
             "value": "sensor6",
-            "name": "sensor6"
+            "name": "Sensor6"
           },
           {
             "value": "sensor7",
-            "name": "sensor7"
+            "name": "Sensor7"
           },
           {
             "value": "sensor8",
-            "name": "sensor8"
+            "name": "Sensor8"
           }
         ],
         "id": "M_ce562ce6",
@@ -1323,7 +1323,7 @@
       },
       {
         "type": "edit",
-        "name": "R4: Wartość zadana",
+        "name": "R4: Setpoint",
         "id": "M_ad33f4db",
         "persist": true,
         "default": "0",
@@ -1339,7 +1339,7 @@
       },
       {
         "type": "edit",
-        "name": "R4: Połowa szerokości histerezy",
+        "name": "R4: Hysteresis half-width",
         "id": "M_0e147057",
         "persist": true,
         "default": "0",
@@ -1355,7 +1355,7 @@
       },
       {
         "type": "switch",
-        "name": "R4: Rano",
+        "name": "R4: Morning",
         "id": "M_d63d89d1",
         "persist": true,
         "default": false,
@@ -1372,7 +1372,7 @@
       },
       {
         "type": "switch",
-        "name": "R4: Popołudnie",
+        "name": "R4: Afternoon",
         "id": "M_6b4f5a99",
         "persist": true,
         "default": false,
@@ -1389,7 +1389,7 @@
       },
       {
         "type": "switch",
-        "name": "R4: Wieczór",
+        "name": "R4: Evening",
         "id": "M_4d091ad9",
         "persist": true,
         "default": false,
@@ -1406,7 +1406,7 @@
       },
       {
         "type": "switch",
-        "name": "R4: Noc",
+        "name": "R4: Night",
         "id": "M_4c7c06f7",
         "persist": true,
         "default": false,
@@ -1439,20 +1439,20 @@
   },
   {
     "id": "schedule",
-    "name": "Harmonogram",
+    "name": "Schedule",
     "order": 20,
     "fields": [
       {
         "type": "select",
-        "name": "Harmonogram: Tryb",
+        "name": "Schedule: Mode",
         "options": [
           {
             "value": "daily",
-            "name": "Każdego dnia"
+            "name": "Every day"
           },
           {
             "value": "weekdayweekend",
-            "name": "Pn–Pt i Weekend"
+            "name": "Mon–Fri and weekend"
           }
         ],
         "id": "M_e9abe86f",
@@ -1466,7 +1466,7 @@
       },
       {
         "type": "time",
-        "name": "Harmonogram: Każdego dnia — Rano",
+        "name": "Schedule: Every day — Morning",
         "id": "M_04b49b1e",
         "persist": true,
         "default": "09:00:00",
@@ -1482,7 +1482,7 @@
       },
       {
         "type": "time",
-        "name": "Harmonogram: Każdego dnia — Popołudnie",
+        "name": "Schedule: Every day — Afternoon",
         "id": "M_e46cf686",
         "persist": true,
         "default": "10:00:00",
@@ -1498,7 +1498,7 @@
       },
       {
         "type": "time",
-        "name": "Harmonogram: Każdego dnia — Wieczór",
+        "name": "Schedule: Every day — Evening",
         "id": "M_3bc57e1e",
         "persist": true,
         "default": "19:00:00",
@@ -1514,7 +1514,7 @@
       },
       {
         "type": "time",
-        "name": "Harmonogram: Każdego dnia — Noc",
+        "name": "Schedule: Every day — Night",
         "id": "M_00f96f58",
         "persist": true,
         "default": "22:00:00",
@@ -1530,7 +1530,7 @@
       },
       {
         "type": "time",
-        "name": "Harmonogram: Pn–Pt — Rano",
+        "name": "Schedule: Mon–Fri — Morning",
         "id": "M_343dbe8e",
         "persist": true,
         "default": "09:00:00",
@@ -1546,7 +1546,7 @@
       },
       {
         "type": "time",
-        "name": "Harmonogram: Pn–Pt — Popołudnie",
+        "name": "Schedule: Mon–Fri — Afternoon",
         "id": "M_c1b27a56",
         "persist": true,
         "default": "10:00:00",
@@ -1562,7 +1562,7 @@
       },
       {
         "type": "time",
-        "name": "Harmonogram: Pn–Pt — Wieczór",
+        "name": "Schedule: Mon–Fri — Evening",
         "id": "M_ddf379ce",
         "persist": true,
         "default": "19:00:00",
@@ -1578,7 +1578,7 @@
       },
       {
         "type": "time",
-        "name": "Harmonogram: Pn–Pt — Noc",
+        "name": "Schedule: Mon–Fri — Night",
         "id": "M_6464bdc8",
         "persist": true,
         "default": "22:00:00",
@@ -1594,7 +1594,7 @@
       },
       {
         "type": "time",
-        "name": "Harmonogram: Weekend — Rano",
+        "name": "Schedule: Weekend — Morning",
         "id": "M_3685740b",
         "persist": true,
         "default": "09:00:00",
@@ -1610,7 +1610,7 @@
       },
       {
         "type": "time",
-        "name": "Harmonogram: Weekend — Popołudnie",
+        "name": "Schedule: Weekend — Afternoon",
         "id": "M_66b258d3",
         "persist": true,
         "default": "10:00:00",
@@ -1626,7 +1626,7 @@
       },
       {
         "type": "time",
-        "name": "Harmonogram: Weekend — Wieczór",
+        "name": "Schedule: Weekend — Evening",
         "id": "M_a13b8513",
         "persist": true,
         "default": "19:00:00",
@@ -1642,7 +1642,7 @@
       },
       {
         "type": "time",
-        "name": "Harmonogram: Weekend — Noc",
+        "name": "Schedule: Weekend — Night",
         "id": "M_ec17d675",
         "persist": true,
         "default": "22:00:00",
@@ -1658,7 +1658,7 @@
       },
       {
         "type": "text",
-        "name": "Harmonogram: Aktualna pora",
+        "name": "Schedule: Current phase",
         "id": "M_756f8567",
         "persist": false,
         "readonly": true,
@@ -1670,12 +1670,12 @@
   },
   {
     "id": "inputs",
-    "name": "Wejścia",
+    "name": "Inputs",
     "order": 30,
     "fields": [
       {
         "type": "edit",
-        "name": "S1: Nazwa",
+        "name": "S1: Name",
         "id": "M_3759e61d",
         "persist": true,
         "default": "",
@@ -1689,51 +1689,51 @@
       },
       {
         "type": "select",
-        "name": "S1: Podłączone sterowanie",
+        "name": "S1: Assigned output",
         "options": [
           {
             "value": "notconnected",
-            "name": "notconnected"
+            "name": "Not connected"
           },
           {
             "value": "relay1",
-            "name": "relay1"
+            "name": "Relay1"
           },
           {
             "value": "relay2",
-            "name": "relay2"
+            "name": "Relay2"
           },
           {
             "value": "relay3",
-            "name": "relay3"
+            "name": "Relay3"
           },
           {
             "value": "relay4",
-            "name": "relay4"
+            "name": "Relay4"
           },
           {
             "value": "pwmoutput1",
-            "name": "pwmoutput1"
+            "name": "Pwmoutput1"
           },
           {
             "value": "pwmoutput2",
-            "name": "pwmoutput2"
+            "name": "Pwmoutput2"
           },
           {
             "value": "pwmoutput3",
-            "name": "pwmoutput3"
+            "name": "Pwmoutput3"
           },
           {
             "value": "pwmoutput4",
-            "name": "pwmoutput4"
+            "name": "Pwmoutput4"
           },
           {
             "value": "pwmoutput5",
-            "name": "pwmoutput5"
+            "name": "Pwmoutput5"
           },
           {
             "value": "pwmoutput6",
-            "name": "pwmoutput6"
+            "name": "Pwmoutput6"
           }
         ],
         "id": "M_a5f9eefe",
@@ -1747,7 +1747,7 @@
       },
       {
         "type": "edit",
-        "name": "S1: Kalibracja: wartość 1",
+        "name": "S1: Calibration: value 1",
         "id": "M_78157d9d",
         "persist": true,
         "default": "0",
@@ -1759,7 +1759,7 @@
       },
       {
         "type": "edit",
-        "name": "S1: Kalibracja: ADC 1 (0–1023)",
+        "name": "S1: Calibration: ADC 1 (0–1023)",
         "id": "M_400e4039",
         "persist": true,
         "default": "0",
@@ -1771,7 +1771,7 @@
       },
       {
         "type": "edit",
-        "name": "S1: Kalibracja: wartość 2",
+        "name": "S1: Calibration: value 2",
         "id": "M_751578e4",
         "persist": true,
         "default": "1",
@@ -1783,7 +1783,7 @@
       },
       {
         "type": "edit",
-        "name": "S1: Kalibracja: ADC 2 (0–1023)",
+        "name": "S1: Calibration: ADC 2 (0–1023)",
         "id": "M_3d0e3b80",
         "persist": true,
         "default": "1023",
@@ -1795,7 +1795,7 @@
       },
       {
         "type": "edit",
-        "name": "S1: Minimum lub off",
+        "name": "S1: Minimum or off",
         "id": "M_13539af3",
         "persist": true,
         "default": "off",
@@ -1807,7 +1807,7 @@
       },
       {
         "type": "edit",
-        "name": "S1: Maksimum lub off",
+        "name": "S1: Maximum or off",
         "id": "M_d0808f51",
         "persist": true,
         "default": "off",
@@ -1819,7 +1819,7 @@
       },
       {
         "type": "edit",
-        "name": "S1: Minimum krytyczne lub off",
+        "name": "S1: Critical minimum or off",
         "id": "M_83b82822",
         "persist": true,
         "default": "off",
@@ -1831,7 +1831,7 @@
       },
       {
         "type": "edit",
-        "name": "S1: Maksimum krytyczne lub off",
+        "name": "S1: Critical maximum or off",
         "id": "M_6de88960",
         "persist": true,
         "default": "off",
@@ -1863,7 +1863,7 @@
       },
       {
         "type": "edit",
-        "name": "S2: Nazwa",
+        "name": "S2: Name",
         "id": "M_c32c1550",
         "persist": true,
         "default": "",
@@ -1877,51 +1877,51 @@
       },
       {
         "type": "select",
-        "name": "S2: Podłączone sterowanie",
+        "name": "S2: Assigned output",
         "options": [
           {
             "value": "notconnected",
-            "name": "notconnected"
+            "name": "Not connected"
           },
           {
             "value": "relay1",
-            "name": "relay1"
+            "name": "Relay1"
           },
           {
             "value": "relay2",
-            "name": "relay2"
+            "name": "Relay2"
           },
           {
             "value": "relay3",
-            "name": "relay3"
+            "name": "Relay3"
           },
           {
             "value": "relay4",
-            "name": "relay4"
+            "name": "Relay4"
           },
           {
             "value": "pwmoutput1",
-            "name": "pwmoutput1"
+            "name": "Pwmoutput1"
           },
           {
             "value": "pwmoutput2",
-            "name": "pwmoutput2"
+            "name": "Pwmoutput2"
           },
           {
             "value": "pwmoutput3",
-            "name": "pwmoutput3"
+            "name": "Pwmoutput3"
           },
           {
             "value": "pwmoutput4",
-            "name": "pwmoutput4"
+            "name": "Pwmoutput4"
           },
           {
             "value": "pwmoutput5",
-            "name": "pwmoutput5"
+            "name": "Pwmoutput5"
           },
           {
             "value": "pwmoutput6",
-            "name": "pwmoutput6"
+            "name": "Pwmoutput6"
           }
         ],
         "id": "M_f3fd17b3",
@@ -1935,7 +1935,7 @@
       },
       {
         "type": "edit",
-        "name": "S2: Kalibracja: wartość 1",
+        "name": "S2: Calibration: value 1",
         "id": "M_915c41ee",
         "persist": true,
         "default": "0",
@@ -1947,7 +1947,7 @@
       },
       {
         "type": "edit",
-        "name": "S2: Kalibracja: ADC 1 (0–1023)",
+        "name": "S2: Calibration: ADC 1 (0–1023)",
         "id": "M_9297b8cc",
         "persist": true,
         "default": "0",
@@ -1959,7 +1959,7 @@
       },
       {
         "type": "edit",
-        "name": "S2: Kalibracja: wartość 2",
+        "name": "S2: Calibration: value 2",
         "id": "M_905c405b",
         "persist": true,
         "default": "1",
@@ -1971,7 +1971,7 @@
       },
       {
         "type": "edit",
-        "name": "S2: Kalibracja: ADC 2 (0–1023)",
+        "name": "S2: Calibration: ADC 2 (0–1023)",
         "id": "M_9597bd85",
         "persist": true,
         "default": "1023",
@@ -1983,7 +1983,7 @@
       },
       {
         "type": "edit",
-        "name": "S2: Minimum lub off",
+        "name": "S2: Minimum or off",
         "id": "M_725dac62",
         "persist": true,
         "default": "off",
@@ -1995,7 +1995,7 @@
       },
       {
         "type": "edit",
-        "name": "S2: Maksimum lub off",
+        "name": "S2: Maximum or off",
         "id": "M_2b144fa0",
         "persist": true,
         "default": "off",
@@ -2007,7 +2007,7 @@
       },
       {
         "type": "edit",
-        "name": "S2: Minimum krytyczne lub off",
+        "name": "S2: Critical minimum or off",
         "id": "M_b24797bf",
         "persist": true,
         "default": "off",
@@ -2019,7 +2019,7 @@
       },
       {
         "type": "edit",
-        "name": "S2: Maksimum krytyczne lub off",
+        "name": "S2: Critical maximum or off",
         "id": "M_1be960d5",
         "persist": true,
         "default": "off",
@@ -2051,7 +2051,7 @@
       },
       {
         "type": "edit",
-        "name": "S3: Nazwa",
+        "name": "S3: Name",
         "id": "M_5addecbb",
         "persist": true,
         "default": "",
@@ -2065,51 +2065,51 @@
       },
       {
         "type": "select",
-        "name": "S3: Podłączone sterowanie",
+        "name": "S3: Assigned output",
         "options": [
           {
             "value": "notconnected",
-            "name": "notconnected"
+            "name": "Not connected"
           },
           {
             "value": "relay1",
-            "name": "relay1"
+            "name": "Relay1"
           },
           {
             "value": "relay2",
-            "name": "relay2"
+            "name": "Relay2"
           },
           {
             "value": "relay3",
-            "name": "relay3"
+            "name": "Relay3"
           },
           {
             "value": "relay4",
-            "name": "relay4"
+            "name": "Relay4"
           },
           {
             "value": "pwmoutput1",
-            "name": "pwmoutput1"
+            "name": "Pwmoutput1"
           },
           {
             "value": "pwmoutput2",
-            "name": "pwmoutput2"
+            "name": "Pwmoutput2"
           },
           {
             "value": "pwmoutput3",
-            "name": "pwmoutput3"
+            "name": "Pwmoutput3"
           },
           {
             "value": "pwmoutput4",
-            "name": "pwmoutput4"
+            "name": "Pwmoutput4"
           },
           {
             "value": "pwmoutput5",
-            "name": "pwmoutput5"
+            "name": "Pwmoutput5"
           },
           {
             "value": "pwmoutput6",
-            "name": "pwmoutput6"
+            "name": "Pwmoutput6"
           }
         ],
         "id": "M_c8dbdb90",
@@ -2123,7 +2123,7 @@
       },
       {
         "type": "edit",
-        "name": "S3: Kalibracja: wartość 1",
+        "name": "S3: Calibration: value 1",
         "id": "M_86d6228f",
         "persist": true,
         "default": "0",
@@ -2135,7 +2135,7 @@
       },
       {
         "type": "edit",
-        "name": "S3: Kalibracja: ADC 1 (0–1023)",
+        "name": "S3: Calibration: ADC 1 (0–1023)",
         "id": "M_f13c82ff",
         "persist": true,
         "default": "0",
@@ -2147,7 +2147,7 @@
       },
       {
         "type": "edit",
-        "name": "S3: Kalibracja: wartość 2",
+        "name": "S3: Calibration: value 2",
         "id": "M_87d62422",
         "persist": true,
         "default": "1",
@@ -2159,7 +2159,7 @@
       },
       {
         "type": "edit",
-        "name": "S3: Kalibracja: ADC 2 (0–1023)",
+        "name": "S3: Calibration: ADC 2 (0–1023)",
         "id": "M_f23c8492",
         "persist": true,
         "default": "1023",
@@ -2171,7 +2171,7 @@
       },
       {
         "type": "edit",
-        "name": "S3: Minimum lub off",
+        "name": "S3: Minimum or off",
         "id": "M_747247ed",
         "persist": true,
         "default": "off",
@@ -2183,7 +2183,7 @@
       },
       {
         "type": "edit",
-        "name": "S3: Maksimum lub off",
+        "name": "S3: Maximum or off",
         "id": "M_b72c9d57",
         "persist": true,
         "default": "off",
@@ -2195,7 +2195,7 @@
       },
       {
         "type": "edit",
-        "name": "S3: Minimum krytyczne lub off",
+        "name": "S3: Critical minimum or off",
         "id": "M_986a7160",
         "persist": true,
         "default": "off",
@@ -2207,7 +2207,7 @@
       },
       {
         "type": "edit",
-        "name": "S3: Maksimum krytyczne lub off",
+        "name": "S3: Critical maximum or off",
         "id": "M_ae3a1022",
         "persist": true,
         "default": "off",
@@ -2239,7 +2239,7 @@
       },
       {
         "type": "edit",
-        "name": "S4: Nazwa",
+        "name": "S4: Name",
         "id": "M_204eff5e",
         "persist": true,
         "default": "",
@@ -2253,51 +2253,51 @@
       },
       {
         "type": "select",
-        "name": "S4: Podłączone sterowanie",
+        "name": "S4: Assigned output",
         "options": [
           {
             "value": "notconnected",
-            "name": "notconnected"
+            "name": "Not connected"
           },
           {
             "value": "relay1",
-            "name": "relay1"
+            "name": "Relay1"
           },
           {
             "value": "relay2",
-            "name": "relay2"
+            "name": "Relay2"
           },
           {
             "value": "relay3",
-            "name": "relay3"
+            "name": "Relay3"
           },
           {
             "value": "relay4",
-            "name": "relay4"
+            "name": "Relay4"
           },
           {
             "value": "pwmoutput1",
-            "name": "pwmoutput1"
+            "name": "Pwmoutput1"
           },
           {
             "value": "pwmoutput2",
-            "name": "pwmoutput2"
+            "name": "Pwmoutput2"
           },
           {
             "value": "pwmoutput3",
-            "name": "pwmoutput3"
+            "name": "Pwmoutput3"
           },
           {
             "value": "pwmoutput4",
-            "name": "pwmoutput4"
+            "name": "Pwmoutput4"
           },
           {
             "value": "pwmoutput5",
-            "name": "pwmoutput5"
+            "name": "Pwmoutput5"
           },
           {
             "value": "pwmoutput6",
-            "name": "pwmoutput6"
+            "name": "Pwmoutput6"
           }
         ],
         "id": "M_c50272b5",
@@ -2311,7 +2311,7 @@
       },
       {
         "type": "edit",
-        "name": "S4: Kalibracja: wartość 1",
+        "name": "S4: Calibration: value 1",
         "id": "M_b34c3f38",
         "persist": true,
         "default": "0",
@@ -2323,7 +2323,7 @@
       },
       {
         "type": "edit",
-        "name": "S4: Kalibracja: ADC 1 (0–1023)",
+        "name": "S4: Calibration: ADC 1 (0–1023)",
         "id": "M_e2aea58a",
         "persist": true,
         "default": "0",
@@ -2335,7 +2335,7 @@
       },
       {
         "type": "edit",
-        "name": "S4: Kalibracja: wartość 2",
+        "name": "S4: Calibration: value 2",
         "id": "M_b64c43f1",
         "persist": true,
         "default": "1",
@@ -2347,7 +2347,7 @@
       },
       {
         "type": "edit",
-        "name": "S4: Kalibracja: ADC 2 (0–1023)",
+        "name": "S4: Calibration: ADC 2 (0–1023)",
         "id": "M_e1aea3f7",
         "persist": true,
         "default": "1023",
@@ -2359,7 +2359,7 @@
       },
       {
         "type": "edit",
-        "name": "S4: Minimum lub off",
+        "name": "S4: Minimum or off",
         "id": "M_c6f065c4",
         "persist": true,
         "default": "off",
@@ -2371,7 +2371,7 @@
       },
       {
         "type": "edit",
-        "name": "S4: Maksimum lub off",
+        "name": "S4: Maximum or off",
         "id": "M_205e028e",
         "persist": true,
         "default": "off",
@@ -2383,7 +2383,7 @@
       },
       {
         "type": "edit",
-        "name": "S4: Minimum krytyczne lub off",
+        "name": "S4: Critical minimum or off",
         "id": "M_9b860885",
         "persist": true,
         "default": "off",
@@ -2395,7 +2395,7 @@
       },
       {
         "type": "edit",
-        "name": "S4: Maksimum krytyczne lub off",
+        "name": "S4: Critical maximum or off",
         "id": "M_6ab9063f",
         "persist": true,
         "default": "off",
@@ -2427,7 +2427,7 @@
       },
       {
         "type": "edit",
-        "name": "S5: Nazwa",
+        "name": "S5: Name",
         "id": "M_f91e9e91",
         "persist": true,
         "default": "",
@@ -2441,51 +2441,51 @@
       },
       {
         "type": "select",
-        "name": "S5: Podłączone sterowanie",
+        "name": "S5: Assigned output",
         "options": [
           {
             "value": "notconnected",
-            "name": "notconnected"
+            "name": "Not connected"
           },
           {
             "value": "relay1",
-            "name": "relay1"
+            "name": "Relay1"
           },
           {
             "value": "relay2",
-            "name": "relay2"
+            "name": "Relay2"
           },
           {
             "value": "relay3",
-            "name": "relay3"
+            "name": "Relay3"
           },
           {
             "value": "relay4",
-            "name": "relay4"
+            "name": "Relay4"
           },
           {
             "value": "pwmoutput1",
-            "name": "pwmoutput1"
+            "name": "Pwmoutput1"
           },
           {
             "value": "pwmoutput2",
-            "name": "pwmoutput2"
+            "name": "Pwmoutput2"
           },
           {
             "value": "pwmoutput3",
-            "name": "pwmoutput3"
+            "name": "Pwmoutput3"
           },
           {
             "value": "pwmoutput4",
-            "name": "pwmoutput4"
+            "name": "Pwmoutput4"
           },
           {
             "value": "pwmoutput5",
-            "name": "pwmoutput5"
+            "name": "Pwmoutput5"
           },
           {
             "value": "pwmoutput6",
-            "name": "pwmoutput6"
+            "name": "Pwmoutput6"
           }
         ],
         "id": "M_e4dbc82a",
@@ -2499,7 +2499,7 @@
       },
       {
         "type": "edit",
-        "name": "S5: Kalibracja: wartość 1",
+        "name": "S5: Calibration: value 1",
         "id": "M_6614e169",
         "persist": true,
         "default": "0",
@@ -2511,7 +2511,7 @@
       },
       {
         "type": "edit",
-        "name": "S5: Kalibracja: ADC 1 (0–1023)",
+        "name": "S5: Calibration: ADC 1 (0–1023)",
         "id": "M_9800ecd5",
         "persist": true,
         "default": "0",
@@ -2523,7 +2523,7 @@
       },
       {
         "type": "edit",
-        "name": "S5: Kalibracja: wartość 2",
+        "name": "S5: Calibration: value 2",
         "id": "M_6314dcb0",
         "persist": true,
         "default": "1",
@@ -2535,7 +2535,7 @@
       },
       {
         "type": "edit",
-        "name": "S5: Kalibracja: ADC 2 (0–1023)",
+        "name": "S5: Calibration: ADC 2 (0–1023)",
         "id": "M_9500e81c",
         "persist": true,
         "default": "1023",
@@ -2547,7 +2547,7 @@
       },
       {
         "type": "edit",
-        "name": "S5: Minimum lub off",
+        "name": "S5: Minimum or off",
         "id": "M_e40d3ddf",
         "persist": true,
         "default": "off",
@@ -2559,7 +2559,7 @@
       },
       {
         "type": "edit",
-        "name": "S5: Maksimum lub off",
+        "name": "S5: Maximum or off",
         "id": "M_50031e75",
         "persist": true,
         "default": "off",
@@ -2571,7 +2571,7 @@
       },
       {
         "type": "edit",
-        "name": "S5: Minimum krytyczne lub off",
+        "name": "S5: Critical minimum or off",
         "id": "M_aca38f9e",
         "persist": true,
         "default": "off",
@@ -2583,7 +2583,7 @@
       },
       {
         "type": "edit",
-        "name": "S5: Maksimum krytyczne lub off",
+        "name": "S5: Critical maximum or off",
         "id": "M_b8b46354",
         "persist": true,
         "default": "off",
@@ -2615,7 +2615,7 @@
       },
       {
         "type": "edit",
-        "name": "S6: Nazwa",
+        "name": "S6: Name",
         "id": "M_ad9e3834",
         "persist": true,
         "default": "",
@@ -2629,51 +2629,51 @@
       },
       {
         "type": "select",
-        "name": "S6: Podłączone sterowanie",
+        "name": "S6: Assigned output",
         "options": [
           {
             "value": "notconnected",
-            "name": "notconnected"
+            "name": "Not connected"
           },
           {
             "value": "relay1",
-            "name": "relay1"
+            "name": "Relay1"
           },
           {
             "value": "relay2",
-            "name": "relay2"
+            "name": "Relay2"
           },
           {
             "value": "relay3",
-            "name": "relay3"
+            "name": "Relay3"
           },
           {
             "value": "relay4",
-            "name": "relay4"
+            "name": "Relay4"
           },
           {
             "value": "pwmoutput1",
-            "name": "pwmoutput1"
+            "name": "Pwmoutput1"
           },
           {
             "value": "pwmoutput2",
-            "name": "pwmoutput2"
+            "name": "Pwmoutput2"
           },
           {
             "value": "pwmoutput3",
-            "name": "pwmoutput3"
+            "name": "Pwmoutput3"
           },
           {
             "value": "pwmoutput4",
-            "name": "pwmoutput4"
+            "name": "Pwmoutput4"
           },
           {
             "value": "pwmoutput5",
-            "name": "pwmoutput5"
+            "name": "Pwmoutput5"
           },
           {
             "value": "pwmoutput6",
-            "name": "pwmoutput6"
+            "name": "Pwmoutput6"
           }
         ],
         "id": "M_a21fbcaf",
@@ -2687,7 +2687,7 @@
       },
       {
         "type": "edit",
-        "name": "S6: Kalibracja: wartość 1",
+        "name": "S6: Calibration: value 1",
         "id": "M_b8d0dfaa",
         "persist": true,
         "default": "0",
@@ -2699,7 +2699,7 @@
       },
       {
         "type": "edit",
-        "name": "S6: Kalibracja: ADC 1 (0–1023)",
+        "name": "S6: Calibration: ADC 1 (0–1023)",
         "id": "M_41a72f68",
         "persist": true,
         "default": "0",
@@ -2711,7 +2711,7 @@
       },
       {
         "type": "edit",
-        "name": "S6: Kalibracja: wartość 2",
+        "name": "S6: Calibration: value 2",
         "id": "M_b7d0de17",
         "persist": true,
         "default": "1",
@@ -2723,7 +2723,7 @@
       },
       {
         "type": "edit",
-        "name": "S6: Kalibracja: ADC 2 (0–1023)",
+        "name": "S6: Calibration: ADC 2 (0–1023)",
         "id": "M_44a73421",
         "persist": true,
         "default": "1023",
@@ -2735,7 +2735,7 @@
       },
       {
         "type": "edit",
-        "name": "S6: Minimum lub off",
+        "name": "S6: Minimum or off",
         "id": "M_a3d26b5e",
         "persist": true,
         "default": "off",
@@ -2747,7 +2747,7 @@
       },
       {
         "type": "edit",
-        "name": "S6: Maksimum lub off",
+        "name": "S6: Maximum or off",
         "id": "M_de9b2614",
         "persist": true,
         "default": "off",
@@ -2759,7 +2759,7 @@
       },
       {
         "type": "edit",
-        "name": "S6: Minimum krytyczne lub off",
+        "name": "S6: Critical minimum or off",
         "id": "M_33e5a55b",
         "persist": true,
         "default": "off",
@@ -2771,7 +2771,7 @@
       },
       {
         "type": "edit",
-        "name": "S6: Maksimum krytyczne lub off",
+        "name": "S6: Critical maximum or off",
         "id": "M_bc24ea89",
         "persist": true,
         "default": "off",
@@ -2803,7 +2803,7 @@
       },
       {
         "type": "edit",
-        "name": "S7: Nazwa",
+        "name": "S7: Name",
         "id": "M_565a041f",
         "persist": true,
         "default": "",
@@ -2817,51 +2817,51 @@
       },
       {
         "type": "select",
-        "name": "S7: Podłączone sterowanie",
+        "name": "S7: Assigned output",
         "options": [
           {
             "value": "notconnected",
-            "name": "notconnected"
+            "name": "Not connected"
           },
           {
             "value": "relay1",
-            "name": "relay1"
+            "name": "Relay1"
           },
           {
             "value": "relay2",
-            "name": "relay2"
+            "name": "Relay2"
           },
           {
             "value": "relay3",
-            "name": "relay3"
+            "name": "Relay3"
           },
           {
             "value": "relay4",
-            "name": "relay4"
+            "name": "Relay4"
           },
           {
             "value": "pwmoutput1",
-            "name": "pwmoutput1"
+            "name": "Pwmoutput1"
           },
           {
             "value": "pwmoutput2",
-            "name": "pwmoutput2"
+            "name": "Pwmoutput2"
           },
           {
             "value": "pwmoutput3",
-            "name": "pwmoutput3"
+            "name": "Pwmoutput3"
           },
           {
             "value": "pwmoutput4",
-            "name": "pwmoutput4"
+            "name": "Pwmoutput4"
           },
           {
             "value": "pwmoutput5",
-            "name": "pwmoutput5"
+            "name": "Pwmoutput5"
           },
           {
             "value": "pwmoutput6",
-            "name": "pwmoutput6"
+            "name": "Pwmoutput6"
           }
         ],
         "id": "M_4a9a54ec",
@@ -2875,7 +2875,7 @@
       },
       {
         "type": "edit",
-        "name": "S7: Kalibracja: wartość 1",
+        "name": "S7: Calibration: value 1",
         "id": "M_cb47ec5b",
         "persist": true,
         "default": "0",
@@ -2887,7 +2887,7 @@
       },
       {
         "type": "edit",
-        "name": "S7: Kalibracja: ADC 1 (0–1023)",
+        "name": "S7: Calibration: ADC 1 (0–1023)",
         "id": "M_2ff172ab",
         "persist": true,
         "default": "0",
@@ -2899,7 +2899,7 @@
       },
       {
         "type": "edit",
-        "name": "S7: Kalibracja: wartość 2",
+        "name": "S7: Calibration: value 2",
         "id": "M_cc47edee",
         "persist": true,
         "default": "1",
@@ -2911,7 +2911,7 @@
       },
       {
         "type": "edit",
-        "name": "S7: Kalibracja: ADC 2 (0–1023)",
+        "name": "S7: Calibration: ADC 2 (0–1023)",
         "id": "M_30f1743e",
         "persist": true,
         "default": "1023",
@@ -2923,7 +2923,7 @@
       },
       {
         "type": "edit",
-        "name": "S7: Minimum lub off",
+        "name": "S7: Minimum or off",
         "id": "M_71be88c9",
         "persist": true,
         "default": "off",
@@ -2935,7 +2935,7 @@
       },
       {
         "type": "edit",
-        "name": "S7: Maksimum lub off",
+        "name": "S7: Maximum or off",
         "id": "M_c9f9d83b",
         "persist": true,
         "default": "off",
@@ -2947,7 +2947,7 @@
       },
       {
         "type": "edit",
-        "name": "S7: Minimum krytyczne lub off",
+        "name": "S7: Critical minimum or off",
         "id": "M_0400b31c",
         "persist": true,
         "default": "off",
@@ -2959,7 +2959,7 @@
       },
       {
         "type": "edit",
-        "name": "S7: Maksimum krytyczne lub off",
+        "name": "S7: Critical maximum or off",
         "id": "M_fdcb7c56",
         "persist": true,
         "default": "off",
@@ -2991,7 +2991,7 @@
       },
       {
         "type": "edit",
-        "name": "S8: Nazwa",
+        "name": "S8: Name",
         "id": "M_0637c052",
         "persist": true,
         "default": "",
@@ -3005,51 +3005,51 @@
       },
       {
         "type": "select",
-        "name": "S8: Podłączone sterowanie",
+        "name": "S8: Assigned output",
         "options": [
           {
             "value": "notconnected",
-            "name": "notconnected"
+            "name": "Not connected"
           },
           {
             "value": "relay1",
-            "name": "relay1"
+            "name": "Relay1"
           },
           {
             "value": "relay2",
-            "name": "relay2"
+            "name": "Relay2"
           },
           {
             "value": "relay3",
-            "name": "relay3"
+            "name": "Relay3"
           },
           {
             "value": "relay4",
-            "name": "relay4"
+            "name": "Relay4"
           },
           {
             "value": "pwmoutput1",
-            "name": "pwmoutput1"
+            "name": "Pwmoutput1"
           },
           {
             "value": "pwmoutput2",
-            "name": "pwmoutput2"
+            "name": "Pwmoutput2"
           },
           {
             "value": "pwmoutput3",
-            "name": "pwmoutput3"
+            "name": "Pwmoutput3"
           },
           {
             "value": "pwmoutput4",
-            "name": "pwmoutput4"
+            "name": "Pwmoutput4"
           },
           {
             "value": "pwmoutput5",
-            "name": "pwmoutput5"
+            "name": "Pwmoutput5"
           },
           {
             "value": "pwmoutput6",
-            "name": "pwmoutput6"
+            "name": "Pwmoutput6"
           }
         ],
         "id": "M_dd82ceb1",
@@ -3063,7 +3063,7 @@
       },
       {
         "type": "edit",
-        "name": "S8: Kalibracja: wartość 1",
+        "name": "S8: Calibration: value 1",
         "id": "M_71046d54",
         "persist": true,
         "default": "0",
@@ -3075,7 +3075,7 @@
       },
       {
         "type": "edit",
-        "name": "S8: Kalibracja: ADC 1 (0–1023)",
+        "name": "S8: Calibration: ADC 1 (0–1023)",
         "id": "M_bb4b4d56",
         "persist": true,
         "default": "0",
@@ -3087,7 +3087,7 @@
       },
       {
         "type": "edit",
-        "name": "S8: Kalibracja: wartość 2",
+        "name": "S8: Calibration: value 2",
         "id": "M_7404720d",
         "persist": true,
         "default": "1",
@@ -3099,7 +3099,7 @@
       },
       {
         "type": "edit",
-        "name": "S8: Kalibracja: ADC 2 (0–1023)",
+        "name": "S8: Calibration: ADC 2 (0–1023)",
         "id": "M_ba4b4bc3",
         "persist": true,
         "default": "1023",
@@ -3111,7 +3111,7 @@
       },
       {
         "type": "edit",
-        "name": "S8: Minimum lub off",
+        "name": "S8: Minimum or off",
         "id": "M_dfe1d230",
         "persist": true,
         "default": "off",
@@ -3123,7 +3123,7 @@
       },
       {
         "type": "edit",
-        "name": "S8: Maksimum lub off",
+        "name": "S8: Maximum or off",
         "id": "M_a0df6a12",
         "persist": true,
         "default": "off",
@@ -3135,7 +3135,7 @@
       },
       {
         "type": "edit",
-        "name": "S8: Minimum krytyczne lub off",
+        "name": "S8: Critical minimum or off",
         "id": "M_040700f1",
         "persist": true,
         "default": "off",
@@ -3147,7 +3147,7 @@
       },
       {
         "type": "edit",
-        "name": "S8: Maksimum krytyczne lub off",
+        "name": "S8: Critical maximum or off",
         "id": "M_cc206833",
         "persist": true,
         "default": "off",
@@ -3181,12 +3181,12 @@
   },
   {
     "id": "pwm",
-    "name": "Wyjścia PWM",
+    "name": "PWM outputs",
     "order": 40,
     "fields": [
       {
         "type": "edit",
-        "name": "PWM1: Nazwa",
+        "name": "PWM1: Name",
         "id": "M_8a6eea92",
         "persist": true,
         "default": "",
@@ -3200,23 +3200,23 @@
       },
       {
         "type": "select",
-        "name": "PWM1: Tryb",
+        "name": "PWM1: Mode",
         "options": [
           {
             "value": "manual",
-            "name": "manual"
+            "name": "Manual"
           },
           {
             "value": "partofday",
-            "name": "partofday"
+            "name": "Time of day"
           },
           {
             "value": "treshold",
-            "name": "treshold"
+            "name": "Threshold"
           },
           {
             "value": "pid",
-            "name": "pid"
+            "name": "PID"
           }
         ],
         "id": "M_cc6519d9",
@@ -3230,15 +3230,15 @@
       },
       {
         "type": "select",
-        "name": "PWM1: Kierunek",
+        "name": "PWM1: Direction",
         "options": [
           {
             "value": "direct",
-            "name": "direct"
+            "name": "Direct"
           },
           {
             "value": "reverse",
-            "name": "reverse"
+            "name": "Reverse"
           }
         ],
         "id": "M_03e2abe7",
@@ -3264,43 +3264,43 @@
       },
       {
         "type": "select",
-        "name": "PWM1: Wejście analogowe",
+        "name": "PWM1: Analog input",
         "options": [
           {
             "value": "none",
-            "name": "none"
+            "name": "None"
           },
           {
             "value": "sensor1",
-            "name": "sensor1"
+            "name": "Sensor1"
           },
           {
             "value": "sensor2",
-            "name": "sensor2"
+            "name": "Sensor2"
           },
           {
             "value": "sensor3",
-            "name": "sensor3"
+            "name": "Sensor3"
           },
           {
             "value": "sensor4",
-            "name": "sensor4"
+            "name": "Sensor4"
           },
           {
             "value": "sensor5",
-            "name": "sensor5"
+            "name": "Sensor5"
           },
           {
             "value": "sensor6",
-            "name": "sensor6"
+            "name": "Sensor6"
           },
           {
             "value": "sensor7",
-            "name": "sensor7"
+            "name": "Sensor7"
           },
           {
             "value": "sensor8",
-            "name": "sensor8"
+            "name": "Sensor8"
           }
         ],
         "id": "M_23f03e7f",
@@ -3326,7 +3326,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM1: Wartość zadana",
+        "name": "PWM1: Setpoint",
         "id": "M_c7216cfa",
         "persist": true,
         "default": "0",
@@ -3350,7 +3350,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM1: Połowa szerokości histerezy",
+        "name": "PWM1: Hysteresis half-width",
         "id": "M_0b6aec8c",
         "persist": true,
         "default": "0",
@@ -3366,7 +3366,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM1: Rano",
+        "name": "PWM1: Morning",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -3385,7 +3385,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM1: Popołudnie",
+        "name": "PWM1: Afternoon",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -3404,7 +3404,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM1: Wieczór",
+        "name": "PWM1: Evening",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -3423,7 +3423,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM1: Noc",
+        "name": "PWM1: Night",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -3442,7 +3442,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM1: Ręczne PWM",
+        "name": "PWM1: Manual PWM",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -3541,7 +3541,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM2: Nazwa",
+        "name": "PWM2: Name",
         "id": "M_cbfea483",
         "persist": true,
         "default": "",
@@ -3555,23 +3555,23 @@
       },
       {
         "type": "select",
-        "name": "PWM2: Tryb",
+        "name": "PWM2: Mode",
         "options": [
           {
             "value": "manual",
-            "name": "manual"
+            "name": "Manual"
           },
           {
             "value": "partofday",
-            "name": "partofday"
+            "name": "Time of day"
           },
           {
             "value": "treshold",
-            "name": "treshold"
+            "name": "Threshold"
           },
           {
             "value": "pid",
-            "name": "pid"
+            "name": "PID"
           }
         ],
         "id": "M_dd171d92",
@@ -3585,15 +3585,15 @@
       },
       {
         "type": "select",
-        "name": "PWM2: Kierunek",
+        "name": "PWM2: Direction",
         "options": [
           {
             "value": "direct",
-            "name": "direct"
+            "name": "Direct"
           },
           {
             "value": "reverse",
-            "name": "reverse"
+            "name": "Reverse"
           }
         ],
         "id": "M_f7231fea",
@@ -3619,43 +3619,43 @@
       },
       {
         "type": "select",
-        "name": "PWM2: Wejście analogowe",
+        "name": "PWM2: Analog input",
         "options": [
           {
             "value": "none",
-            "name": "none"
+            "name": "None"
           },
           {
             "value": "sensor1",
-            "name": "sensor1"
+            "name": "Sensor1"
           },
           {
             "value": "sensor2",
-            "name": "sensor2"
+            "name": "Sensor2"
           },
           {
             "value": "sensor3",
-            "name": "sensor3"
+            "name": "Sensor3"
           },
           {
             "value": "sensor4",
-            "name": "sensor4"
+            "name": "Sensor4"
           },
           {
             "value": "sensor5",
-            "name": "sensor5"
+            "name": "Sensor5"
           },
           {
             "value": "sensor6",
-            "name": "sensor6"
+            "name": "Sensor6"
           },
           {
             "value": "sensor7",
-            "name": "sensor7"
+            "name": "Sensor7"
           },
           {
             "value": "sensor8",
-            "name": "sensor8"
+            "name": "Sensor8"
           }
         ],
         "id": "M_12857a64",
@@ -3681,7 +3681,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM2: Wartość zadana",
+        "name": "PWM2: Setpoint",
         "id": "M_02558409",
         "persist": true,
         "default": "0",
@@ -3705,7 +3705,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM2: Połowa szerokości histerezy",
+        "name": "PWM2: Hysteresis half-width",
         "id": "M_6b606161",
         "persist": true,
         "default": "0",
@@ -3721,7 +3721,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM2: Rano",
+        "name": "PWM2: Morning",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -3740,7 +3740,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM2: Popołudnie",
+        "name": "PWM2: Afternoon",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -3759,7 +3759,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM2: Wieczór",
+        "name": "PWM2: Evening",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -3778,7 +3778,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM2: Noc",
+        "name": "PWM2: Night",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -3797,7 +3797,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM2: Ręczne PWM",
+        "name": "PWM2: Manual PWM",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -3896,7 +3896,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM3: Nazwa",
+        "name": "PWM3: Name",
         "id": "M_e34273d8",
         "persist": true,
         "default": "",
@@ -3910,23 +3910,23 @@
       },
       {
         "type": "select",
-        "name": "PWM3: Tryb",
+        "name": "PWM3: Mode",
         "options": [
           {
             "value": "manual",
-            "name": "manual"
+            "name": "Manual"
           },
           {
             "value": "partofday",
-            "name": "partofday"
+            "name": "Time of day"
           },
           {
             "value": "treshold",
-            "name": "treshold"
+            "name": "Threshold"
           },
           {
             "value": "pid",
-            "name": "pid"
+            "name": "PID"
           }
         ],
         "id": "M_7837ccd7",
@@ -3940,15 +3940,15 @@
       },
       {
         "type": "select",
-        "name": "PWM3: Kierunek",
+        "name": "PWM3: Direction",
         "options": [
           {
             "value": "direct",
-            "name": "direct"
+            "name": "Direct"
           },
           {
             "value": "reverse",
-            "name": "reverse"
+            "name": "Reverse"
           }
         ],
         "id": "M_9edc4095",
@@ -3974,43 +3974,43 @@
       },
       {
         "type": "select",
-        "name": "PWM3: Wejście analogowe",
+        "name": "PWM3: Analog input",
         "options": [
           {
             "value": "none",
-            "name": "none"
+            "name": "None"
           },
           {
             "value": "sensor1",
-            "name": "sensor1"
+            "name": "Sensor1"
           },
           {
             "value": "sensor2",
-            "name": "sensor2"
+            "name": "Sensor2"
           },
           {
             "value": "sensor3",
-            "name": "sensor3"
+            "name": "Sensor3"
           },
           {
             "value": "sensor4",
-            "name": "sensor4"
+            "name": "Sensor4"
           },
           {
             "value": "sensor5",
-            "name": "sensor5"
+            "name": "Sensor5"
           },
           {
             "value": "sensor6",
-            "name": "sensor6"
+            "name": "Sensor6"
           },
           {
             "value": "sensor7",
-            "name": "sensor7"
+            "name": "Sensor7"
           },
           {
             "value": "sensor8",
-            "name": "sensor8"
+            "name": "Sensor8"
           }
         ],
         "id": "M_269b6231",
@@ -4036,7 +4036,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM3: Wartość zadana",
+        "name": "PWM3: Setpoint",
         "id": "M_b88683ac",
         "persist": true,
         "default": "0",
@@ -4060,7 +4060,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM3: Połowa szerokości histerezy",
+        "name": "PWM3: Hysteresis half-width",
         "id": "M_e99b5fe2",
         "persist": true,
         "default": "0",
@@ -4076,7 +4076,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM3: Rano",
+        "name": "PWM3: Morning",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4095,7 +4095,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM3: Popołudnie",
+        "name": "PWM3: Afternoon",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4114,7 +4114,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM3: Wieczór",
+        "name": "PWM3: Evening",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4133,7 +4133,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM3: Noc",
+        "name": "PWM3: Night",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4152,7 +4152,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM3: Ręczne PWM",
+        "name": "PWM3: Manual PWM",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4251,7 +4251,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM4: Nazwa",
+        "name": "PWM4: Name",
         "id": "M_67753b79",
         "persist": true,
         "default": "",
@@ -4265,23 +4265,23 @@
       },
       {
         "type": "select",
-        "name": "PWM4: Tryb",
+        "name": "PWM4: Mode",
         "options": [
           {
             "value": "manual",
-            "name": "manual"
+            "name": "Manual"
           },
           {
             "value": "partofday",
-            "name": "partofday"
+            "name": "Time of day"
           },
           {
             "value": "treshold",
-            "name": "treshold"
+            "name": "Threshold"
           },
           {
             "value": "pid",
-            "name": "pid"
+            "name": "PID"
           }
         ],
         "id": "M_503e1860",
@@ -4295,15 +4295,15 @@
       },
       {
         "type": "select",
-        "name": "PWM4: Kierunek",
+        "name": "PWM4: Direction",
         "options": [
           {
             "value": "direct",
-            "name": "direct"
+            "name": "Direct"
           },
           {
             "value": "reverse",
-            "name": "reverse"
+            "name": "Reverse"
           }
         ],
         "id": "M_f1d63130",
@@ -4329,43 +4329,43 @@
       },
       {
         "type": "select",
-        "name": "PWM4: Wejście analogowe",
+        "name": "PWM4: Analog input",
         "options": [
           {
             "value": "none",
-            "name": "none"
+            "name": "None"
           },
           {
             "value": "sensor1",
-            "name": "sensor1"
+            "name": "Sensor1"
           },
           {
             "value": "sensor2",
-            "name": "sensor2"
+            "name": "Sensor2"
           },
           {
             "value": "sensor3",
-            "name": "sensor3"
+            "name": "Sensor3"
           },
           {
             "value": "sensor4",
-            "name": "sensor4"
+            "name": "Sensor4"
           },
           {
             "value": "sensor5",
-            "name": "sensor5"
+            "name": "Sensor5"
           },
           {
             "value": "sensor6",
-            "name": "sensor6"
+            "name": "Sensor6"
           },
           {
             "value": "sensor7",
-            "name": "sensor7"
+            "name": "Sensor7"
           },
           {
             "value": "sensor8",
-            "name": "sensor8"
+            "name": "Sensor8"
           }
         ],
         "id": "M_e406e716",
@@ -4391,7 +4391,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM4: Wartość zadana",
+        "name": "PWM4: Setpoint",
         "id": "M_0a210f6b",
         "persist": true,
         "default": "0",
@@ -4415,7 +4415,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM4: Połowa szerokości histerezy",
+        "name": "PWM4: Hysteresis half-width",
         "id": "M_4f6d6867",
         "persist": true,
         "default": "0",
@@ -4431,7 +4431,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM4: Rano",
+        "name": "PWM4: Morning",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4450,7 +4450,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM4: Popołudnie",
+        "name": "PWM4: Afternoon",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4469,7 +4469,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM4: Wieczór",
+        "name": "PWM4: Evening",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4488,7 +4488,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM4: Noc",
+        "name": "PWM4: Night",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4507,7 +4507,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM4: Ręczne PWM",
+        "name": "PWM4: Manual PWM",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4606,7 +4606,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM5: Nazwa",
+        "name": "PWM5: Name",
         "id": "M_916e2426",
         "persist": true,
         "default": "",
@@ -4620,23 +4620,23 @@
       },
       {
         "type": "select",
-        "name": "PWM5: Tryb",
+        "name": "PWM5: Mode",
         "options": [
           {
             "value": "manual",
-            "name": "manual"
+            "name": "Manual"
           },
           {
             "value": "partofday",
-            "name": "partofday"
+            "name": "Time of day"
           },
           {
             "value": "treshold",
-            "name": "treshold"
+            "name": "Threshold"
           },
           {
             "value": "pid",
-            "name": "pid"
+            "name": "PID"
           }
         ],
         "id": "M_475ccb45",
@@ -4650,15 +4650,15 @@
       },
       {
         "type": "select",
-        "name": "PWM5: Kierunek",
+        "name": "PWM5: Direction",
         "options": [
           {
             "value": "direct",
-            "name": "direct"
+            "name": "Direct"
           },
           {
             "value": "reverse",
-            "name": "reverse"
+            "name": "Reverse"
           }
         ],
         "id": "M_849c24a3",
@@ -4684,43 +4684,43 @@
       },
       {
         "type": "select",
-        "name": "PWM5: Wejście analogowe",
+        "name": "PWM5: Analog input",
         "options": [
           {
             "value": "none",
-            "name": "none"
+            "name": "None"
           },
           {
             "value": "sensor1",
-            "name": "sensor1"
+            "name": "Sensor1"
           },
           {
             "value": "sensor2",
-            "name": "sensor2"
+            "name": "Sensor2"
           },
           {
             "value": "sensor3",
-            "name": "sensor3"
+            "name": "Sensor3"
           },
           {
             "value": "sensor4",
-            "name": "sensor4"
+            "name": "Sensor4"
           },
           {
             "value": "sensor5",
-            "name": "sensor5"
+            "name": "Sensor5"
           },
           {
             "value": "sensor6",
-            "name": "sensor6"
+            "name": "Sensor6"
           },
           {
             "value": "sensor7",
-            "name": "sensor7"
+            "name": "Sensor7"
           },
           {
             "value": "sensor8",
-            "name": "sensor8"
+            "name": "Sensor8"
           }
         ],
         "id": "M_9de062bb",
@@ -4746,7 +4746,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM5: Wartość zadana",
+        "name": "PWM5: Setpoint",
         "id": "M_38c42c6e",
         "persist": true,
         "default": "0",
@@ -4770,7 +4770,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM5: Połowa szerokości histerezy",
+        "name": "PWM5: Hysteresis half-width",
         "id": "M_1cda4330",
         "persist": true,
         "default": "0",
@@ -4786,7 +4786,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM5: Rano",
+        "name": "PWM5: Morning",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4805,7 +4805,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM5: Popołudnie",
+        "name": "PWM5: Afternoon",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4824,7 +4824,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM5: Wieczór",
+        "name": "PWM5: Evening",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4843,7 +4843,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM5: Noc",
+        "name": "PWM5: Night",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4862,7 +4862,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM5: Ręczne PWM",
+        "name": "PWM5: Manual PWM",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -4961,7 +4961,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM6: Nazwa",
+        "name": "PWM6: Name",
         "id": "M_1d505e87",
         "persist": true,
         "default": "",
@@ -4975,23 +4975,23 @@
       },
       {
         "type": "select",
-        "name": "PWM6: Tryb",
+        "name": "PWM6: Mode",
         "options": [
           {
             "value": "manual",
-            "name": "manual"
+            "name": "Manual"
           },
           {
             "value": "partofday",
-            "name": "partofday"
+            "name": "Time of day"
           },
           {
             "value": "treshold",
-            "name": "treshold"
+            "name": "Threshold"
           },
           {
             "value": "pid",
-            "name": "pid"
+            "name": "PID"
           }
         ],
         "id": "M_7289ca6e",
@@ -5005,15 +5005,15 @@
       },
       {
         "type": "select",
-        "name": "PWM6: Kierunek",
+        "name": "PWM6: Direction",
         "options": [
           {
             "value": "direct",
-            "name": "direct"
+            "name": "Direct"
           },
           {
             "value": "reverse",
-            "name": "reverse"
+            "name": "Reverse"
           }
         ],
         "id": "M_4da79906",
@@ -5039,43 +5039,43 @@
       },
       {
         "type": "select",
-        "name": "PWM6: Wejście analogowe",
+        "name": "PWM6: Analog input",
         "options": [
           {
             "value": "none",
-            "name": "none"
+            "name": "None"
           },
           {
             "value": "sensor1",
-            "name": "sensor1"
+            "name": "Sensor1"
           },
           {
             "value": "sensor2",
-            "name": "sensor2"
+            "name": "Sensor2"
           },
           {
             "value": "sensor3",
-            "name": "sensor3"
+            "name": "Sensor3"
           },
           {
             "value": "sensor4",
-            "name": "sensor4"
+            "name": "Sensor4"
           },
           {
             "value": "sensor5",
-            "name": "sensor5"
+            "name": "Sensor5"
           },
           {
             "value": "sensor6",
-            "name": "sensor6"
+            "name": "Sensor6"
           },
           {
             "value": "sensor7",
-            "name": "sensor7"
+            "name": "Sensor7"
           },
           {
             "value": "sensor8",
-            "name": "sensor8"
+            "name": "Sensor8"
           }
         ],
         "id": "M_cf971640",
@@ -5101,7 +5101,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM6: Wartość zadana",
+        "name": "PWM6: Setpoint",
         "id": "M_920be09d",
         "persist": true,
         "default": "0",
@@ -5125,7 +5125,7 @@
       },
       {
         "type": "edit",
-        "name": "PWM6: Połowa szerokości histerezy",
+        "name": "PWM6: Hysteresis half-width",
         "id": "M_de16a3d5",
         "persist": true,
         "default": "0",
@@ -5141,7 +5141,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM6: Rano",
+        "name": "PWM6: Morning",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -5160,7 +5160,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM6: Popołudnie",
+        "name": "PWM6: Afternoon",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -5179,7 +5179,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM6: Wieczór",
+        "name": "PWM6: Evening",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -5198,7 +5198,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM6: Noc",
+        "name": "PWM6: Night",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -5217,7 +5217,7 @@
       },
       {
         "type": "slider",
-        "name": "PWM6: Ręczne PWM",
+        "name": "PWM6: Manual PWM",
         "min": 0,
         "max": 65535,
         "step": 1,
@@ -5318,12 +5318,12 @@
   },
   {
     "id": "clock",
-    "name": "Zegar",
+    "name": "Clock",
     "order": 50,
     "fields": [
       {
         "type": "date",
-        "name": "Data lokalna",
+        "name": "Local date",
         "id": "M_050550f3",
         "persist": false,
         "ha": {
@@ -5334,7 +5334,7 @@
       },
       {
         "type": "time",
-        "name": "Czas lokalny",
+        "name": "Local time",
         "id": "M_8c8e46a6",
         "persist": false,
         "ha": {
@@ -5345,27 +5345,27 @@
       },
       {
         "type": "select",
-        "name": "Strefa czasowa: Reguła 1 — tydzień",
+        "name": "Timezone: Rule 1 — week",
         "options": [
           {
             "value": "first",
-            "name": "first"
+            "name": "First"
           },
           {
             "value": "second",
-            "name": "second"
+            "name": "Second"
           },
           {
             "value": "third",
-            "name": "third"
+            "name": "Third"
           },
           {
             "value": "fourth",
-            "name": "fourth"
+            "name": "Fourth"
           },
           {
             "value": "last",
-            "name": "last"
+            "name": "Last"
           }
         ],
         "id": "M_28964e47",
@@ -5379,7 +5379,7 @@
       },
       {
         "type": "select",
-        "name": "Strefa czasowa: Reguła 1 — dzień",
+        "name": "Timezone: Rule 1 — day",
         "options": [
           {
             "value": "Sunday",
@@ -5421,7 +5421,7 @@
       },
       {
         "type": "select",
-        "name": "Strefa czasowa: Reguła 1 — miesiąc",
+        "name": "Timezone: Rule 1 — month",
         "options": [
           {
             "value": "January",
@@ -5483,7 +5483,7 @@
       },
       {
         "type": "slider",
-        "name": "Strefa czasowa: Reguła 1 — godzina",
+        "name": "Timezone: Rule 1 — hour",
         "min": 0,
         "max": 23,
         "step": 1,
@@ -5498,7 +5498,7 @@
       },
       {
         "type": "slider",
-        "name": "Strefa czasowa: Reguła 1 — offset UTC",
+        "name": "Timezone: Rule 1 — UTC offset",
         "min": -12,
         "max": 14,
         "step": 1,
@@ -5513,27 +5513,27 @@
       },
       {
         "type": "select",
-        "name": "Strefa czasowa: Reguła 2 — tydzień",
+        "name": "Timezone: Rule 2 — week",
         "options": [
           {
             "value": "first",
-            "name": "first"
+            "name": "First"
           },
           {
             "value": "second",
-            "name": "second"
+            "name": "Second"
           },
           {
             "value": "third",
-            "name": "third"
+            "name": "Third"
           },
           {
             "value": "fourth",
-            "name": "fourth"
+            "name": "Fourth"
           },
           {
             "value": "last",
-            "name": "last"
+            "name": "Last"
           }
         ],
         "id": "M_070aeefe",
@@ -5547,7 +5547,7 @@
       },
       {
         "type": "select",
-        "name": "Strefa czasowa: Reguła 2 — dzień",
+        "name": "Timezone: Rule 2 — day",
         "options": [
           {
             "value": "Sunday",
@@ -5589,7 +5589,7 @@
       },
       {
         "type": "select",
-        "name": "Strefa czasowa: Reguła 2 — miesiąc",
+        "name": "Timezone: Rule 2 — month",
         "options": [
           {
             "value": "January",
@@ -5651,7 +5651,7 @@
       },
       {
         "type": "slider",
-        "name": "Strefa czasowa: Reguła 2 — godzina",
+        "name": "Timezone: Rule 2 — hour",
         "min": 0,
         "max": 23,
         "step": 1,
@@ -5666,7 +5666,7 @@
       },
       {
         "type": "slider",
-        "name": "Strefa czasowa: Reguła 2 — offset UTC",
+        "name": "Timezone: Rule 2 — UTC offset",
         "min": -12,
         "max": 14,
         "step": 1,
@@ -5703,12 +5703,12 @@
   },
   {
     "id": "fan",
-    "name": "Wentylator",
+    "name": "Fan",
     "order": 60,
     "fields": [
       {
         "type": "slider",
-        "name": "Fan: Temperatura startu",
+        "name": "Fan: Start temperature",
         "min": 0,
         "max": 100,
         "step": 1,
@@ -5723,7 +5723,7 @@
       },
       {
         "type": "slider",
-        "name": "Fan: Temperatura pełnej prędkości",
+        "name": "Fan: Full-speed temperature",
         "min": 0,
         "max": 100,
         "step": 1,
@@ -5738,7 +5738,7 @@
       },
       {
         "type": "slider",
-        "name": "Fan: Alarm temperatury",
+        "name": "Fan: Temperature alarm",
         "min": 0,
         "max": 100,
         "step": 1,
@@ -5789,20 +5789,20 @@
   },
   {
     "id": "buzzer",
-    "name": "Dźwięki",
+    "name": "Sounds",
     "order": 70,
     "fields": [
       {
         "type": "select",
-        "name": "Dźwięk startu",
+        "name": "Startup sound",
         "options": [
           {
             "value": "off",
-            "name": "off"
+            "name": "Off"
           },
           {
             "value": "on",
-            "name": "on"
+            "name": "On"
           }
         ],
         "id": "M_6cfafdd6",
@@ -5816,15 +5816,15 @@
       },
       {
         "type": "select",
-        "name": "Dźwięk błędów",
+        "name": "Alarm sound",
         "options": [
           {
             "value": "off",
-            "name": "off"
+            "name": "Off"
           },
           {
             "value": "on",
-            "name": "on"
+            "name": "On"
           }
         ],
         "id": "M_bcbcfa69",
@@ -5838,7 +5838,7 @@
       },
       {
         "type": "switch",
-        "name": "Dźwięki: Rano",
+        "name": "Sounds: Morning",
         "id": "M_9dbfaff5",
         "persist": true,
         "default": true,
@@ -5851,7 +5851,7 @@
       },
       {
         "type": "switch",
-        "name": "Dźwięki: Popołudnie",
+        "name": "Sounds: Afternoon",
         "id": "M_ec1e6b41",
         "persist": true,
         "default": true,
@@ -5864,7 +5864,7 @@
       },
       {
         "type": "switch",
-        "name": "Dźwięki: Wieczór",
+        "name": "Sounds: Evening",
         "id": "M_887e9631",
         "persist": true,
         "default": true,
@@ -5877,7 +5877,7 @@
       },
       {
         "type": "switch",
-        "name": "Dźwięki: Noc",
+        "name": "Sounds: Night",
         "id": "M_7de5b463",
         "persist": true,
         "default": false,
@@ -5892,12 +5892,12 @@
   },
   {
     "id": "diagnostics",
-    "name": "Diagnostyka",
+    "name": "Diagnostics",
     "order": 80,
     "fields": [
       {
         "type": "text",
-        "name": "Aktywne alarmy",
+        "name": "Active alarms",
         "id": "M_528b92e8",
         "persist": false,
         "readonly": true,
@@ -5907,7 +5907,7 @@
       },
       {
         "type": "text",
-        "name": "Aktywny alarm 1",
+        "name": "Active alarm 1",
         "id": "M_245a24bd",
         "persist": false,
         "readonly": true,
@@ -5917,7 +5917,7 @@
       },
       {
         "type": "text",
-        "name": "Aktywny alarm 2",
+        "name": "Active alarm 2",
         "id": "M_215a2004",
         "persist": false,
         "readonly": true,
@@ -5927,7 +5927,7 @@
       },
       {
         "type": "text",
-        "name": "Aktywny alarm 3",
+        "name": "Active alarm 3",
         "id": "M_225a2197",
         "persist": false,
         "readonly": true,

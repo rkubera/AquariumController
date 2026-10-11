@@ -26,7 +26,7 @@ led=next(p for p in pages if p['id']=='led');keys=[f['ha']['state_topic'].rsplit
 assert 'LedState' not in keys and 'CurrentBrightness' not in keys and keys[0]=='CustomColor'
 light=led['fields'][0];assert light['type']=='light' and light['ha']['brightness_scale']==100
 assert [c['key'] for c in light['controls']]==['state','brightness','color']
-assert light['controls'][1]['name']=='LED: Aktualna jasność (%)'
+assert light['controls'][1]['name']=='LED: Current brightness (%)'
 brightness=[f for f in led['fields'] if f['ha']['state_topic'].rsplit('/',1)[-1].endswith('Brightness')]
 assert len(brightness)==4 and all(f['min']==0 and f['max']==100 for f in brightness)
 assert not any('LedPowerState' in f['ha']['state_topic'] or 'LedActual' in f['ha']['state_topic'] for p in pages for f in p['fields'])
@@ -58,7 +58,7 @@ assert not any("ManualOverride" in f["ha"]["state_topic"] for p in pages for f i
 assert pages[0]["id"]=="led" and not any(p["id"]=="home" for p in pages)
 clock=next(p for p in pages if p["id"]=="clock")
 assert all(any(f["ha"]["state_topic"].endswith(k) for f in clock["fields"]) for k in ("ActualDate","ActualTime"))
-assert all(f["name"].startswith("Strefa czasowa: ") for f in clock["fields"] if "TimezoneRule" in f["ha"]["state_topic"])
+assert all(f["name"].startswith("Timezone: ") for f in clock["fields"] if "TimezoneRule" in f["ha"]["state_topic"])
 
 relay=next(p for p in pages if p['id']=='relays')
 phase_fields=[f for f in relay['fields'] if f['ha']['state_topic'].endswith(('MorningMode','AfternoonMode','EveningMode','NightMode'))]

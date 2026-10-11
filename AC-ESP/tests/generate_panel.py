@@ -9,21 +9,21 @@ groups=[]
 def group(id,title,prefix,count,controls):
     defaults={c['key']:c['options'][0] if c['type']=='select' else c['min'] if c['type']=='slider' else '' for c in controls}
     groups.append(dict(id=id,title=title,prefix=prefix,count=count,controls=controls,defaults=defaults))
-name=edit('Name','Nazwa (maks. 15 znaków)')
-group('UIInputs','Wejścia','Sensor',8,[name,select('Type','Podłączone sterowanie',['notconnected']+['relay'+str(i) for i in range(1,5)]+['pwmoutput'+str(i) for i in range(1,7)])]+[edit(k,l) for k,l in [('CalibValue1','Kalibracja: wartość 1'),('CalibRawValue1','Kalibracja: ADC 1 (0–1023)'),('CalibValue2','Kalibracja: wartość 2'),('CalibRawValue2','Kalibracja: ADC 2 (0–1023)'),('MinValue','Minimum lub off'),('MaxValue','Maksimum lub off'),('CriticalMinValue','Minimum krytyczne lub off'),('CriticalMaxValue','Maksimum krytyczne lub off')]])
+name=edit('Name','Name (max. 15 characters)')
+group('UIInputs','Inputs','Sensor',8,[name,select('Type','Assigned output',['notconnected']+['relay'+str(i) for i in range(1,5)]+['pwmoutput'+str(i) for i in range(1,7)])]+[edit(k,l) for k,l in [('CalibValue1','Calibration: value 1'),('CalibRawValue1','Calibration: ADC 1 (0–1023)'),('CalibValue2','Calibration: value 2'),('CalibRawValue2','Calibration: ADC 2 (0–1023)'),('MinValue','Minimum or off'),('MaxValue','Maximum or off'),('CriticalMinValue','Critical minimum or off'),('CriticalMaxValue','Critical maximum or off')]])
 def output(pwm):
-    return [name,select('ControlMode','Tryb',['manual','partofday','treshold']+(['pid'] if pwm else [])),dict(key='State',type='switch',name='Stan',command='State'),select('ControlDirection','Kierunek',['direct','reverse']),select('Input','Wejście analogowe',['none']+['sensor'+str(i) for i in range(1,9)]),edit('SensorsSetpoint','Wartość zadana'),edit('MaxDeviation','Połowa szerokości histerezy')]+[slider(k,l,0,65535) if pwm else dict(key=k,type='switch',name=l,command=k) for k,l in [('MorningMode','Rano'),('AfternoonMode','Popołudnie'),('EveningMode','Wieczór'),('NightMode','Noc')]]+([slider('ManualMode','Ręczne PWM',0,65535)]+[edit(k,k) for k in ['PidKp','PidKi','PidKd']] if pwm else [])
-group('UIRelays','Przekaźniki','Relay',4,output(False)); group('UIPWM','Wyjścia PWM','PWMOutput',6,[c for c in output(True) if c['key']!='State'])
+    return [name,select('ControlMode','Mode',['manual','partofday','treshold']+(['pid'] if pwm else [])),dict(key='State',type='switch',name='State',command='State'),select('ControlDirection','Direction',['direct','reverse']),select('Input','Analog input',['none']+['sensor'+str(i) for i in range(1,9)]),edit('SensorsSetpoint','Setpoint'),edit('MaxDeviation','Hysteresis half-width')]+[slider(k,l,0,65535) if pwm else dict(key=k,type='switch',name=l,command=k) for k,l in [('MorningMode','Morning'),('AfternoonMode','Afternoon'),('EveningMode','Evening'),('NightMode','Night')]]+([slider('ManualMode','Manual PWM',0,65535)]+[edit(k,k) for k in ['PidKp','PidKi','PidKd']] if pwm else [])
+group('UIRelays','Relays','Relay',4,output(False)); group('UIPWM','PWM outputs','PWMOutput',6,[c for c in output(True) if c['key']!='State'])
 colors=['black','red','green','blue','cyan','magenta','yellow','white','wave','custom']
-group('UILed','LED','',0,[dict(key='LedState',type='switch',name='Stan',command='LedState'),select('LedControlMode','Tryb',['manual','partofday']),select('LedManualMode','Kolor ręczny',colors),slider('CurrentBrightness','Jasność ręczna (%)',0,100)]+[edit(k,k+' (RGB 0–16777215)') for k in ['CustomColor']])
-groups[3]['controls']+=sum(([select('LedColor'+p,label+' — kolor',colors),slider(p+'Brightness',label+' — jasność (%)',0,100)] for p,label in [('Morning','Rano'),('Afternoon','Popołudnie'),('Evening','Wieczór'),('Night','Noc')]),[])
+group('UILed','LED','',0,[dict(key='LedState',type='switch',name='State',command='LedState'),select('LedControlMode','Mode',['manual','partofday']),select('LedManualMode','Manual color',colors),slider('CurrentBrightness','Manual brightness (%)',0,100)]+[edit(k,k+' (RGB 0–16777215)') for k in ['CustomColor']])
+groups[3]['controls']+=sum(([select('LedColor'+p,label+' — color',colors),slider(p+'Brightness',label+' — brightness (%)',0,100)] for p,label in [('Morning','Morning'),('Afternoon','Afternoon'),('Evening','Evening'),('Night','Night')]),[])
 for c in groups[3]['controls']:
     if c['key'] not in groups[3]['defaults']: groups[3]['defaults'][c['key']]=c['options'][0] if c['type']=='select' else c.get('min',False)
-group('UISchedule','Harmonogram','',0,[select('ScheduleMode','Harmonogram: Tryb',['daily','weekdayweekend'])]+[temporal(prefix+p+'Time','Harmonogram: '+group_label+' — '+label,'time') for prefix,group_label in [('', 'Każdego dnia'),('Weekday','Pn–Pt'),('Weekend','Weekend')] for p,label in [('Morning','Rano'),('Afternoon','Popołudnie'),('Evening','Wieczór'),('Night','Noc')]])
-group('UIClock','Zegar','',0,[temporal('ActualDate','Data lokalna','date'),temporal('ActualTime','Czas lokalny','time')]+sum(([select('TimezoneRule'+str(i)+'Week','Strefa czasowa: Reguła '+str(i)+' — tydzień',['first','second','third','fourth','last']),select('TimezoneRule'+str(i)+'DayOfWeek','Strefa czasowa: Reguła '+str(i)+' — dzień',['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']),select('TimezoneRule'+str(i)+'Month','Strefa czasowa: Reguła '+str(i)+' — miesiąc',['January','February','March','April','May','June','July','August','September','October','November','December']),slider('TimezoneRule'+str(i)+'Hour','Strefa czasowa: Reguła '+str(i)+' — godzina',0,23),slider('TimezoneRule'+str(i)+'Offset','Strefa czasowa: Reguła '+str(i)+' — offset UTC',-12,14)] for i in (1,2)),[]))
-group('UIFan','Wentylator','',0,[slider(k,'Fan: '+l,0,100) for k,l in [('FanStartTemp','Temperatura startu'),('FanMaxSpeedTemp','Temperatura pełnej prędkości'),('MaxIntTemp','Alarm temperatury')]])
-group('UIBuzzer','Dźwięki','',0,[select('BuzzerOnStart','Dźwięk startu',['off','on']),select('BuzzerOnErrors','Dźwięk błędów',['off','on'])]+[dict(key='Buzzer'+key,type='switch',name='Dźwięki: '+label,command='Buzzer'+key) for key,label in [('Morning','Rano'),('Afternoon','Popołudnie'),('Evening','Wieczór'),('Night','Noc')]])
-group('UIDiagnostics','Diagnostyka','',0,[])
+group('UISchedule','Schedule','',0,[select('ScheduleMode','Schedule: Mode',['daily','weekdayweekend'])]+[temporal(prefix+p+'Time','Schedule: '+group_label+' — '+label,'time') for prefix,group_label in [('', 'Every day'),('Weekday','Mon–Fri'),('Weekend','Weekend')] for p,label in [('Morning','Morning'),('Afternoon','Afternoon'),('Evening','Evening'),('Night','Night')]])
+group('UIClock','Clock','',0,[temporal('ActualDate','Local date','date'),temporal('ActualTime','Local time','time')]+sum(([select('TimezoneRule'+str(i)+'Week','Timezone: Rule '+str(i)+' — week',['first','second','third','fourth','last']),select('TimezoneRule'+str(i)+'DayOfWeek','Timezone: Rule '+str(i)+' — day',['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']),select('TimezoneRule'+str(i)+'Month','Timezone: Rule '+str(i)+' — month',['January','February','March','April','May','June','July','August','September','October','November','December']),slider('TimezoneRule'+str(i)+'Hour','Timezone: Rule '+str(i)+' — hour',0,23),slider('TimezoneRule'+str(i)+'Offset','Timezone: Rule '+str(i)+' — UTC offset',-12,14)] for i in (1,2)),[]))
+group('UIFan','Fan','',0,[slider(k,'Fan: '+l,0,100) for k,l in [('FanStartTemp','Start temperature'),('FanMaxSpeedTemp','Full-speed temperature'),('MaxIntTemp','Temperature alarm')]])
+group('UIBuzzer','Sounds','',0,[select('BuzzerOnStart','Startup sound',['off','on']),select('BuzzerOnErrors','Alarm sound',['off','on'])]+[dict(key='Buzzer'+key,type='switch',name='Sounds: '+label,command='Buzzer'+key) for key,label in [('Morning','Morning'),('Afternoon','Afternoon'),('Evening','Evening'),('Night','Night')]])
+group('UIDiagnostics','Diagnostics','',0,[])
 # Metadata: persistent settings and telemetry cache, all keys are canonical Mega fields.
 readouts={0:['Value','RawValue'],1:['State','SensorsValue'],2:['Value','SensorsValue'],3:['LedState'],4:['ActualPartOfDay'],5:['ClockRtcStatus','ActualTimezoneOffset','ActualDayOfWeek'],6:['InternalTemperature','InternalHumidity','FanPWMValue'],7:[],8:['ErrorCount','AlarmLast1','AlarmLast2','AlarmLast3']}
 meta=[]; cache=[]
@@ -50,24 +50,24 @@ profiles=[]; records=[]
 for index,(n,ch,field,prop) in enumerate(cache):
     if field in ('ClockSyncStatus','ClockLastNtpTime'): continue
     control=next((c for c in groups[n]['controls'] if c['key']==prop),None) if n<len(groups) else None
-    label=control['name'] if control else {'ErrorCount':'Aktywne alarmy','AlarmLast1':'Aktywny alarm 1','AlarmLast2':'Aktywny alarm 2','AlarmLast3':'Aktywny alarm 3'}.get(prop,prop) if n==8 else 'Harmonogram: Aktualna pora' if n==4 and prop=='ActualPartOfDay' else prop
+    label=control['name'] if control else {'ErrorCount':'Active alarms','AlarmLast1':'Active alarm 1','AlarmLast2':'Active alarm 2','AlarmLast3':'Active alarm 3'}.get(prop,prop) if n==8 else 'Schedule: Current phase' if n==4 and prop=='ActualPartOfDay' else prop
     profile=dict(type='text',name=label)
     if control:
-        if control['type']=='select': profile.update(type='select',options=[dict(value=v,name=v) for v in control['options']])
+        if control['type']=='select': profile.update(type='select',options=[dict(value=v,name={'partofday':'Time of day','treshold':'Threshold','pid':'PID','notconnected':'Not connected','weekdayweekend':'Mon–Fri and weekend'}.get(v,v.capitalize())) for v in control['options']])
         elif control['type']=='slider': profile.update(type='slider',min=control['min'],max=control['max'],step=control['step'])
         elif control['type'] in ('switch','time','date'): profile.update(type=control['type'])
         else: profile.update(type='edit')
         profile['command']=True
-        if prop=='ScheduleMode': profile['options']=[dict(value='daily',name='Każdego dnia'),dict(value='weekdayweekend',name='Pn–Pt i Weekend')]
+        if prop=='ScheduleMode': profile['options']=[dict(value='daily',name='Every day'),dict(value='weekdayweekend',name='Mon–Fri and weekend')]
     if prop in ('State','LedState'):
-        profile=dict(type='switch',name='Stan',command=True)
+        profile=dict(type='switch',name='State',command=True)
     if field=='InternalTemperature': profile.update(unit_of_measurement='°C',device_class='temperature')
     if field=='InternalHumidity': profile.update(unit_of_measurement='%',device_class='humidity')
     if profile not in profiles: profiles.append(profile)
     records.append((index,profiles.index(profile)))
 
 # The same scalar fields are rendered by the Portal and discovered by HA.
-page_defs=[('led','LED',0),('relays','Przekaźniki',10),('schedule','Harmonogram',20),('inputs','Wejścia',30),('pwm','Wyjścia PWM',40),('clock','Zegar',50),('fan','Wentylator',60),('buzzer','Dźwięki',70),('diagnostics','Diagnostyka',80)]
+page_defs=[('led','LED',0),('relays','Relays',10),('schedule','Schedule',20),('inputs','Inputs',30),('pwm','PWM outputs',40),('clock','Clock',50),('fan','Fan',60),('buzzer','Sounds',70),('diagnostics','Diagnostics',80)]
 pages=[dict(id=id,name=name,order=order,fields=[]) for id,name,order in page_defs]
 group_page=[3,1,4,0,2,5,6,7,8]
 commands=[]
@@ -94,7 +94,7 @@ for index,profile_index in records:
             part=next(part for part in ('Morning','Afternoon','Evening','Night') if part in prop)
             default={'Morning':'09:00:00','Afternoon':'10:00:00','Evening':'19:00:00','Night':'22:00:00'}[part]
         f['default']=default
-    if prop=='Name': f['name']='Nazwa'
+    if prop=='Name': f['name']='Name'
     if n in (0,1,2): f['name']=['S','R','PWM'][n]+str(ch)+': '+f['name']
     if n==3: f['name']='LED: '+f['name']
     if not command: f['readonly']=True
@@ -140,8 +140,8 @@ led[:]=[f for f in led if f['ha']['state_topic'].rsplit('/',1)[-1] not in ('LedS
 f=next(f for f in led if f['ha']['state_topic'].endswith('/CustomColor'))
 f.update(type='light',name='LED: Status',colorLabel='Custom Color',persist=False,
  default=dict(state='OFF',brightness=0,color=dict(r=255,g=255,b=255),color_mode='rgb'),
- controls=[dict(key='state',type='switch',name='LED: Stan',command='',on='ON',off='OFF'),
- dict(key='brightness',type='slider',name='LED: Aktualna jasność (%)',command='',min=0,max=100,step=1),
+ controls=[dict(key='state',type='switch',name='LED: State',command='',on='ON',off='OFF'),
+ dict(key='brightness',type='slider',name='LED: Current brightness (%)',command='',min=0,max=100,step=1),
  dict(key='color',type='color',name='LED: CustomColor',command='')])
 f['ha'].update(schema='json',brightness=True,brightness_scale=100,supported_color_modes=['rgb'])
 f['ha'].pop('optimistic',None)

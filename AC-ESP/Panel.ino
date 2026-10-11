@@ -71,7 +71,7 @@ int panelQueuedSlot(uint16_t i){
   return -1;
 }
 
-String panelPendingField,panelPendingValue,panelOperation="Oczekiwanie na Mega",panelDefinitionHostname;
+String panelPendingField,panelPendingValue,panelOperation="Waiting for Mega",panelDefinitionHostname;
 
 String panelControlIdAt(uint16_t i){
  char id[11];snprintf(id,sizeof(id),"M_%08lx",static_cast<unsigned long>(panelControlHash(i)));return String(id);
@@ -226,7 +226,7 @@ void panelReply(String payload) {
   char *a=nullptr,*b=nullptr;
   double av=strtod(actual.c_str(),&a),bv=strtod(panelPendingValue.c_str(),&b);
   if (actual.length() && panelPendingValue.length() && a && b && !*a && !*b && isfinite(av) && isfinite(bv)) same=fabs(av-bv)<=0.00001*fmax(1.0,fabs(bv));
-  panelOperation=(same ? "Mega potwierdziła: " : "Mega zwróciła inną wartość: ")+field+" = "+actual;
+  panelOperation=(same ? "Mega confirmed: " : "Mega returned a different value: ")+field+" = "+actual;
   portal.log(panelOperation);
   panelPendingField=""; panelPendingValue="";
 }
@@ -250,7 +250,7 @@ bool panelSendSetting(uint16_t i,String value) {
     if(value!=F("on")&&value!=F("off"))return false;
   }
   if (!configMegaReady || !panelSeen[i] || !panelLinked || millis()-panelLastRx>20000UL) {
-    panelOperation="Brak aktualnych danych z Mega"; portal.log(panelOperation); panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true;
+    panelOperation="No current data from Mega"; portal.log(panelOperation); panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true;
   }
   if ((property==F("Name") && value.length()>15) || !value.length() || value.indexOf(']')>=0 || value.indexOf('\r')>=0 || value.indexOf('\n')>=0) {
     portal.log("Panel: rejected value for "+field);panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true;
