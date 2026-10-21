@@ -99,9 +99,21 @@ String bridgeTelemetry[AC_WIRE_FIELD_COUNT];
 std::bitset<AC_WIRE_FIELD_COUNT> bridgeTelemetryDirty,bridgeTelemetrySeen;
 bool bridgeDhtSent[2]={};uint32_t bridgeDhtLastSent[2]={};
 
+// Boot messages must remain available even when the portal never gets online.
+// Use only the diagnostic UART and never wait for room in its transmit buffer.
+void bootDiagnostic(const char* message){
+  if(!SERIAL_DIAGNOSTICS_ENABLED || &diagnosticSerial==&megaSerial)return;
+  size_t length=strlen(message);
+  if(diagnosticSerial.availableForWrite()>=int(length+1)){
+    diagnosticSerial.write(reinterpret_cast<const uint8_t*>(message),length);
+    diagnosticSerial.write('\n');
+  }
+}
+
 void setup() {
   // Both ports are selected at the top of this sketch; reject accidental sharing.
   if(SERIAL_DIAGNOSTICS_ENABLED && &diagnosticSerial!=&megaSerial)diagnosticSerial.begin(DIAGNOSTIC_SERIAL_BAUD);
+  bootDiagnostic("BOOT: setup entered");
 #if defined(ESP32)
   megaSerial.begin(MEGA_SERIAL_BAUD,SERIAL_8N1,MEGA_RX_PIN,MEGA_TX_PIN);
   wireLink.begin(esp_random(),AC_WIRE_SCHEMA,millis());
@@ -115,6 +127,11 @@ void setup() {
   // GPIO2 is Serial1 TX: do not change its pin mode for the onboard LED.
 #endif
   panelSetup();
+  portal.onPortalAndAppConfigReady([](bool restored){
+    char line[128];
+    snprintf(line,sizeof(line),"BOOT: config restored=%u storage=%u error=%.64s",restored,portal.portalAndAppConfigStorageOK(),portal.portalAndAppConfigError().c_str());
+    bootDiagnostic(line);
+  });
   portal.onMqttMessage(bridgeMqttMessage);
   ArdPortal::Options options;
   static String defaultName="mqtt-clnt-"+ArdPortal::chipId();
@@ -125,7 +142,10 @@ void setup() {
   options.haMaxOperationsPerLoop=1;
   options.discoveryIntervalMs=0; //Retained discovery: reconnect/HA birth only.
   options.appStateIntervalMs=0; //Mega owns ongoing state publications.
-  if (!portal.begin(options)) portal.log(F("Portal initialization failed"));
+  bootDiagnostic("BOOT: starting portal");
+  const bool portalStarted=portal.begin(options);
+  bootDiagnostic(portalStarted?"BOOT: portal begin accepted; waiting for configuration":"BOOT: ERROR portal begin rejected; networking not started");
+  if (!portalStarted) portal.log(F("Portal initialization failed"));
 #if defined(ESP32)
   WiFi.setSleep(false); // Permanently powered controller: avoid modem sleep latency.
   portal.log(String(F("ESP boot: resetReason="))+String(int(esp_reset_reason()))+" (1=power, 3=software, 4=panic, 5/6/7=watchdog, 9=brownout)");
@@ -146,6 +166,8 @@ void loop() {
   bool usbDiagnosticDue=SERIAL_DIAGNOSTICS_ENABLED && &diagnosticSerial!=&megaSerial && millis()-lastUsbDiagnostic>=5000UL;
   if(usbDiagnosticDue){
     lastUsbDiagnostic=millis();char line[128];
+    int state=snprintf(line,sizeof(line),"STARTUP ready=%u busy=%u storage=%u wifi=%u error=%.48s\n",portal.portalAndAppConfigReady(),portal.portalAndAppConfigBusy(),portal.portalAndAppConfigStorageOK(),unsigned(portal.wifiState()),portal.portalAndAppConfigError().c_str());
+    if(state>0&&state<int(sizeof(line))&&diagnosticSerial.availableForWrite()>=state)diagnosticSerial.write((const uint8_t*)line,state);
     int net=snprintf(line,sizeof(line),"TCP calls=%lu errors=%lu errno=%d HTTP=%lu\n",(unsigned long)acSendCalls,(unsigned long)acSendErrors,acSendLastErrno,(unsigned long)acHttpSendCalls);
     if(net>0&&net<int(sizeof(line))&&diagnosticSerial.availableForWrite()>=net)diagnosticSerial.write((const uint8_t*)line,net);
 #if defined(ESP32)

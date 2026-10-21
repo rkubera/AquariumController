@@ -556,6 +556,19 @@ int main() {
   ledControlMode=CONTROL_MODE_PART_OF_DAY;partOfDay=SCHEDULER_MODE_MORNING;ledScheduleBrightnessReset=true;ledSetActualMode();
   applySetting(FieldId::LedState,"off");applySetting(FieldId::CurrentBrightness,"80");assert(ledActualState==LED_MANUAL_ONOFF_ON);
   applySetting(FieldId::CurrentBrightness,"0");assert(ledActualState==LED_MANUAL_ONOFF_OFF&&ledMorningBrightness==30);
+  // Night-to-morning scheduling must release a manual OFF and publish ON.
+  ledControlMode=CONTROL_MODE_PART_OF_DAY;ledMorningBrightness=100;ledModeMorning=LED_MODE_WHITE;
+  for(byte dark=0;dark<2;dark++){
+    partOfDay=SCHEDULER_MODE_NIGHT;ledModeNight=dark?LED_MODE_WHITE:LED_MODE_BLACK;
+    ledNightBrightness=dark?0:100;ledScheduleBrightnessReset=true;ledSetActualMode();
+    assert(ledActualState==LED_MANUAL_ONOFF_OFF);
+    applySetting(FieldId::LedState,"off");
+    for(int i=0;i<10;i++)ledSetActualMode();
+    partOfDay=SCHEDULER_MODE_MORNING;ledSetActualMode();
+    assert(ledCurrentBrightness==100 && ledManualOnOff==LED_MANUAL_ONOFF_AUTO);
+    assert(ledActualState==LED_MANUAL_ONOFF_ON && retained("LedState")=="on");
+    ticks+=120001;ledSetActualMode();assert(ledActualRed==LED_PWM_MAX && ledActualGreen==LED_PWM_MAX && ledActualBlue==LED_PWM_MAX);
+  }
   // RGB overrides survive regular calculations without changing saved selectors.
   ledInit();ledControlMode=CONTROL_MODE_MANUAL;ledManualMode=LED_MODE_RED;ledModeMorning=LED_MODE_BLUE;
   applySetting(FieldId::CurrentBrightness,"50");

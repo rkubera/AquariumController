@@ -166,7 +166,7 @@ Verified core versions: Arduino AVR **1.8.8** and ESP32 **3.3.12**. Select the E
 4. Open `AC-ESP/AC-ESP.ino`, select the appropriate ESP board and flash layout, and upload it.
 5. Connect the controller UART and configure Wi-Fi/MQTT through ArdPortal. Configure the desired control modes, schedules, sensor calibration and timezone rules.
 
-ESP32 is recommended for the full panel. ESP8266 is supported, but available heap and flash/OTA space constrain larger configurations. This repository does not bundle ArdPortal.
+**ESP32 is recommended when all features are enabled**, including all relay, PWM and analog-input channels, DHT, RTC, buzzer and fan support. ESP8266 is supported, but available heap and flash/OTA space constrain larger configurations. This repository does not bundle ArdPortal.
 
 Example Arduino CLI builds:
 
