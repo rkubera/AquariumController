@@ -231,7 +231,7 @@ void clockNTPSynchronize_cb(time_t ntpTime) {
   clockReportSyncState();
 }
 
-String clockSyncStatusString() {
+const char* clockSyncStatusString() {
   switch (clockSyncStatus) {
     case 1: return "synchronized";
     case 2: return "pending";

@@ -17,7 +17,7 @@ for line in re.findall(r'^(?:byte|int|long|unsigned long|double|float|bool|boole
 support = (ROOT/'tests/host_support.hpp').read_text()
 support = support[:support.index('const int bufferOutSize')]
 support += '\nint partOfDay=1;\nint schedulerGetActualPartOfDay() { return partOfDay; }\n'
-support += '\nconst int bufferOutSize=100;\n'
+support += '\nconst int bufferOutSize='+re.search(r'const int bufferOutSize\s*=\s*(\d+)',main).group(1)+';\n'
 extra=(ROOT/'tests/link_support.hpp').read_text()
 support += '#define A15 15\n#include <deque>\n#include "ReliableUart.h"\nusing __FlashStringHelper=char;\n#define memcpy_P memcpy\n#include "WireFields.h"\n'
 # Names are decoded only in the host test, from ESP's external dictionary.
@@ -72,7 +72,7 @@ support += '#include "ReportField.h"\n#include "TemporaryState.h"\n#include "Lcd
 #Some publications live alongside hardware calls irrelevant to the LINK test.
 def function(file,name):
     text=(ROOT/file).read_text()
-    at=re.search(r'^(?:void|int|String|bool) '+name+r'\(',text,re.M).start()
+    at=re.search(r'^(?:void|int|String|bool|const char\*) '+name+r'\(',text,re.M).start()
     start=text.index('{',at)
     depth=1; end=start+1
     while depth:
@@ -86,7 +86,7 @@ texts += [
 prototypes=[]
 for text in texts:
     prototypes += [line[:line.index('{')].rstrip()+';' for line in re.findall(
-        r'^(?:void|bool|float|double|byte|int|String|unsigned long|uint32_t|uint16_t) \w+\s*\([^\n{]*\)\s*\{',text,re.M)]
+        r'^(?:void|bool|float|double|byte|int|String|unsigned long|uint32_t|uint16_t|const char\*) \w+\s*\([^\n{]*\)\s*\{',text,re.M)]
 config=(ROOT/'Config.ino').read_text()
 name_save=config[config.index('void configSaveString '):config.index('void configSaveLedBrightness')]
 with tempfile.TemporaryDirectory(prefix='aquarium-link-tests-') as temp:

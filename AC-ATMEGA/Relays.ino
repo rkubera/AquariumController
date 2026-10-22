@@ -28,9 +28,6 @@ class relayClass {
 
   byte relayManualOnOff = RELAY_MANUAL_ONOFF_AUTO;
   
-  byte relayLastMode;
-  byte relayLastPartOfDay = SCHEDULER_MODE_INITIAL;
-  byte relayMode;
   
   bool relayLastRelayState = false;
 
@@ -104,6 +101,7 @@ class relayClass {
     bool relayUpDown = relayModeDemand;
       
     if (relayControlMode == CONTROL_MODE_PART_OF_DAY) {
+      byte relayMode;
       if (actualPartOfDay==SCHEDULER_MODE_MORNING) {
         relayMode = relayModeMorning;
       }
@@ -119,10 +117,6 @@ class relayClass {
   
       relayUpDown = relayMode == RELAY_MODE_ON;
 
-      if (relayLastPartOfDay!=actualPartOfDay) {
-        relayLastPartOfDay = actualPartOfDay;
-
-      }
     }
     if (relayControlMode == CONTROL_MODE_TRESHOLD) {
       relayUpDown = regulatedState;

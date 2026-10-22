@@ -76,10 +76,14 @@ int displayRow=0,displayWrites=0;
 void gotoXY(int,int row) { assert(row>=0 && row<6); displayRow=row; }
 void lcdString(const char* text) { displayWrites++; display[displayRow]=text; }
 void lcdSetBrigtness(int) {}
-String lcdTrimMessage(String value) { return value.length()>12 ? value.substring(0,12) : value; }
+#define vsnprintf_P vsnprintf
+#define strcpy_P strcpy
+char* dtostrf(double value,signed char width,unsigned char decimals,char* output) {
+  snprintf(output,48,"%*.*f",int(width),int(decimals),value);return output;
+}
 int mockTone=0;
 void buzzerToneStart(int frequency) { mockTone=frequency; }
 void buzzerToneStop() { mockTone=0; }
 
 void rtcScheduleWrite() {}
-String rtcStatusString() { return "waiting"; }
+const char* rtcStatusString() { return "waiting"; }

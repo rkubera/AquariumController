@@ -27,6 +27,8 @@ String getStringControlModeFromValue(byte Value) {
 }
 
 String readConfigName(int addr, int maxSize) {
+  if(maxSize<0)maxSize=0;
+  if(maxSize>=bufferOutSize)maxSize=bufferOutSize-1;
   int index;
   for (index = 0; index < maxSize; index++) {
     bufferOut[index] = configStorage.read(addr+index);
@@ -99,7 +101,7 @@ unsigned long stringToLong(String str) {
 }
 
 String longToString (unsigned long value) {
-  char buff[30];
+  char buff[3*sizeof(unsigned long)+1];
   snprintf(buff,sizeof(buff),"%lu",value);
   return (String) buff;
 }

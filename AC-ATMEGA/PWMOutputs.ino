@@ -23,7 +23,6 @@ class pwmOutputClass {
   uint16_t pwmOutputManualMode = 0;
 
   
-  byte pwmOutputLastPartOfDay = SCHEDULER_MODE_INITIAL;
   uint16_t pwmOutputValue = 0;
   uint16_t regulatedValue = 0;
   bool thresholdInitialized = false;
@@ -115,10 +114,6 @@ class pwmOutputClass {
       else if (actualPartOfDay == SCHEDULER_MODE_AFTERNOON) value = pwmOutputModeAfternoon;
       else if (actualPartOfDay == SCHEDULER_MODE_EVENING) value = pwmOutputModeEvening;
       else value = pwmOutputModeNight;
-      if (pwmOutputLastPartOfDay != actualPartOfDay) {
-        pwmOutputLastPartOfDay = actualPartOfDay;
-
-      }
     }
     else if (pwmOutputControlMode == CONTROL_MODE_MANUAL) value = pwmOutputManualMode;
     bool healthy=megaConfigReady && pwmOutputPin<=megaFeatures.pwm && (!controlled || inputValid);

@@ -82,5 +82,8 @@ print('PASS: diagnostic page has four readonly Text fields shared with HA.')
 # Every descriptor used by the schema must be enabled in this firmware.
 features=(root/'AC-ESP.ino').read_text()
 for kind in {f['type'] for page in pages for f in page['fields']}:
+ if kind=='edit':
+  assert '#define ARDPORTAL_ENABLE_CONTROL_EDIT (AC_ACTIVE_RELAYS > 0 || AC_ACTIVE_INPUTS > 0 || AC_ACTIVE_PWM > 0)' in features
+  continue
  assert '#define ARDPORTAL_ENABLE_CONTROL_'+kind.upper()+' 1' in features,kind
 print('PASS: all schema descriptor types are explicitly enabled in the ESP sketch.')

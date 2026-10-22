@@ -102,7 +102,7 @@ String panelMemoryDiagnostic() {
 }
 void panelState(const char* id,const ArdJSON::JSONVar& value) {
   panelUpdating=true;
-  if (!portal.setAppConfigStateValue(id,value,false)) portal.log(String(F("Panel: state rejected "))+String(id));
+  if (!portal.setAppConfigStateValue(id,value,false)) AC_PORTAL_LOG(String(F("Panel: state rejected "))+String(id));
   panelUpdating=false;
 }
 // UART keeps scalar values; the shared native light combines them without
@@ -199,7 +199,7 @@ void panelReceiveWireValue(uint16_t id,const String& value){
  uint16_t i=wirePanelIndex(id);
  if(!panelFieldEnabled(i))return;
  static const uint16_t rtcId=acFieldId("ClockRtcStatus");
- if(id==rtcId&&panelValue(i)!=value)portal.log("RTC status: "+value);
+ if(id==rtcId&&panelValue(i)!=value)AC_PORTAL_LOG("RTC status: "+value);
  panelLastRx=millis();panelLinked=true;
  if(i==panelPendingIndex && panelPendingField.length()){panelPendingActual=value;return;}
  int queued=panelQueuedSlot(i);
@@ -227,7 +227,7 @@ void panelReply(String payload) {
   double av=strtod(actual.c_str(),&a),bv=strtod(panelPendingValue.c_str(),&b);
   if (actual.length() && panelPendingValue.length() && a && b && !*a && !*b && isfinite(av) && isfinite(bv)) same=fabs(av-bv)<=0.00001*fmax(1.0,fabs(bv));
   panelOperation=(same ? "Mega confirmed: " : "Mega returned a different value: ")+field+" = "+actual;
-  portal.log(panelOperation);
+  AC_PORTAL_LOG(panelOperation);
   panelPendingField=""; panelPendingValue="";
 }
 void panelRollbackPending(){
@@ -250,16 +250,16 @@ bool panelSendSetting(uint16_t i,String value) {
     if(value!=F("on")&&value!=F("off"))return false;
   }
   if (!configMegaReady || !panelSeen[i] || !panelLinked || millis()-panelLastRx>20000UL) {
-    panelOperation="No current data from Mega"; portal.log(panelOperation); panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true;
+    panelOperation="No current data from Mega"; AC_PORTAL_LOG(panelOperation); panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true;
   }
   if ((property==F("Name") && value.length()>15) || !value.length() || value.indexOf(']')>=0 || value.indexOf('\r')>=0 || value.indexOf('\n')>=0) {
-    portal.log("Panel: rejected value for "+field);panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true;
+    AC_PORTAL_LOG("Panel: rejected value for "+field);panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true;
   }
   if(panelPendingField.length() || (panelQueuedCount && !panelDrainingSetting)){
     int slot=panelQueuedSlot(i);
     if(slot<0){
       if(panelQueuedCount>=PANEL_SETTING_QUEUE_SIZE){
-        portal.log("Panel: setting queue full for "+field);panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true;
+        AC_PORTAL_LOG("Panel: setting queue full for "+field);panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true;
       }
       slot=panelQueuedCount++;panelQueuedIndex[slot]=i;
       panelQueuedActual[slot]=(i==panelPendingIndex)?panelPendingActual:panelValue(i);
@@ -270,13 +270,13 @@ bool panelSendSetting(uint16_t i,String value) {
     return true;
   }
   if (++panelId==0 || panelId==UINT32_MAX) panelId=1;
-  if (!bridgeQueueFrame(String(F("[panelset "))+String(panelId)+" "+field+" "+value+"]")) { portal.log(F("Panel: RS queue full"));panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true; }
+  if (!bridgeQueueFrame(String(F("[panelset "))+String(panelId)+" "+field+" "+value+"]")) { AC_PORTAL_LOG(F("Panel: RS queue full"));panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true; }
   if(property==F("CurrentBrightness")&&!panelDrainingSetting)panelLedBrightnessManualWanted=panelCached("LedControlMode")==F("manual");
   panelPendingField=field; panelPendingValue=value; panelRequestAt=millis();
   panelPendingIndex=i;panelPendingActual=panelValue(i);
   panelStore(i,value);panelRenderField(i);
   bridgeTelemetryDirty[panelWireId(i)-1]=true;
-  portal.log("Panel: send "+field+" = "+value);
+  AC_PORTAL_LOG("Panel: send "+field+" = "+value);
   return true;
 }
 void panelFlushQueuedSetting(){
@@ -325,18 +325,18 @@ void panelRegistrationFinished(bool success) {
     }
     panelReady=true;
     panelRegistrationErrors[page]="";
-    portal.log(String(F("Panel: "))+String(panelPageNames[page])+" registered"+panelMemoryDiagnostic());
+    AC_PORTAL_LOG(String(F("Panel: "))+String(panelPageNames[page])+" registered"+panelMemoryDiagnostic());
     for (uint16_t i=0;i<PANEL_FIELD_COUNT;i++) if (panelSeen[i]) {
       if(panelFieldPage(i)==page)panelConfirmSetting(i,panelValue(i));
       panelNeedsRender[i]=true;
     }
-    if (panelRegisteredMask==PANEL_PAGE_MASK) portal.log(String(F("Panel/HA: "))+String(panelActiveFieldCount())+" shared Mega fields registered");
+    if (panelRegisteredMask==PANEL_PAGE_MASK) AC_PORTAL_LOG(String(F("Panel/HA: "))+String(panelActiveFieldCount())+" shared Mega fields registered");
   } else {
     const auto& error=portal.appConfigRegistrationError();
     String field=error.fieldId;
     for (uint16_t i=0;i<PANEL_FIELD_COUNT;i++) if (field==panelControlIdAt(i)) { field+=" ("+panelFieldName(i)+")"; break; }
     panelRegistrationErrors[page]=String(F("Panel: registration FAILED "))+String(panelPageNames[page])+String(F(" stage="))+String(error.stage)+" field="+field+" reason="+error.reason;
-    portal.log(panelRegistrationErrors[page]+panelMemoryDiagnostic());
+    AC_PORTAL_LOG(panelRegistrationErrors[page]+panelMemoryDiagnostic());
   }
 }
 void panelSetup() {
@@ -344,7 +344,7 @@ void panelSetup() {
   portal.onAppConfigValueChanged(panelChanged);
   portal.onPortalAndAppConfigSaved([](bool ok,const String& error){
     panelPersistenceBatch=false;
-    if(!ok){portal.log("Native config: ArdFS save failed: "+error);for(uint16_t i=0;i<PANEL_FIELD_COUNT;i++)if(panelSeen[i]&&panelFieldPersistent(i))panelSaveConfirmed[i]=true;}
+    if(!ok){AC_PORTAL_LOG("Native config: ArdFS save failed: "+error);for(uint16_t i=0;i<PANEL_FIELD_COUNT;i++)if(panelSeen[i]&&panelFieldPersistent(i))panelSaveConfirmed[i]=true;}
   });
   portal.onAppConfigPageRegistrationFinished(panelRegistrationFinished);
 }
@@ -377,7 +377,7 @@ void panelService() {
         byte page=order[nextPage++];
         if (!panelDefinitionHostname.length()) panelDefinitionHostname=bridgeHostname();
         const auto* definition=panelPageDefinition(page);
-        portal.log(String(F("Panel: register "))+String(panelPageNames[page])+String(F(" bytes="))+String(strlen_P(reinterpret_cast<const char*>(definition)))+panelMemoryDiagnostic());
+        AC_PORTAL_LOG(String(F("Panel: register "))+String(panelPageNames[page])+String(F(" bytes="))+String(strlen_P(reinterpret_cast<const char*>(definition)))+panelMemoryDiagnostic());
         // Set the owner before start(): the completion callback may run inline.
         panelRegisteringPage=page;
         if (!portal.startAppConfigPageRegistration(definition) && panelRegisteringPage==page) {
@@ -391,10 +391,10 @@ void panelService() {
   panelLedLoadSettings();
   uint32_t now=millis();
   if (panelDefinitionHostname!=bridgeHostname()) {
-    portal.log(F("Panel/HA: MQTT device name changed; restart ESP to rebuild topics")); panelDefinitionHostname=bridgeHostname();
+    AC_PORTAL_LOG(F("Panel/HA: MQTT device name changed; restart ESP to rebuild topics")); panelDefinitionHostname=bridgeHostname();
   }
   if (panelPendingField.length() && now-panelRequestAt>10000UL) {
-    portal.log("Panel: configuration/save confirmation timeout for "+panelPendingField);
+    AC_PORTAL_LOG("Panel: configuration/save confirmation timeout for "+panelPendingField);
     panelRollbackPending();
     panelPendingField=""; panelPendingValue=""; panelRefreshWanted=true;
   }
@@ -410,8 +410,8 @@ void panelService() {
   static uint32_t lastDiagnostic=0;
   if (now-lastDiagnostic>=30000UL) {
     //Keep the latest registration failure next to the periodic summary.
-    for (byte page=0;page<PANEL_PAGE_COUNT;page++) if (panelRegistrationErrors[page].length()) portal.log(panelRegistrationErrors[page]);
-    portal.log(String(F("Panel/HA: fields="))+String(panelActiveFieldCount())+String(F(", pages="))+String(panelRegisteredPages)+String(F("/"))+String(PANEL_ACTIVE_PAGE_COUNT)+", missing="+panelMissingPages()+String(F(", Mega="))+String(panelLinked ? "online" : "waiting")+panelMemoryDiagnostic());
+    for (byte page=0;page<PANEL_PAGE_COUNT;page++) if (panelRegistrationErrors[page].length()) AC_PORTAL_LOG(panelRegistrationErrors[page]);
+    AC_PORTAL_LOG(String(F("Panel/HA: fields="))+String(panelActiveFieldCount())+String(F(", pages="))+String(panelRegisteredPages)+String(F("/"))+String(PANEL_ACTIVE_PAGE_COUNT)+", missing="+panelMissingPages()+String(F(", Mega="))+String(panelLinked ? "online" : "waiting")+panelMemoryDiagnostic());
     lastDiagnostic=now;
   }
 }

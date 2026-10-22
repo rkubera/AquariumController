@@ -37,23 +37,23 @@ void eventTimerMillis() {
   }
   buzzerMillisEvent();
 
-  workAt=micros();relaysMillisEvent();usbDiagnosticStage(0,micros()-workAt);
+  runtimeMark(RuntimeRelay);workAt=micros();relaysMillisEvent();usbDiagnosticStage(0,micros()-workAt);
   
-  workAt=micros();pwmOutputsMillisEvent();usbDiagnosticStage(1,micros()-workAt);
+  runtimeMark(RuntimePwm);workAt=micros();pwmOutputsMillisEvent();usbDiagnosticStage(1,micros()-workAt);
   
-  workAt=micros();clockMillisEvent();usbDiagnosticStage(2,micros()-workAt);
+  runtimeMark(RuntimeClock);workAt=micros();clockMillisEvent();usbDiagnosticStage(2,micros()-workAt);
 
-  workAt=micros();menuShowCMillis();usbDiagnosticStage(3,micros()-workAt);
+  runtimeMark(RuntimeLcd);workAt=micros();menuShowCMillis();usbDiagnosticStage(3,micros()-workAt);
 
-  workAt=micros();fanMillisEvent();usbDiagnosticStage(4,micros()-workAt);
+  runtimeMark(RuntimeFan);workAt=micros();fanMillisEvent();usbDiagnosticStage(4,micros()-workAt);
 
-  workAt=micros();dhtGetDataMillisEvent();usbDiagnosticStage(5,micros()-workAt);
+  runtimeMark(RuntimeDht);workAt=micros();dhtGetDataMillisEvent();usbDiagnosticStage(5,micros()-workAt);
 
-  workAt=micros();keyboardCheckMillisEvent();usbDiagnosticStage(6,micros()-workAt);
+  runtimeMark(RuntimeKeyboard);workAt=micros();keyboardCheckMillisEvent();usbDiagnosticStage(6,micros()-workAt);
   lcdBacklightService();
   
   //IMPORTANT!!!
-  workAt=micros();criticalEvent();usbDiagnosticStage(7,micros()-workAt);
+  runtimeMark(RuntimeCritical);workAt=micros();criticalEvent();usbDiagnosticStage(7,micros()-workAt);
 }
 
 void eventTimerSecond() {

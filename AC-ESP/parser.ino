@@ -20,7 +20,7 @@ void sendCommand(String command){
 void espWireConnection(bool connected){bridgeWireQueue.clear();espConfigSession(connected);bridgeLastHostname="";bridgeWifiWasConnected=!portal.wifiConnected();bridgeMqttWasConnected=!portal.mqttConnected();}
 void espWireReceive(uint8_t kind,const uint8_t* p,uint8_t n){
  if(kind>=AcWire::ConfigBegin&&kind<=AcWire::ConfigReady){espConfigMessage(kind,p,n);return;}
- if(kind==AcWire::Diagnostic){portal.log("Mega: "+wireText(p,n));return;}
+ if(kind==AcWire::Diagnostic){AC_PORTAL_LOG("Mega: "+wireText(p,n));return;}
  if(kind==AcWire::Request&&n==1){const char* request=p[0]==AcWire::Timestamp?"timestamp":p[0]==AcWire::Wifi?"wifistatus":p[0]==AcWire::Broker?"mqttstatus":p[0]==AcWire::Hostname?"hostname":p[0]==AcWire::Ssid?"ssid":p[0]==AcWire::BrokerServer?"mqttserver":p[0]==AcWire::Ping?"echo":nullptr;if(request)getCommand(request);return;}
  if(kind==AcWire::Result&&n>=6){if(espConfigReply(AcWire::u32(p),AcWire::u16(p+4),wireText(p+6,n-6)))return;String field=acFieldName(AcWire::u16(p+4));if(field.length())panelReply(String(AcWire::u32(p))+" "+field+" "+wireText(p+6,n-6));return;}
  if(kind==AcWire::Value&&n>=2&&configMegaReady){uint16_t id=AcWire::u16(p);if(!acFieldSupported(id,portalFeatures))return;String value=wireText(p+2,n-2);panelReceiveWireValue(id,value);if(wirePanelIndex(id)>=PANEL_FIELD_COUNT)bridgeTelemetry[id-1]=value;bridgeTelemetryDirty[id-1]=true;return;}

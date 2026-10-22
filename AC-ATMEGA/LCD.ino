@@ -172,15 +172,6 @@ void lcdInit() {
   //analogWrite(LCD_PIN_LED, 255);
 }
 
-String lcdTrimMessage(String message) {
-  if (message.length()>12) {
-    //message = message.substring(0,12)+"...";
-    message = message.substring(0,12);
-    message[11] = '.';
-  }
-  return message;
-}
-
 void lcdCharacter(char character) {
   unsigned char z,z1;
 

@@ -122,8 +122,7 @@ String configReadString (int addr, int maxSize) {
   return readConfigName(addr, maxSize);
 }
 
-void configSaveString  (String str, int addr, int maxSize) {
-  str = str+char(0);
+void configSaveString  (const String& str, int addr, int maxSize) {
   int index;
   for (index = 0; index < maxSize; index++) {
     configStorage.update(addr+index, index < (int)str.length() ? str[index] : 0);

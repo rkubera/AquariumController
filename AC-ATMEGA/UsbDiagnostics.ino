@@ -1,3 +1,4 @@
+#include "RuntimeHealth.h"
 static uint32_t usbWorkMax[9]={0};
 void usbDiagnosticStage(byte stage,uint32_t elapsed){if(stage<9 && elapsed>usbWorkMax[stage])usbWorkMax[stage]=elapsed;}
 // USB diagnostics never share the ESP UART or wait for the USB TX ring.
@@ -20,6 +21,14 @@ void usbDiagnosticAck(uint32_t operation,uint16_t field,const String& value){
  char line[112];snprintf_P(line,sizeof(line),PSTR("ACK queued op=%lu field=%u value=%.32s after=%lu ms"),(unsigned long)operation,field,value.c_str(),(unsigned long)(millis()-usbDiagnosticSettingAt));usbDiagnosticLine(line);
 }
 void usbDiagnosticLoop(uint32_t elapsedUs){
+#ifdef __AVR__
+ static bool bootReported=false;
+ if(!bootReported){
+  bootReported=true;char bootLine[96];
+  snprintf_P(bootLine,sizeof(bootLine),PSTR("BOOT MCUSR=0x%02x previousStage=%u (0=unknown)"),watchdogResetFlags,watchdogPreviousStage);
+  usbDiagnosticLine(bootLine);
+ }
+#endif
  if(elapsedUs>usbDiagnosticMaxLoopUs)usbDiagnosticMaxLoopUs=elapsedUs;
  static uint32_t lastReport=0;uint32_t now=millis();
  if(now-lastReport>=5000UL){
@@ -41,6 +50,11 @@ void usbDiagnosticLoop(uint32_t elapsedUs){
     dhtCaptureBytes[0],dhtCaptureBytes[1],dhtCaptureBytes[2],dhtCaptureBytes[3],dhtCaptureBytes[4],digitalRead(DHT_PIN));
   usbDiagnosticLine(line);
   } else if ((now/5000UL)%5==0) {
+#ifdef __AVR__
+  snprintf_P(line,sizeof(line),PSTR("RAM gap=%d minGap=%d"),runtimeMemorySample(),runtimeMinimumGap);
+  usbDiagnosticLine(line);
+#endif
+
   snprintf_P(line,sizeof(line),PSTR("LED fade=%u duration=%lu ms gapMax=%lu ms steps=%lu RGB=%u,%u,%u"),ledFadeActive,(unsigned long)ledFadeDuration,(unsigned long)ledFadeMaxGap,(unsigned long)ledFadeRenderCount,(unsigned int)ledActualRed,(unsigned int)ledActualGreen,(unsigned int)ledActualBlue);
   usbDiagnosticLine(line);ledFadeMaxGap=ledFadeRenderCount=0;
   } else {

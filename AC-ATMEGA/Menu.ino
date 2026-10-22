@@ -1,5 +1,6 @@
 //PCD8544: 84x48 pixels, 12 characters x 6 rows at the existing 7px font.
 //Five data rows and one navigation row; rows are padded to erase old values.
+#include <stdarg.h>
 static byte menuPage=0, menuChannel=0;
 static char menuDesiredRows[6][13],menuDisplayedRows[6][13];
 static bool menuRowValid[6]={false,false,false,false,false,false};
@@ -19,17 +20,49 @@ void menuLcdService() {
   }
 }
 
-void menuLine(byte row,String text) {
-  text=lcdTrimMessage(text);
-  for (byte i=0;i<12;i++) menuDesiredRows[row][i]=i<text.length() ? text[i] : ' ';
+void menuLine(byte row,const char* text) {
+  if(row>=6)return;
+  if(!text)text="";
+  byte length=0;
+  while(length<12 && text[length]){menuDesiredRows[row][length]=text[length];++length;}
+  if(length==12 && text[12])menuDesiredRows[row][11]='.';
+  for(byte i=length;i<12;i++)menuDesiredRows[row][i]=' ';
   menuDesiredRows[row][12]=0;
+}
+
+void menuLine(byte row,const String& text) {menuLine(row,text.c_str());}
+
+void menuLineFlash(byte row,const __FlashStringHelper* text) {
+  char line[14]={};
+  for(byte i=0;i<13;i++){line[i]=pgm_read_byte(reinterpret_cast<const char*>(text)+i);if(!line[i])break;}
+  menuLine(row,line);
+}
+
+void menuLineFormat(byte row,const char* format,...) {
+  char line[48];
+  va_list args;va_start(args,format);vsnprintf_P(line,sizeof(line),format,args);va_end(args);
+  menuLine(row,line);
+}
+
+void menuLineFloat(byte row,const char* format,float value) {
+  // A finite AVR float needs at most 43 characters with two decimals and sign.
+  char number[48];
+  if(isfinite(value))dtostrf(value,0,2,number);
+  else strcpy_P(number,PSTR("invalid"));
+  menuLineFormat(row,format,number);
+}
+
+void menuLineName(byte row,int address) {
+  char name[14]={};
+  for(byte i=0;i<13 && i<NAME_LENGTH;i++){name[i]=configStorage.read(address+i);if(!name[i])break;}
+  menuLine(row,name);
 }
 
 byte menuChannelCount() {
   return AcLcdMenu::channels(menuPage,megaFeatures);
 }
 
-String menuMode(byte mode) {
+const char* menuMode(byte mode) {
   if (mode==CONTROL_MODE_PART_OF_DAY) return "day";
   if (mode==CONTROL_MODE_TRESHOLD) return "hyst";
   if (mode==CONTROL_MODE_PID) return "pid";
@@ -77,77 +110,78 @@ void menuShowCMillis() {
     ledManualOnOff=key=='D' ? LED_MANUAL_ONOFF_AUTO : ledActualState==LED_MANUAL_ONOFF_ON ? LED_MANUAL_ONOFF_OFF : LED_MANUAL_ONOFF_ON;
     ledSetActualMode(); ledPublishState(true);
   }
-  String lines[5];
+  // Format directly into the fixed LCD rows; no temporary String array.
+  for(byte row=0;row<5;row++)menuLine(row,"");
   if (menuPage==0) {
     time_t local=clockGetLocalTime();
-    sprintf(bufferOut,"%04d/%02d/%02d",year(local),month(local),day(local)); lines[0]=bufferOut;
-    sprintf(bufferOut,"%02d:%02d:%02d",hour(local),minute(local),second(local)); lines[1]=bufferOut;
-    lines[3]=String("WiFi:")+(wifiStatus==WIFI_STATUS_CONNECTED ? "on" : "off");
-    lines[4]=String("Broker:")+(brokerStatus==BROKER_STATUS_CONNECTED ? "on" : "off");
+    menuLineFormat(0,PSTR("%04d/%02d/%02d"),year(local),month(local),day(local));
+    menuLineFormat(1,PSTR("%02d:%02d:%02d"),hour(local),minute(local),second(local));
+    menuLineFormat(3,PSTR("WiFi:%s"),wifiStatus==WIFI_STATUS_CONNECTED ? "on" : "off");
+    menuLineFormat(4,PSTR("Broker:%s"),brokerStatus==BROKER_STATUS_CONNECTED ? "on" : "off");
   }
   else if (menuPage==1) {
-    lines[0]="NETWORK"; lines[1]=deviceName; lines[2]=wifi_ssid;
-    lines[3]=brokerServer; lines[4]=String("Broker:")+(brokerStatus==BROKER_STATUS_CONNECTED ? "on" : "off");
+    menuLineFlash(0,F("NETWORK"));menuLine(1,deviceName);menuLine(2,wifi_ssid);
+    menuLine(3,brokerServer);
+    menuLineFormat(4,PSTR("Broker:%s"),brokerStatus==BROKER_STATUS_CONNECTED ? "on" : "off");
   }
   else if (menuPage==2) {
     time_t local=clockGetLocalTime();
-    lines[0]="CLOCK";
-    sprintf(bufferOut,"%04d/%02d/%02d",year(local),month(local),day(local)); lines[1]=bufferOut;
-    sprintf(bufferOut,"%02d:%02d:%02d",hour(local),minute(local),second(local)); lines[2]=bufferOut;
-    if(megaFeatures.has(ControllerFeatures::Rtc))lines[3]="RTC:"+rtcStatusString();
-    lines[4]=clockSyncStatusString();
+    menuLineFlash(0,F("CLOCK"));
+    menuLineFormat(1,PSTR("%04d/%02d/%02d"),year(local),month(local),day(local));
+    menuLineFormat(2,PSTR("%02d:%02d:%02d"),hour(local),minute(local),second(local));
+    if(megaFeatures.has(ControllerFeatures::Rtc))menuLineFormat(3,PSTR("RTC:%s"),rtcStatusString());
+    menuLine(4,clockSyncStatusString());
   }
   else if (menuPage==3) {
-    lines[0]="SENSOR "+intToString(channel);
-    lines[1]=readConfigName(CONFIG_sensors_addr+menuChannel*SENSORS_SENSOR_CONFIG_BYTES,NAME_LENGTH);
+    menuLineFormat(0,PSTR("SENSOR %u"),unsigned(channel));
+    menuLineName(1,CONFIG_sensors_addr+menuChannel*SENSORS_SENSOR_CONFIG_BYTES);
     bool valid=sensorsGetSensor(channel,SENSORS_VALUE_VALID);
-    lines[2]=valid ? "V:"+floatToString(sensorsGetSensor(channel,SENSORS_VALUE)) : "V:invalid";
-    lines[3]="Raw:"+floatToString(sensorsGetSensor(channel,SENSORS_VALUE_RAW));
+    menuLineFloat(2,PSTR("V:%s"),valid ? sensorsGetSensor(channel,SENSORS_VALUE) : NAN);
+    menuLineFloat(3,PSTR("Raw:%s"),sensorsGetSensor(channel,SENSORS_VALUE_RAW));
     int assignment=sensorsGetSensor(channel,SENSORS_VALUE_TYPE);
     bool available=assignment<RELAYS_COUNT ? assignment<megaFeatures.relays : assignment-RELAYS_COUNT<megaFeatures.pwm;
-    lines[4]=assignment==SENSOR_TYPE_NONE || !available ? "To:none" : assignment<RELAYS_COUNT ? "To:Relay"+intToString(assignment+1) : "To:PWM"+intToString(assignment-RELAYS_COUNT+1);
+    if(assignment==SENSOR_TYPE_NONE || !available)menuLineFlash(4,F("To:none"));
+    else if(assignment<RELAYS_COUNT)menuLineFormat(4,PSTR("To:Relay%d"),assignment+1);
+    else menuLineFormat(4,PSTR("To:PWM%d"),assignment-RELAYS_COUNT+1);
   }
   else if (menuPage==4 || menuPage==5) {
     bool relay=menuPage==4;
-    lines[0]=(relay ? "RELAY " : "PWM ")+intToString(channel);
-    lines[1]=readConfigName((relay ? CONFIG_relays_addr+menuChannel*RELAYS_RELAY_CONFIG_BYTES : CONFIG_pwm_outputs_addr+menuChannel*PWMOUTPUTS_PWMOUTPUT_CONFIG_BYTES),NAME_LENGTH);
+    menuLineFormat(0,relay ? PSTR("RELAY %u") : PSTR("PWM %u"),unsigned(channel));
+    menuLineName(1,relay ? CONFIG_relays_addr+menuChannel*RELAYS_RELAY_CONFIG_BYTES : CONFIG_pwm_outputs_addr+menuChannel*PWMOUTPUTS_PWMOUTPUT_CONFIG_BYTES);
     byte mode=relay ? relaysGetRelay(channel,RELAY_CONTROL_MODE) : pwmOutputsGetPwmOutput(channel,PWMOUTPUT_CONTROL_MODE);
     byte override=relay ? relaysGetRelay(channel,RELAY_MANUAL_ONOFF) : 0;
-    lines[2]=relay ? menuMode(mode)+":"+(override==0 ? "auto" : override==1 ? "off" : "on") : menuMode(mode);
-    lines[3]=relay ? String("State:")+(relaysGetRelay(channel,RELAY_STATE) ? "on" : "off") : "V:"+floatToString(pwmOutputsGetPwmOutputDouble(channel,PWMOUTPUT_OUTPUT_VALUE));
-    if(megaFeatures.inputs){
-      float input=sensorsGetSensorsValue(channel,relay ? OUTPUT_TYPE_RELAY : OUTPUT_TYPE_PWM);
-      lines[4]=isfinite(input) ? "In:"+floatToString(input) : "In:invalid";
-    }
+    if(relay)menuLineFormat(2,PSTR("%s:%s"),menuMode(mode),override==0 ? "auto" : override==1 ? "off" : "on");
+    else menuLine(2,menuMode(mode));
+    if(relay)menuLineFormat(3,PSTR("State:%s"),relaysGetRelay(channel,RELAY_STATE) ? "on" : "off");
+    else menuLineFloat(3,PSTR("V:%s"),pwmOutputsGetPwmOutputDouble(channel,PWMOUTPUT_OUTPUT_VALUE));
+    if(megaFeatures.inputs)menuLineFloat(4,PSTR("In:%s"),sensorsGetSensorsValue(channel,relay ? OUTPUT_TYPE_RELAY : OUTPUT_TYPE_PWM));
   }
   else if (menuPage==6) {
-    lines[0]=String("LED:")+(ledActualState==LED_MANUAL_ONOFF_ON ? "on" : "off");
-    lines[1]="Bright:"+String(ledBrightness)+"%";
-    lines[2]="R:"+String((uint16_t)ledActualRed);
-    lines[3]="G:"+String((uint16_t)ledActualGreen);
-    lines[4]="B:"+String((uint16_t)ledActualBlue);
+    menuLineFormat(0,PSTR("LED:%s"),ledActualState==LED_MANUAL_ONOFF_ON ? "on" : "off");
+    menuLineFormat(1,PSTR("Bright:%u%%"),unsigned(ledBrightness));
+    menuLineFormat(2,PSTR("R:%u"),unsigned(uint16_t(ledActualRed)));
+    menuLineFormat(3,PSTR("G:%u"),unsigned(uint16_t(ledActualGreen)));
+    menuLineFormat(4,PSTR("B:%u"),unsigned(uint16_t(ledActualBlue)));
   }
   else if (menuPage==7) {
-    lines[0]=megaFeatures.has(ControllerFeatures::Fan) ? "INTERNAL" : "DHT";
-    lines[1]=dhtHasValidReading() ? "T:"+floatToString(dhtTemperature)+"C" : "T:invalid";
-    lines[2]=dhtHasValidReading() ? "H:"+floatToString(dhtHumidity)+"%" : "H:invalid";
+    menuLineFlash(0,megaFeatures.has(ControllerFeatures::Fan) ? F("INTERNAL") : F("DHT"));
+    bool valid=dhtHasValidReading();
+    menuLineFloat(1,valid ? PSTR("T:%sC") : PSTR("T:%s"),valid ? dhtTemperature : NAN);
+    menuLineFloat(2,valid ? PSTR("H:%s%%") : PSTR("H:%s"),valid ? dhtHumidity : NAN);
     if(megaFeatures.has(ControllerFeatures::Fan)){
-      lines[3]="Limit:"+intToString(maxInternalTemperature)+"C";
-      lines[4]="Fan:"+intToString(fanPWM);
+      menuLineFormat(3,PSTR("Limit:%dC"),int(maxInternalTemperature));
+      menuLineFormat(4,PSTR("Fan:%u"),unsigned(fanPWM));
     }
   }
   else {
-    lines[0]="ERRORS"; lines[1]="Count:"+intToString(errorsCount);
-    lines[2]="Flags:"+intToString(errorsReportStatus);
-    lines[3]="CRC:"+String(serialCrcErrors);
-    lines[4]="Long:"+String(serialOversizedFrames);
+    menuLineFlash(0,F("ERRORS"));
+    menuLineFormat(1,PSTR("Count:%d"),int(errorsCount));
+    menuLineFormat(2,PSTR("Flags:%d"),int(errorsReportStatus));
+    menuLineFormat(3,PSTR("CRC:%lu"),static_cast<unsigned long>(serialCrcErrors));
+    menuLineFormat(4,PSTR("Long:%lu"),static_cast<unsigned long>(serialOversizedFrames));
   }
-  for (byte i=0;i<5;i++) menuLine(i,lines[i]);
-  if (menuPage==0) menuLine(5,"A/B kontrast");
-  else {
-    String navigation=intToString(AcLcdMenu::number(menuPage,megaFeatures))+"/"+intToString(AcLcdMenu::count(megaFeatures));
-    if(count>1)navigation+=" "+intToString(channel)+"/"+intToString(count)+" A/B";
-    menuLine(5,navigation);
-  }
+  if (menuPage==0) menuLineFlash(5,F("A/B kontrast"));
+  else if(count>1)menuLineFormat(5,PSTR("%u/%u %u/%u A/B"),unsigned(AcLcdMenu::number(menuPage,megaFeatures)),unsigned(AcLcdMenu::count(megaFeatures)),unsigned(channel),unsigned(count));
+  else menuLineFormat(5,PSTR("%u/%u"),unsigned(AcLcdMenu::number(menuPage,megaFeatures)),unsigned(AcLcdMenu::count(megaFeatures)));
   menuLcdService();
 }

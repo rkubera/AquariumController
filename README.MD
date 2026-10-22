@@ -107,17 +107,22 @@ These definitions are also at the top of `AC-ESP.ino`. They select library modul
 
 | Definition | Current value | Purpose |
 | --- | ---: | --- |
+| `ARDPORTAL_ENABLE_POWER_MANAGEMENT` | 0 | Exclude optional power management for this permanently powered controller; requires an ArdPortal revision supporting this switch |
 | `ARDPORTAL_ENABLE_DYNAMIC_PAGES` | 1 | Application pages |
 | `ARDPORTAL_ENABLE_DEPENDENCIES` | 1 | Mode-dependent field visibility |
 | `ARDPORTAL_ENABLE_HA` | 1 | Home Assistant discovery |
-| `ARDPORTAL_ENABLE_CONSOLE` | 1 | Web console |
-| `ARDPORTAL_ENABLE_CONSOLE_MESSAGES` | 1 | Application message log |
+| `AC_ENABLE_WEB_CONSOLE` | 1 | MQTT web console |
+| `AC_ENABLE_MESSAGES` | 1 | Optional application Messages tab and log; set to 0 to reduce firmware size |
+| `ARDPORTAL_ENABLE_CONSOLE` | `AC_ENABLE_WEB_CONSOLE` | Web console |
+| `ARDPORTAL_ENABLE_CONSOLE_MESSAGES` | `AC_ENABLE_WEB_CONSOLE && AC_ENABLE_MESSAGES` | Application message log |
 | `ARDPORTAL_ENABLE_MQTT` | 1 | MQTT connection and commands |
 | `ARDPORTAL_ENABLE_MQTT_TLS` | 0 | TLS support; currently disabled |
 | `ARDPORTAL_ENABLE_OTA` | 1 | Firmware upload through the portal |
 | `ARDPORTAL_ENABLE_CONTROLS` | 0 | Disable the blanket selection of every control type |
-| `ARDPORTAL_ENABLE_CONTROL_SLIDER`, `_TEXT`, `_SELECT`, `_EDIT`, `_SWITCH`, `_DATE`, `_TIME`, `_LIGHT` | 1 | Enable each control type used by this project; each suffix follows `ARDPORTAL_ENABLE_CONTROL` |
+| `ARDPORTAL_ENABLE_CONTROL_SLIDER`, `_TEXT`, `_SELECT`, `_SWITCH`, `_DATE`, `_TIME`, `_LIGHT` | 1 | Enable each control type used by this project; each suffix follows `ARDPORTAL_ENABLE_CONTROL` |
+| `ARDPORTAL_ENABLE_CONTROL_EDIT` | Automatic | Include editable text fields when relays, PWM outputs or analog inputs are enabled |
 | `ARDPORTAL_ENABLE_CONTROL_BINARY_SENSOR` | 0 | Binary-sensor control implementation |
+| `ARDPORTAL_ENABLE_TEXT_TYPES` | 0 | Exclude unused numeric text subtypes; sensor HA metadata is defined explicitly |
 
 `MEGA_SERIAL` selects `Serial2` on ESP32 and `Serial` on ESP8266. `DIAGNOSTIC_SERIAL` selects `Serial` on ESP32 and `Serial1` on ESP8266. The corresponding `_NAME` definitions provide diagnostic labels. `MEGA_SERIAL_BAUD` and `DIAGNOSTIC_SERIAL_BAUD` are constants set to 115200; `SERIAL_DIAGNOSTICS_ENABLED` is currently `true`.
 
@@ -187,6 +192,18 @@ Analog acquisition and regulation run every 100 ms; automatic MQTT input reading
 
 Use **Console → Messages** for panel registration and application logs, the Diagnostics page for active alarms, and USB serial diagnostics for timing and UART counters. Missing or invalid RTC readings raise an alarm when RTC support is enabled; there is no separate `ClockRtcStatus` HA/MQTT entity.
 
+The combined alarm status is limited to the UART value payload. When full descriptions do not fit, it lists every active cause using compact codes: `S1` for an invalid sensor reading, `R1` for an invalid relay input, `P1` for an invalid PWM input and `P1 PID` for a PID arithmetic error. DHT and RTC causes remain separately identified. The active-alarm count and the three timestamped descriptions on Diagnostics remain available.
+
+Mega rejects a UART text value if allocation or decoding cannot preserve the entire payload, including during configuration restore. Normal LCD refreshes format directly into fixed buffers without temporary Arduino `String` objects; long rows retain the existing trailing-dot indication.
+
+### Mega reset and RAM diagnostics
+
+The watchdog timeout remains 8 seconds. The firmware disables an inherited watchdog early during startup, then enables the normal timeout in setup. USB diagnostics include the reset flags (`BOOT MCUSR`), a retained SRAM breadcrumb (`previousStage`) and a periodically reported heap-to-stack gap (`RAM gap` / `minGap`). No reset history is written to EEPROM.
+
+Some bootloaders clear MCUSR before the sketch starts: `MCUSR=0` means the reset cause is unknown. A retained breadcrumb identifies a previous execution stage, but does not itself prove a watchdog reset. It is not reliable across loss of power. Stage IDs are: 1 setup, 2 idle, 3 RTC, 4 configuration, 5 UART, 6 ADC, 7 snapshot, 8 timed events, 9 relays, 10 PWM, 11 clock, 12 LCD, 13 fan, 14 DHT, 15 keypad, 16 critical callbacks, 17 reserved, 18 diagnostics.
+
+`RAM gap` measures the contiguous space between the current heap end and stack pointer. It excludes reusable holes inside the heap and is not a measurement of total free RAM or the largest allocatable block. `minGap` is the lowest sampled value since boot, including samples taken during value reporting; deeper unsampled call paths can use more stack.
+
 ## Development and tests
 
 Host tests use Python 3 and a C++ compiler. Typical checks:
@@ -218,3 +235,19 @@ You may use, modify, fork and redistribute the project free of charge for **non-
 Third-party components retain their own license notices, including the PID implementation in `AC-ATMEGA/Control.ino`.
 
 Author: Radek Kubera ([rkubera](https://github.com/rkubera)).
+
+### Smaller ESP8266 OTA images
+
+For ESP8266 (including ESP-01), ArdPortal's gzip-capable OTA uploader and the
+ESP8266 core bootloader accept compressed application firmware. After compiling
+for the correct board and existing flash/FS layout, run:
+
+```sh
+python3 AC-ESP/tools/pack_ota_esp8266.py path/to/AC-ESP.ino.bin
+```
+
+Upload the resulting `.bin.gz` through the portal. The script verifies that
+unpacking reproduces the original firmware exactly. Compression reduces the
+upload and temporary OTA space, not the size of the installed application or
+its RAM usage. The currently installed uploader must already support gzip.
+Use the original `.bin` for USB uploads and ESP32 updates.

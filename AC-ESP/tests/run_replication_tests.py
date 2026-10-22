@@ -16,7 +16,8 @@ uint32_t testTime=0;uint32_t millis(){return testTime;}
 const uint32_t AC_CONFIG_SCHEMA=123;const uint16_t AC_RESTORE_COUNT=4;
 uint16_t acRestoreId(uint16_t i){return i<4?i+1:0;}
 struct Port{std::deque<uint8_t> bytes;int availableForWrite(){return 64;}void write(uint8_t b){bytes.push_back(b);}};
-String wireText(const uint8_t* p,uint8_t n){return String(std::string((const char*)p,n));}
+bool truncateNextWireText=false;
+String wireText(const uint8_t* p,uint8_t n){if(truncateNextWireText&&n){truncateNextWireText=false;--n;}return String(std::string((const char*)p,n));}
 namespace Mega {
 ControllerFeatures megaFeatures={0,0,0,0};bool megaFeaturesKnown=false;
 ConfigStorage configStorage;
@@ -92,6 +93,11 @@ int main(){
  AcWire::put16(p+4,4);Mega::megaConfigMessage(AcWire::ConfigBegin,p,10);assert(Mega::megaReceivingConfig);
  AcWire::put32(p,100);AcWire::put32(p+4,0);Mega::megaConfigMessage(AcWire::ConfigCommit,p,8);assert(!Mega::megaConfigReady);
  AcWire::put16(p,0);AcWire::put16(p+2,2);p[4]='x';Mega::megaConfigMessage(AcWire::ConfigChunk,p,5);assert(Mega::megaConfigReceived==0);
+ // A partially decoded configuration value must not advance count or CRC.
+ AcWire::put16(p,0);AcWire::put16(p+2,1);memcpy(p+4,"12345",5);
+ uint32_t unchangedDigest=Mega::megaConfigDigest;
+ truncateNextWireText=true;Mega::megaConfigMessage(AcWire::ConfigChunk,p,9);
+ assert(!truncateNextWireText&&Mega::megaConfigReceived==0&&Mega::megaConfigDigest==unchangedDigest&&!Mega::linkPanelField&&Mega::actual.empty());
  uint32_t digest=Mega::megaFeatureDigest();
  for(int i=0;i<4;i++){AcWire::put16(p,i);AcWire::put16(p+2,i+1);p[4]='x';digest=AcWire::configDigest(digest,p,5);Mega::megaConfigMessage(AcWire::ConfigChunk,p,5);Mega::linkPanelField=0;}
  AcWire::put32(p,100);AcWire::put32(p+4,digest^1);Mega::megaConfigMessage(AcWire::ConfigCommit,p,8);assert(!Mega::megaConfigReady);

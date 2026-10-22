@@ -182,7 +182,7 @@ void rtcService() {
   }
 }
 
-String rtcStatusString() {
+const char* rtcStatusString() {
   switch (clockRtcStatus) {
     case 1: return "ok";
     case 2: return "missing";

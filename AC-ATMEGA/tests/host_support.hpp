@@ -41,22 +41,36 @@ using std::isfinite;
 #define constrain(x,a,b) ((x)<(a)?(a):((x)>(b)?(b):(x)))
 #define analogInputToDigitalPin(p) ((p)+54)
 #define pgm_read_byte(p) (*(p))
+static unsigned acTestStringConstructions=0;
+static int acTestStringReserveFailures=0,acTestStringConcatBudget=-1;
 class String {
  public:
   std::string value;
-  String() = default;
-  String(char character): value(1,character) {}
-  String(const char* text): value(text) {}
-  String(std::string text): value(text) {}
-  String(unsigned int number): value(std::to_string(number)) {}
-  String(long number): value(std::to_string(number)) {}
-  String(int number): value(std::to_string(number)) {}
-  String(unsigned long number): value(std::to_string(number)) {}
+  String() { ++acTestStringConstructions; }
+  String(const String& other):value(other.value){++acTestStringConstructions;}
+  String(String&& other) noexcept:value(std::move(other.value)){++acTestStringConstructions;}
+  String& operator=(const String&)=default;
+  String& operator=(String&&)=default;
+  String(char character): value(1,character) { ++acTestStringConstructions; }
+  String(const char* text): value(text) { ++acTestStringConstructions; }
+  String(std::string text): value(text) { ++acTestStringConstructions; }
+  String(unsigned int number): value(std::to_string(number)) { ++acTestStringConstructions; }
+  String(long number): value(std::to_string(number)) { ++acTestStringConstructions; }
+  String(int number): value(std::to_string(number)) { ++acTestStringConstructions; }
+  String(unsigned long number): value(std::to_string(number)) { ++acTestStringConstructions; }
   String(double number): String(number,2) {}
   String(double number, byte places) {
-    char text[128]; std::snprintf(text,sizeof(text),"%.*f",places,number); value=text;
+    char text[128]; std::snprintf(text,sizeof(text),"%.*f",places,number); value=text; ++acTestStringConstructions;
   }
-  bool reserve(size_t n) { value.reserve(n); return true; }
+  bool reserve(size_t n) {
+    if(acTestStringReserveFailures){--acTestStringReserveFailures;return false;}
+    value.reserve(n);return true;
+  }
+  bool concat(char c) {
+    if(acTestStringConcatBudget==0)return false;
+    if(acTestStringConcatBudget>0)--acTestStringConcatBudget;
+    value+=c;return true;
+  }
   int lastIndexOf(char c) const { auto n=value.rfind(c); return n==std::string::npos?-1:int(n); }
   const char* c_str() const { return value.c_str(); }
   size_t length() const { return value.size(); }
@@ -118,8 +132,8 @@ float configGetFloatValue(int addr) { float value; CONFIG.get(addr,value); retur
 double configGetDoubleValue(int addr) { return configGetFloatValue(addr); }
 void configSaveFloatValue(float value,int addr) { CONFIG.put(addr,value); }
 void configSaveDoubleValue(double value,int addr) { configSaveFloatValue(value,addr); }
-void configSaveString(String,int,int);
-const int bufferOutSize=100;
+void configSaveString(const String&,int,int);
+const int bufferOutSize=32;
 char bufferOut[bufferOutSize];
 int partOfDay=1;
 int schedulerGetActualPartOfDay() { return partOfDay; }

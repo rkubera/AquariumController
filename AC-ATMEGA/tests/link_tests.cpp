@@ -32,6 +32,11 @@ void command(const std::string& field,const std::string& value) {
   drain();
 }
 int main() {
+  // Shared output buffer bounds must hold even for an oversized name request.
+  for(int i=0;i<64;i++)configStorage.update(100+i,'X');
+  assert(readConfigName(100,64).length()==bufferOutSize-1);
+  assert(readConfigName(100,-1).length()==0);
+
   deviceName="test"; hostnameReceived=true; brokerStatus=BROKER_STATUS_CONNECTED;
   wifiStatus=WIFI_STATUS_CONNECTED;
   globalWeekDay=7; globalYear=2026; globalMonth=10; globalMonthDay=6;
@@ -600,5 +605,88 @@ int main() {
   for(int i=0;i<20;i++)ledSetActualMode();assert(ledCurrentBrightness==80);
   partOfDay=SCHEDULER_MODE_AFTERNOON;ledSetActualMode();assert(ledCurrentBrightness==60);
   partOfDay=SCHEDULER_MODE_MORNING;ledSetActualMode();assert(ledCurrentBrightness==55);
+
+  // Even every possible alarm code must fit a value frame without overwriting
+  // the buffer, and the compact form must retain all causes (including PID).
+  struct {char before;char text[AcWire::Link::MaxMessage-1];char after;} statusBuffer={'<',{},'>'};
+  clockRtcStatus=2;
+  uint32_t everyAlarm=(uint32_t(1)<<AlarmHistory::Capacity)-1;
+  assert(!errorsFormatStatus(statusBuffer.text,everyAlarm,false));
+  assert(errorsFormatStatus(statusBuffer.text,everyAlarm,true));
+  assert(strlen(statusBuffer.text)<=AcWire::Link::MaxMessage-2);
+  assert(statusBuffer.before=='<' && statusBuffer.after=='>');
+  for(byte i=1;i<=8;i++)assert(std::string(statusBuffer.text).find("S"+std::to_string(i)+"; ")!=std::string::npos);
+  for(byte i=1;i<=4;i++)assert(std::string(statusBuffer.text).find("R"+std::to_string(i)+"; ")!=std::string::npos);
+  for(byte i=1;i<=6;i++){
+    assert(std::string(statusBuffer.text).find("P"+std::to_string(i)+" PID; ")!=std::string::npos);
+    assert(std::string(statusBuffer.text).find("P"+std::to_string(i)+"; ")!=std::string::npos);
+  }
+  assert(strstr(statusBuffer.text,"DHT; DHT high; RTC missing; "));
+
+  // This combination previously generated 218 bytes and permanently stalled
+  // the initial snapshot on Status (the UART value limit is 158 bytes).
+  megaFeatures={15,4,6,8};megaConfigReady=true;
+  linkPanelField=0;linkPanelReading=false;linkSnapshotCapture=false;
+  for(byte i=0;i<8;i++){mySensors[i].sensorType=i;mySensors[i].valid=false;}
+  for(byte i=1;i<=4;i++)relaysSetRelay(i,RELAY_CONTROL_MODE,CONTROL_MODE_TRESHOLD);
+  for(byte i=1;i<=6;i++)pwmOutputsSetPwmOutput(i,PWMOUTPUT_CONTROL_MODE,CONTROL_MODE_TRESHOLD);
+  dhtValid=false;dhtTemperature=NAN;clockRtcStatus=2;
+  drain();Serial3.output.clear();errorReport(true);
+  std::string alarmStatus=retained("Status");
+  assert(errorsCount==18 && retained("ErrorCount")=="18");
+  assert(alarmStatus.size()<=AcWire::Link::MaxMessage-2);
+  assert(alarmStatus.find("S1; ")!=std::string::npos && alarmStatus.find("RTC missing; ")!=std::string::npos);
+  assert(retained("AlarmLast1").find("RTC:")!=std::string::npos);
+  // Changing an RTC reason must publish even when the alarm mask is unchanged.
+  clockRtcStatus=3;errorReport(false);
+  assert(retained("Status").find("RTC invalid; ")!=std::string::npos);
+  linkSnapshotRetry=false;publishValue=3;linkSnapshotField=0;linkSnapshotChannel=0;
+  for(int i=0;i<100 && publishValue<4;i++){linkSnapshotStep();drain();}
+  assert(publishValue==4);
+  for(byte i=0;i<8;i++)mySensors[i].sensorType=SENSOR_TYPE_NONE;
+  dhtValid=true;dhtLastReadingMillis=ticks;dhtTemperature=25;maxInternalTemperature=100;clockRtcStatus=1;
+  errorReport(false);assert(errorsCount==0 && alarmHistory.count==0 && retained("Status")=="Ok");
+  Serial3.output.clear();errorReport(false);drain();assert(Serial3.output.empty());
+
+  // Decoder allocation failures must not apply a numeric prefix or erase a name.
+  linkPanelField=0;applySetting(FieldId::CurrentBrightness,"37");drain();
+  acTestStringReserveFailures=1;wireSetting(700,"CurrentBrightness","80");
+  assert(!acTestStringReserveFailures && ledCurrentBrightness==37 && !linkPanelField);
+  acTestStringConcatBudget=1;wireSetting(701,"CurrentBrightness","80");
+  acTestStringConcatBudget=-1;
+  assert(ledCurrentBrightness==37 && !linkPanelField);
+  applySetting(relayField(1,RelayField::Name),"saved");drain();
+  wireSetting(702,"Relay1Name","bad\rname");
+  assert(readConfigName(CONFIG_relays_addr,NAME_LENGTH)=="saved" && !linkPanelField);
+  acTestStringReserveFailures=1;wireSetting(703,"Relay1Name","replacement");
+  assert(readConfigName(CONFIG_relays_addr,NAME_LENGTH)=="saved" && !linkPanelField);
+  // Empty names are valid and must remain distinguishable from failed decoding.
+  wireSetting(704,"Relay1Name","");linkPanelService();drain();
+  assert(readConfigName(CONFIG_relays_addr,NAME_LENGTH)=="" && !linkPanelField);
+  wireSetting(705,"CurrentBrightness","80");linkPanelService();drain();
+  assert(ledCurrentBrightness==80 && !linkPanelField);
+  uint8_t wifiReply[]={AcWire::Wifi,'c','o','n','n','e','c','t','e','d'};
+  wifiStatus=WIFI_STATUS_CONNECTED;brokerStatus=BROKER_STATUS_CONNECTED;
+  acTestStringReserveFailures=1;megaWireReceive(AcWire::Info,wifiReply,sizeof(wifiReply));
+  assert(wifiStatus==WIFI_STATUS_CONNECTED && brokerStatus==BROKER_STATUS_CONNECTED);
+  uint8_t maximumText[AcWire::Link::MaxMessage];memset(maximumText,'x',sizeof(maximumText));
+  assert(wireText(maximumText,sizeof(maximumText)).length()==sizeof(maximumText));
+  maximumText[100]=0;assert(wireText(maximumText,sizeof(maximumText)).length()==0);
+
+  menuLine(0,"");assert(strcmp(menuDesiredRows[0],"            ")==0);
+  menuLine(0,"123456789012");assert(strcmp(menuDesiredRows[0],"123456789012")==0);
+  menuLine(0,"1234567890123");assert(strcmp(menuDesiredRows[0],"12345678901.")==0);
+  menuLineFlash(0,F("1234567890123"));assert(strcmp(menuDesiredRows[0],"12345678901.")==0);
+  menuLine(0,"short");assert(strcmp(menuDesiredRows[0],"short       ")==0);
+  menuLine(255,"invalid row");assert(strcmp(menuDesiredRows[0],"short       ")==0);
+  menuLineFloat(0,PSTR("%s"),-FLT_MAX);assert(strlen(menuDesiredRows[0])==12);
+  menuLineFloat(0,PSTR("V:%s"),NAN);assert(strcmp(menuDesiredRows[0],"V:invalid   ")==0);
+  // Every normal screen refresh must avoid Arduino String construction/copying.
+  megaFeatures={15,4,6,8};lastKey=0;
+  for(byte page=0;page<AcLcdMenu::PageCount;page++){
+    menuPage=page;menuChannel=0;ticks+=201;
+    unsigned before=acTestStringConstructions;
+    menuShowCMillis();assert(acTestStringConstructions==before);
+  }
   puts("PASS: LINK for all 8 sensors, 4 relays and 6 PWM channels; global settings and paced snapshots; proportional LED fades; bounded application queue, DHT and buzzer; clock jump validation; LCD/keypad; numeric wire IDs, spaces, numeric validation, unknown numeric IDs, offline local panel changes/readback, rejection and cold-start output interlocks.");
 }

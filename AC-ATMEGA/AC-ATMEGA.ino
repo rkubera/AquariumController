@@ -24,6 +24,7 @@
 #define DEBUG_LEVEL 0
 
 #include <avr/wdt.h>
+#include "RuntimeHealth.h"
 #include "ConfigStorage.h"
 #include "ControllerFeatures.h"
 #include "LcdMenuLayout.h"
@@ -435,7 +436,6 @@ bool ledScheduleBrightnessReset=true;
 unsigned long ledCustomColor = 0xFFFFFF;
 
 uint16_t ledBrightness = 0;
-uint16_t ledActualBrightness = 0;
 
 uint16_t ledMorningBrightness = 0;
 uint16_t ledAfternoonBrightness = 0;
@@ -499,7 +499,6 @@ byte lcdContrast = 40; //PCD8544 Vop, lower values lighten the background.
 //********************************
 
 String wifi_ssid = "";
-String wifi_pass = "";
 String brokerServer = "";
 
 String deviceName = "";
@@ -611,7 +610,7 @@ byte fanPWM = FAN_PWM_MAX;
 //Main program
 //********************************
 
-const int bufferOutSize = 100;
+const int bufferOutSize = 32; // Names <=15 bytes; date/time prefixes <=25 bytes including NUL.
 char bufferOut[bufferOutSize];
 int publishValue = -1;
 uint32_t serialPartialTimeouts=0;
@@ -620,7 +619,6 @@ uint32_t serialOversizedFrames = 0;
 uint32_t serialMalformedFrames = 0;
 uint32_t serialValidFrames = 0;
 
-boolean toggle = 0;
 
 //Complete UART frames are queued atomically; hardware transmission never waits.
 
@@ -709,38 +707,39 @@ void setup() {
 void loop() {
   uint32_t usbLoopStarted=micros();
   ledFadeService();
-  lcdContrastStorageService();
-  rtcService();
-  configStorageMillisEvent();
-  linkSerialService();
-  sensorsMillisEvent();
-  uint32_t snapshotAt=micros();linkSnapshotStep();usbDiagnosticStage(8,micros()-snapshotAt);
+  runtimeMark(RuntimeConfig);lcdContrastStorageService();
+  runtimeMark(RuntimeRtc);rtcService();
+  runtimeMark(RuntimeConfig);configStorageMillisEvent();
+  runtimeMark(RuntimeLink);linkSerialService();
+  runtimeMark(RuntimeAdc);sensorsMillisEvent();
+  runtimeMark(RuntimeSnapshot);uint32_t snapshotAt=micros();linkSnapshotStep();usbDiagnosticStage(8,micros()-snapshotAt);
 
   if (millis() - timerMillisEventDate > 1) {
-    eventTimerMillis();
+    runtimeMark(RuntimeEvents);eventTimerMillis();
     timerMillisEventDate = millis();
   }
 
   if (millis() - timerSecondEventDate > 1000) {
-    eventTimerSecond();
+    runtimeMark(RuntimeEvents);eventTimerSecond();
     timerSecondEventDate = millis();
   }
 
   if (millis() - timerTenSecondsEventDate > 10000) {
-    eventTimerTenSeconds();
+    runtimeMark(RuntimeEvents);eventTimerTenSeconds();
     timerTenSecondsEventDate = millis();
   }
   
   if (millis() - timerMinuteEventDate > 60000) {
-    eventTimerMinute();
+    runtimeMark(RuntimeEvents);eventTimerMinute();
     timerMinuteEventDate = millis();
   }
 
   if (millis() - timerHourEventDate > (3600000)) {
-    eventTimerHour();
+    runtimeMark(RuntimeEvents);eventTimerHour();
     timerHourEventDate = millis();
   }
   
-  usbDiagnosticLoop(micros()-usbLoopStarted);
+  runtimeMark(RuntimeDiagnostics);usbDiagnosticLoop(micros()-usbLoopStarted);
+  runtimeMark(RuntimeIdle);
 
 }

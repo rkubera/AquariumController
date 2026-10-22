@@ -51,8 +51,11 @@ bool linkFieldWanted(uint16_t field) {
  if(linkSnapshotCapture) return linkSnapshotFieldCount++==linkSnapshotField;
  return true;
 }
-void reportSelectedField(uint16_t field,String value){reportSelectedField(field,value,true);}
-void reportSelectedField(uint16_t field,String value,bool callCriticalEvent){
+void reportSelectedField(uint16_t field,const String& value){reportSelectedField(field,value,true);}
+void reportSelectedField(uint16_t field,const String& value,bool callCriticalEvent){
+#ifdef __AVR__
+ runtimeMemorySample(); // Sample while formatted values and callback frames are alive.
+#endif
  if(linkPanelReading){linkPanelReadValue=value;linkPanelFound=true;return;}
  if(linkSnapshotCapture){linkSnapshotSelectedSent=wireValue(field,value);return;}
  if(wireLink.connected())wireValue(field,value);
@@ -103,10 +106,12 @@ void linkCheckCriticalEvent(){
 
 
 
-void applySetting(uint16_t endpoint,String RawValue) {
+void applySetting(uint16_t endpoint,const String& RawValue) {
  if(!acFieldSupported(endpoint,megaFeatures))return;
  criticalEventNoLink();
- String Value=RawValue;Value.trim();Value.toLowerCase();
+ String Value=RawValue;
+ if(Value.length()!=RawValue.length())return;
+ Value.trim();Value.toLowerCase();
  if(!megaFeatures.inputs && (Value=="pid"||Value=="treshold"||Value=="threshold")) {
   byte channel=relayFieldChannel(endpoint);
   if(channel && endpoint==relayField(channel,RelayField::ControlMode))return;
@@ -957,12 +962,12 @@ bool linkIsInteger(String value,long low,long high) {
   return isfinite(number) && number >= low && number <= high;
 }
 
-bool linkIsTime(String value) {
+bool linkIsTime(const String& value) {
   return (value.length()==5 || (value.length()==8 && value[5]==':' && linkIsInteger(value.substring(6,8),0,59))) && value[2]==':' &&
     linkIsInteger(value.substring(0,2),0,23) && linkIsInteger(value.substring(3,5),0,59);
 }
 
-bool linkIsDate(String value) {
+bool linkIsDate(const String& value) {
   if (value.length() != 10 || (value[4]!='/' && value[4]!='-') || value[7]!=value[4]) return false;
   if (!linkIsInteger(value.substring(0,4),1970,2105) ||
       !linkIsInteger(value.substring(5,7),1,12) || !linkIsInteger(value.substring(8),1,31)) return false;
@@ -1002,7 +1007,7 @@ void reportLinkDiagnostics() {
   reportField(FieldId::SerialValidFrames,longToString(serialValidFrames));
 }
 
-bool linkParseUint32(String text,uint32_t& value) {
+bool linkParseUint32(const String& text,uint32_t& value) {
   if (text.length() == 0 || text.length() > 10) return false;
   uint32_t result = 0;
   for (unsigned int i=0; i<text.length(); i++) {

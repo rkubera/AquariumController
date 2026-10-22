@@ -1,3 +1,4 @@
+#define AC_PORTAL_LOG(...) portal.log(__VA_ARGS__)
 #include <limits>
 #include <algorithm>
 #include <cassert>

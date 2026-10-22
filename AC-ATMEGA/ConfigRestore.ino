@@ -41,7 +41,7 @@ void megaConfigMessage(uint8_t kind,const uint8_t* p,uint8_t n){
  if(kind==AcWire::ConfigChunk){
   if(!megaReceivingConfig||n<4||linkPanelField||AcWire::u16(p)!=megaConfigReceived||AcWire::u16(p+2)!=acActiveRestoreId(megaConfigReceived,megaFeatures))return;
   uint16_t field=AcWire::u16(p+2);String value=wireText(p+4,n-4);
-  if(n>4&&!value.length())return;
+  if(value.length()!=size_t(n-4))return;
   megaConfigDigest=AcWire::configDigest(megaConfigDigest,p,n);++megaConfigReceived;megaConfigReceiveAt=millis();
   linkLocalPanel=true;linkPanelId=UINT32_MAX;applySetting(field,value);linkPanelField=field;return;
  }

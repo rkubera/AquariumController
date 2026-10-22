@@ -23,11 +23,23 @@
 #endif
 #include "PortalFeatures.h"
 
+#define ARDPORTAL_ENABLE_POWER_MANAGEMENT 0
 #define ARDPORTAL_ENABLE_DYNAMIC_PAGES 1
 #define ARDPORTAL_ENABLE_DEPENDENCIES 1
 #define ARDPORTAL_ENABLE_HA 1
-#define ARDPORTAL_ENABLE_CONSOLE 1
-#define ARDPORTAL_ENABLE_CONSOLE_MESSAGES 1
+// MQTT console is enabled; application Messages are optional on ESP8266.
+#ifndef AC_ENABLE_WEB_CONSOLE
+#define AC_ENABLE_WEB_CONSOLE 1
+#endif
+#ifndef AC_ENABLE_MESSAGES
+#if defined(ESP8266)
+#define AC_ENABLE_MESSAGES 1
+#else
+#define AC_ENABLE_MESSAGES 1
+#endif
+#endif
+#define ARDPORTAL_ENABLE_CONSOLE AC_ENABLE_WEB_CONSOLE
+#define ARDPORTAL_ENABLE_CONSOLE_MESSAGES (AC_ENABLE_WEB_CONSOLE && AC_ENABLE_MESSAGES)
 #define ARDPORTAL_ENABLE_MQTT 1
 #define ARDPORTAL_ENABLE_MQTT_TLS 0
 #define ARDPORTAL_ENABLE_OTA 1
@@ -36,8 +48,10 @@
 #define ARDPORTAL_ENABLE_CONTROLS 0
 #define ARDPORTAL_ENABLE_CONTROL_SLIDER 1
 #define ARDPORTAL_ENABLE_CONTROL_TEXT 1
+// Readouts use explicit HA metadata; no field uses the optional textType API.
+#define ARDPORTAL_ENABLE_TEXT_TYPES 0
 #define ARDPORTAL_ENABLE_CONTROL_SELECT 1
-#define ARDPORTAL_ENABLE_CONTROL_EDIT 1
+#define ARDPORTAL_ENABLE_CONTROL_EDIT (AC_ACTIVE_RELAYS > 0 || AC_ACTIVE_INPUTS > 0 || AC_ACTIVE_PWM > 0)
 #define ARDPORTAL_ENABLE_CONTROL_BINARY_SENSOR 0
 #define ARDPORTAL_ENABLE_CONTROL_SWITCH 1
 #define ARDPORTAL_ENABLE_CONTROL_DATE 1
@@ -67,6 +81,12 @@ static const bool SERIAL_DIAGNOSTICS_ENABLED=true;
 #include <bitset>
 
 ArdPortal portal;
+#if ARDPORTAL_ENABLE_CONSOLE_MESSAGES
+#define AC_PORTAL_LOG(...) portal.log(__VA_ARGS__)
+#else
+// Do not build diagnostic Strings when the optional web log is excluded.
+#define AC_PORTAL_LOG(...) ((void)0)
+#endif
 extern bool panelLinked,panelRefreshWanted,configMegaReady;
 extern uint32_t panelLastRx;
 extern uint16_t panelPendingIndex;
@@ -145,17 +165,17 @@ void setup() {
   bootDiagnostic("BOOT: starting portal");
   const bool portalStarted=portal.begin(options);
   bootDiagnostic(portalStarted?"BOOT: portal begin accepted; waiting for configuration":"BOOT: ERROR portal begin rejected; networking not started");
-  if (!portalStarted) portal.log(F("Portal initialization failed"));
+  if (!portalStarted) AC_PORTAL_LOG(F("Portal initialization failed"));
 #if defined(ESP32)
   WiFi.setSleep(false); // Permanently powered controller: avoid modem sleep latency.
-  portal.log(String(F("ESP boot: resetReason="))+String(int(esp_reset_reason()))+" (1=power, 3=software, 4=panic, 5/6/7=watchdog, 9=brownout)");
+  AC_PORTAL_LOG(String(F("ESP boot: resetReason="))+String(int(esp_reset_reason()))+" (1=power, 3=software, 4=panic, 5/6/7=watchdog, 9=brownout)");
 #else
   WiFi.setSleepMode(WIFI_NONE_SLEEP);
-  portal.log("ESP boot: "+ESP.getResetReason());
+  AC_PORTAL_LOG("ESP boot: "+ESP.getResetReason());
 #endif
   espConfigSetup();
-  portal.log(String(F("Serial: transport="))+String(MEGA_SERIAL_NAME)+String(F(", diagnostics="))+String(SERIAL_DIAGNOSTICS_ENABLED && &diagnosticSerial!=&megaSerial ? DIAGNOSTIC_SERIAL_NAME : "off"));
-  portal.log(String(F("UART v2: "))+String(MEGA_SERIAL_NAME)+String(F(" baud="))+String(MEGA_SERIAL_BAUD)+String(F(" RX="))+String(MEGA_RX_PIN)+String(F(" TX="))+String(MEGA_TX_PIN)+String(F(" schema="))+String(AC_WIRE_SCHEMA,HEX));
+  AC_PORTAL_LOG(String(F("Serial: transport="))+String(MEGA_SERIAL_NAME)+String(F(", diagnostics="))+String(SERIAL_DIAGNOSTICS_ENABLED && &diagnosticSerial!=&megaSerial ? DIAGNOSTIC_SERIAL_NAME : "off"));
+  AC_PORTAL_LOG(String(F("UART v2: "))+String(MEGA_SERIAL_NAME)+String(F(" baud="))+String(MEGA_SERIAL_BAUD)+String(F(" RX="))+String(MEGA_RX_PIN)+String(F(" TX="))+String(MEGA_TX_PIN)+String(F(" schema="))+String(AC_WIRE_SCHEMA,HEX));
 }
 
 void loop() {
@@ -215,8 +235,8 @@ void loop() {
   uint32_t elapsed=millis()-loopStarted;
   if (elapsed>maxLoopMs) maxLoopMs=elapsed;
   if (millis()-lastTimingReport>=(wireLink.connected()?30000UL:10000UL)) {
-    portal.log(String(F("Loop timing: uptime="))+String(millis()/1000)+String(F(" s, max="))+String(maxLoopMs)+String(F(" ms, portal="))+String(maxPortalMs)+String(F(" ms, panel="))+String(maxPanelMs)+String(F(" ms, mqtt="))+String(maxMqttMs)+" ms"+panelMemoryDiagnostic());
-    portal.log(String(F("UART v2: link="))+String(wireLink.connected()?"on":"off")+String(F(" bytes="))+String(bridgeRxBytes)+String(F(" frames="))+String(wireLink.stats.good)+String(F(" malformed="))+String(wireLink.stats.malformed)+String(F(" timeout="))+String(wireLink.stats.timeouts)+String(F(" crc="))+String(wireLink.stats.crcErrors)+String(F(" retry="))+String(wireLink.stats.retries)+String(F(" duplicate="))+String(wireLink.stats.duplicates)+String(F(" schema="))+String(wireLink.stats.schemaErrors)+" config="+(configMegaReady?"ready":"waiting"));
+    AC_PORTAL_LOG(String(F("Loop timing: uptime="))+String(millis()/1000)+String(F(" s, max="))+String(maxLoopMs)+String(F(" ms, portal="))+String(maxPortalMs)+String(F(" ms, panel="))+String(maxPanelMs)+String(F(" ms, mqtt="))+String(maxMqttMs)+" ms"+panelMemoryDiagnostic());
+    AC_PORTAL_LOG(String(F("UART v2: link="))+String(wireLink.connected()?"on":"off")+String(F(" bytes="))+String(bridgeRxBytes)+String(F(" frames="))+String(wireLink.stats.good)+String(F(" malformed="))+String(wireLink.stats.malformed)+String(F(" timeout="))+String(wireLink.stats.timeouts)+String(F(" crc="))+String(wireLink.stats.crcErrors)+String(F(" retry="))+String(wireLink.stats.retries)+String(F(" duplicate="))+String(wireLink.stats.duplicates)+String(F(" schema="))+String(wireLink.stats.schemaErrors)+" config="+(configMegaReady?"ready":"waiting"));
     lastTimingReport=millis(); maxLoopMs=maxPortalMs=maxPanelMs=maxMqttMs=0;
   }
 }
