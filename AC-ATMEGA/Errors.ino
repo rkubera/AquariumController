@@ -22,7 +22,7 @@ static bool errorsFormatStatus(char* text,uint32_t alarms,bool compact) {
     if(!(alarms&(uint32_t(1)<<bit)))continue;
     const char* format;
     byte channel=0;
-    if(bit<8){channel=bit+1;format=compact?PSTR("S%u; "):PSTR("S%u invalid; ");}
+    if(bit<8){channel=bit+1;format=compact?PSTR("S%u; "):sensorsPeripheralAlarm(channel)?(peripheralInputDevice(channel)==AcPeripheral::Leak?PSTR("S%u leak; "):PSTR("S%u low level; ")):PSTR("S%u invalid; ");}
     else if(bit<12){channel=bit-7;format=compact?PSTR("R%u; "):PSTR("R%u invalid; ");}
     else if(bit<18){channel=bit-11;format=compact?PSTR("P%u PID; "):PSTR("P%u PID arithmetic; ");}
     else if(bit<24){channel=bit-17;format=compact?PSTR("P%u; "):PSTR("P%u invalid; ");}
@@ -48,7 +48,7 @@ void errorsReportHistory(){
       snprintf_P(bufferOut,bufferOutSize,PSTR("%04d-%02d-%02d %02d:%02d:%02d — "),tmYearToCalendar(parts.Year),parts.Month,parts.Day,parts.Hour,parts.Minute,parts.Second);
       text=bufferOut;
     }else text=F("Czas nieustalony — ");
-    if(code<=8)text+="S"+String(code)+F(": brak poprawnego odczytu");
+    if(code<=8){text+="S"+String(code);if(sensorsPeripheralAlarm(code))text+=peripheralInputDevice(code)==AcPeripheral::Leak?F(": water leak"):F(": low water level");else text+=F(": brak poprawnego odczytu");}
     else if(code<=12)text+="R"+String(code-8)+F(": brak poprawnego wejścia");
     else if(code<=18)text+="PWM"+String(code-12)+F(": błąd obliczeń PID");
     else if(code<=24)text+="PWM"+String(code-18)+F(": brak poprawnego wejścia");
@@ -83,8 +83,8 @@ void errorReport(bool forcePublish) {
   errorsCount = 0;
   errorsReportStatus = 0;
   for (byte i=1; i<=megaFeatures.inputs; i++) {
-    if (sensorsGetSensor(i,SENSORS_VALUE_TYPE) != SENSOR_TYPE_NONE &&
-        !sensorsGetSensor(i,SENSORS_VALUE_VALID)) {
+    if ((sensorsGetSensor(i,SENSORS_VALUE_TYPE) != SENSOR_TYPE_NONE || AcPeripheral::isExternal(peripheralInputDevice(i)) || peripheralInputDevice(i)==AcPeripheral::Ph) &&
+        (!sensorsGetSensor(i,SENSORS_VALUE_VALID)||sensorsPeripheralAlarm(i))) {
       errorsCount++;
       errorsReportStatus |= 1;
       activeAlarms |= uint32_t(1)<<(i-1);

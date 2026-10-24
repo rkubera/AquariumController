@@ -26,6 +26,7 @@
 #include <avr/wdt.h>
 #include "RuntimeHealth.h"
 #include "ConfigStorage.h"
+#include "PeripheralDevices.h"
 #include "ControllerFeatures.h"
 #include "LcdMenuLayout.h"
 ControllerFeatures megaFeatures={0,0,0,0};
@@ -633,6 +634,10 @@ uint32_t linkPanelId=0;
 String linkPanelReadValue;
 bool linkPanelFound=false;
 
+byte dhtBusPin=DHT_PIN;
+bool dhtPeripheralActive=false;
+volatile bool peripheralOneWireActive=false;
+
 void setup() {
     //Init
   Serial.begin(115200);
@@ -711,7 +716,7 @@ void loop() {
   runtimeMark(RuntimeRtc);rtcService();
   runtimeMark(RuntimeConfig);configStorageMillisEvent();
   runtimeMark(RuntimeLink);linkSerialService();
-  runtimeMark(RuntimeAdc);sensorsMillisEvent();
+  runtimeMark(RuntimeAdc);sensorsMillisEvent();peripheralsService();
   runtimeMark(RuntimeSnapshot);uint32_t snapshotAt=micros();linkSnapshotStep();usbDiagnosticStage(8,micros()-snapshotAt);
 
   if (millis() - timerMillisEventDate > 1) {

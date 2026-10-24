@@ -32,6 +32,6 @@ int main(){
  // Header/schema mismatches never establish a session.
  Link incompatible(recvA,changedA);Port pc;incompatible.begin(999,456,now);pump(incompatible,b,pc,pb,now,100);assert(!incompatible.connected());
  // Runtime settings never survive reconstruction and cannot write outside RAM.
- {ConfigStorage ram;ram.begin();for(int address:{0,111,112,431,432,551,552,815,816,943,944,955}){ram.update(address,42);assert(ram.read(address)==42);}ram.update(-1,7);ram.update(956,7);assert(ram.read(-1)==255&&ram.read(956)==255);ram.update(59,1);ConfigStorage cold;cold.begin();assert(cold.read(59)==255);}
+ {ConfigStorage ram;ram.begin();for(int address:{0,111,112,431,432,551,552,815,816,943,944,955}){ram.update(address,42);assert(ram.read(address)==42);}ram.update(-1,7);ram.update(ConfigStorage::PAYLOAD_SIZE,7);assert(ram.read(-1)==255&&ram.read(ConfigStorage::PAYLOAD_SIZE)==255);ram.update(59,1);ConfigStorage cold;cold.begin();assert(cold.read(59)==255);}
  puts("PASS: COBS/CRC, fragmentation, dropped DATA/ACK, corruption, duplicates, bidirectional traffic, sequence wrap, sessions, noise/schema mismatch; RAM-only configuration.");
 }

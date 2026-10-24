@@ -45,13 +45,13 @@ void bridgeConnectionService(){
  }
 }
 void bridgeMqttService(){
- if(!portal.mqttConnected())return;
+ if(!portal.mqttConnected()||bridgeTelemetryDirty.none())return;
  // Limit telemetry bursts independently of UART and command acknowledgements.
  static uint32_t nextTelemetryAt=0;
  uint32_t now=millis();if(int32_t(now-nextTelemetryAt)<0)return;
  static uint16_t next=0;
  static const uint16_t temperatureId=acFieldId("InternalTemperature"),humidityId=acFieldId("InternalHumidity");
- for(uint16_t checked=0;checked<AC_WIRE_FIELD_COUNT;checked++){
+ for(uint16_t checked=0;checked<16&&checked<AC_WIRE_FIELD_COUNT;checked++){
   uint16_t i=next++;if(next>=AC_WIRE_FIELD_COUNT)next=0;if(!bridgeTelemetryDirty[i])continue;if(!acFieldSupported(i+1,portalFeatures)){bridgeTelemetryDirty[i]=false;continue;}
   String key=acFieldName(i+1);
   if(key==F("ClockRtcStatus")){bridgeTelemetryDirty[i]=false;continue;}
@@ -59,7 +59,7 @@ void bridgeMqttService(){
   int dht=i+1==temperatureId?0:i+1==humidityId?1:-1;
   if(dht>=0&&bridgeDhtSent[dht]&&millis()-bridgeDhtLastSent[dht]<60000UL)continue;
   nextTelemetryAt=now+25;
-  String topic="stat/"+bridgeHostname()+"/"+acFieldName(i+1);
+  String topic="stat/"+bridgeHostname()+"/"+key;
   String payload=key==F("CustomColor")?ArdJSON::JSON.stringify(panelLedValue()):bridgeTelemetry[i];
   if(portal.publish(topic.c_str(),payload.c_str(),true)){bridgeTelemetryDirty[i]=false;bridgeTelemetrySeen[i]=true;if(dht>=0){bridgeDhtSent[dht]=true;bridgeDhtLastSent[dht]=millis();}}
   return;
@@ -69,7 +69,7 @@ void bridgeMqttMessage(const String& topic,const uint8_t* payload,size_t length)
  String commandPrefix="cmnd/"+bridgeHostname()+"/",getPrefix="get/"+bridgeHostname()+"/";
  if(topic.startsWith(getPrefix)){panelRefreshWanted=true;return;}
  if(length>AcWire::Link::MaxMessage-6)return;
- String value;value.reserve(length);for(size_t i=0;i<length;i++){if(!payload[i]||payload[i]=='\r'||payload[i]=='\n')return;value+=(char)payload[i];}
+ String value=wireText(payload,uint8_t(length));if(value.length()!=length)return;
  if(!topic.startsWith(commandPrefix)||!length)return;
  String key=topic.substring(commandPrefix.length());if(key==F("LedSettings"))return;
  if(key.startsWith("M_"))return;

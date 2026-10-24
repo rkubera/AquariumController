@@ -531,7 +531,7 @@
       },
       {
         "type": "select",
-        "name": "R1: Analog input",
+        "name": "R1: Input",
         "options": [
           {
             "value": "none",
@@ -777,7 +777,7 @@
       },
       {
         "type": "select",
-        "name": "R2: Analog input",
+        "name": "R2: Input",
         "options": [
           {
             "value": "none",
@@ -1023,7 +1023,7 @@
       },
       {
         "type": "select",
-        "name": "R3: Analog input",
+        "name": "R3: Input",
         "options": [
           {
             "value": "none",
@@ -1269,7 +1269,7 @@
       },
       {
         "type": "select",
-        "name": "R4: Analog input",
+        "name": "R4: Input",
         "options": [
           {
             "value": "none",
@@ -1759,7 +1759,7 @@
       },
       {
         "type": "edit",
-        "name": "S1: Calibration: ADC 1 (0–1023)",
+        "name": "S1: Calibration: raw value 1",
         "id": "M_400e4039",
         "persist": true,
         "default": "0",
@@ -1783,7 +1783,7 @@
       },
       {
         "type": "edit",
-        "name": "S1: Calibration: ADC 2 (0–1023)",
+        "name": "S1: Calibration: raw value 2",
         "id": "M_3d0e3b80",
         "persist": true,
         "default": "1023",
@@ -1947,7 +1947,7 @@
       },
       {
         "type": "edit",
-        "name": "S2: Calibration: ADC 1 (0–1023)",
+        "name": "S2: Calibration: raw value 1",
         "id": "M_9297b8cc",
         "persist": true,
         "default": "0",
@@ -1971,7 +1971,7 @@
       },
       {
         "type": "edit",
-        "name": "S2: Calibration: ADC 2 (0–1023)",
+        "name": "S2: Calibration: raw value 2",
         "id": "M_9597bd85",
         "persist": true,
         "default": "1023",
@@ -2135,7 +2135,7 @@
       },
       {
         "type": "edit",
-        "name": "S3: Calibration: ADC 1 (0–1023)",
+        "name": "S3: Calibration: raw value 1",
         "id": "M_f13c82ff",
         "persist": true,
         "default": "0",
@@ -2159,7 +2159,7 @@
       },
       {
         "type": "edit",
-        "name": "S3: Calibration: ADC 2 (0–1023)",
+        "name": "S3: Calibration: raw value 2",
         "id": "M_f23c8492",
         "persist": true,
         "default": "1023",
@@ -2323,7 +2323,7 @@
       },
       {
         "type": "edit",
-        "name": "S4: Calibration: ADC 1 (0–1023)",
+        "name": "S4: Calibration: raw value 1",
         "id": "M_e2aea58a",
         "persist": true,
         "default": "0",
@@ -2347,7 +2347,7 @@
       },
       {
         "type": "edit",
-        "name": "S4: Calibration: ADC 2 (0–1023)",
+        "name": "S4: Calibration: raw value 2",
         "id": "M_e1aea3f7",
         "persist": true,
         "default": "1023",
@@ -2511,7 +2511,7 @@
       },
       {
         "type": "edit",
-        "name": "S5: Calibration: ADC 1 (0–1023)",
+        "name": "S5: Calibration: raw value 1",
         "id": "M_9800ecd5",
         "persist": true,
         "default": "0",
@@ -2535,7 +2535,7 @@
       },
       {
         "type": "edit",
-        "name": "S5: Calibration: ADC 2 (0–1023)",
+        "name": "S5: Calibration: raw value 2",
         "id": "M_9500e81c",
         "persist": true,
         "default": "1023",
@@ -2699,7 +2699,7 @@
       },
       {
         "type": "edit",
-        "name": "S6: Calibration: ADC 1 (0–1023)",
+        "name": "S6: Calibration: raw value 1",
         "id": "M_41a72f68",
         "persist": true,
         "default": "0",
@@ -2723,7 +2723,7 @@
       },
       {
         "type": "edit",
-        "name": "S6: Calibration: ADC 2 (0–1023)",
+        "name": "S6: Calibration: raw value 2",
         "id": "M_44a73421",
         "persist": true,
         "default": "1023",
@@ -2887,7 +2887,7 @@
       },
       {
         "type": "edit",
-        "name": "S7: Calibration: ADC 1 (0–1023)",
+        "name": "S7: Calibration: raw value 1",
         "id": "M_2ff172ab",
         "persist": true,
         "default": "0",
@@ -2911,7 +2911,7 @@
       },
       {
         "type": "edit",
-        "name": "S7: Calibration: ADC 2 (0–1023)",
+        "name": "S7: Calibration: raw value 2",
         "id": "M_30f1743e",
         "persist": true,
         "default": "1023",
@@ -3075,7 +3075,7 @@
       },
       {
         "type": "edit",
-        "name": "S8: Calibration: ADC 1 (0–1023)",
+        "name": "S8: Calibration: raw value 1",
         "id": "M_bb4b4d56",
         "persist": true,
         "default": "0",
@@ -3099,7 +3099,7 @@
       },
       {
         "type": "edit",
-        "name": "S8: Calibration: ADC 2 (0–1023)",
+        "name": "S8: Calibration: raw value 2",
         "id": "M_ba4b4bc3",
         "persist": true,
         "default": "1023",
@@ -3264,7 +3264,7 @@
       },
       {
         "type": "select",
-        "name": "PWM1: Analog input",
+        "name": "PWM1: Input",
         "options": [
           {
             "value": "none",
@@ -3619,7 +3619,7 @@
       },
       {
         "type": "select",
-        "name": "PWM2: Analog input",
+        "name": "PWM2: Input",
         "options": [
           {
             "value": "none",
@@ -3974,7 +3974,7 @@
       },
       {
         "type": "select",
-        "name": "PWM3: Analog input",
+        "name": "PWM3: Input",
         "options": [
           {
             "value": "none",
@@ -4329,7 +4329,7 @@
       },
       {
         "type": "select",
-        "name": "PWM4: Analog input",
+        "name": "PWM4: Input",
         "options": [
           {
             "value": "none",
@@ -4684,7 +4684,7 @@
       },
       {
         "type": "select",
-        "name": "PWM5: Analog input",
+        "name": "PWM5: Input",
         "options": [
           {
             "value": "none",
@@ -5039,7 +5039,7 @@
       },
       {
         "type": "select",
-        "name": "PWM6: Analog input",
+        "name": "PWM6: Input",
         "options": [
           {
             "value": "none",
@@ -5933,6 +5933,2433 @@
         "readonly": true,
         "ha": {
           "state_topic": "stat/$device/AlarmLast3"
+        }
+      }
+    ]
+  },
+  {
+    "id": "peripherals",
+    "name": "Peripherals",
+    "order": 90,
+    "fields": [
+      {
+        "type": "select",
+        "name": "S1 (A4/D58): Function",
+        "options": [
+          {
+            "value": "analog",
+            "name": "Analog voltage"
+          },
+          {
+            "value": "temperature",
+            "name": "Temperature"
+          },
+          {
+            "value": "humidity",
+            "name": "Humidity"
+          },
+          {
+            "value": "digital",
+            "name": "Digital ON/OFF"
+          },
+          {
+            "value": "level",
+            "name": "Water level"
+          },
+          {
+            "value": "leak",
+            "name": "Water leak"
+          },
+          {
+            "value": "ph",
+            "name": "pH"
+          },
+          {
+            "value": "disabled",
+            "name": "Disabled"
+          }
+        ],
+        "id": "M_2f414012",
+        "persist": true,
+        "default": "analog",
+        "ha": {
+          "state_topic": "stat/$device/Sensor1Function",
+          "command_topic": "cmnd/$device/Sensor1Function",
+          "optimistic": true
+        }
+      },
+      {
+        "type": "select",
+        "name": "S1 (A4/D58): Model — Temperature",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          },
+          {
+            "value": "ds18b20",
+            "name": "DS18B20"
+          }
+        ],
+        "id": "M_7c6541a1",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor1TemperatureModel",
+          "command_topic": "cmnd/$device/Sensor1TemperatureModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_2f414012",
+              "equals": "temperature"
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S1 (A4/D58): Model — Humidity",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          }
+        ],
+        "id": "M_d062dd98",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor1HumidityModel",
+          "command_topic": "cmnd/$device/Sensor1HumidityModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_2f414012",
+              "equals": "humidity"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S1 (A4/D58): Invert input",
+        "id": "M_1d4ee537",
+        "persist": true,
+        "default": false,
+        "ha": {
+          "state_topic": "stat/$device/Sensor1Inverted",
+          "command_topic": "cmnd/$device/Sensor1Inverted",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_2f414012",
+              "equals": "digital"
+            },
+            {
+              "field": "M_2f414012",
+              "equals": "level"
+            },
+            {
+              "field": "M_2f414012",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S1 (A4/D58): Internal pull-up",
+        "id": "M_f777e368",
+        "persist": true,
+        "default": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor1Pullup",
+          "command_topic": "cmnd/$device/Sensor1Pullup",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_2f414012",
+              "equals": "digital"
+            },
+            {
+              "field": "M_2f414012",
+              "equals": "level"
+            },
+            {
+              "field": "M_2f414012",
+              "equals": "leak"
+            },
+            {
+              "field": "M_2f414012",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S1 (A4/D58): Debounce (ms)",
+        "id": "M_68829f0d",
+        "persist": true,
+        "default": "50",
+        "ha": {
+          "state_topic": "stat/$device/Sensor1DebounceMs",
+          "command_topic": "cmnd/$device/Sensor1DebounceMs",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_2f414012",
+              "equals": "digital"
+            },
+            {
+              "field": "M_2f414012",
+              "equals": "level"
+            },
+            {
+              "field": "M_2f414012",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S1 (A4/D58): Pulses per litre",
+        "id": "M_b10a7a19",
+        "persist": true,
+        "default": "450",
+        "ha": {
+          "state_topic": "stat/$device/Sensor1PulsesPerLitre",
+          "command_topic": "cmnd/$device/Sensor1PulsesPerLitre",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_2f414012",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "name": "S1 (A4/D58): Humidity (%)",
+        "id": "M_7ab6d71b",
+        "persist": false,
+        "readonly": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor1Humidity",
+          "unit_of_measurement": "%",
+          "device_class": "humidity"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_2f414012",
+              "equals": "humidity"
+            },
+            {
+              "and": [
+                {
+                  "field": "M_2f414012",
+                  "equals": "temperature"
+                },
+                {
+                  "or": [
+                    {
+                      "field": "M_7c6541a1",
+                      "equals": "dht11"
+                    },
+                    {
+                      "field": "M_7c6541a1",
+                      "equals": "dht12"
+                    },
+                    {
+                      "field": "M_7c6541a1",
+                      "equals": "dht21"
+                    },
+                    {
+                      "field": "M_7c6541a1",
+                      "equals": "dht22"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S2 (A5/D59): Function",
+        "options": [
+          {
+            "value": "analog",
+            "name": "Analog voltage"
+          },
+          {
+            "value": "temperature",
+            "name": "Temperature"
+          },
+          {
+            "value": "humidity",
+            "name": "Humidity"
+          },
+          {
+            "value": "digital",
+            "name": "Digital ON/OFF"
+          },
+          {
+            "value": "level",
+            "name": "Water level"
+          },
+          {
+            "value": "leak",
+            "name": "Water leak"
+          },
+          {
+            "value": "ph",
+            "name": "pH"
+          },
+          {
+            "value": "disabled",
+            "name": "Disabled"
+          }
+        ],
+        "id": "M_bf3550cb",
+        "persist": true,
+        "default": "analog",
+        "ha": {
+          "state_topic": "stat/$device/Sensor2Function",
+          "command_topic": "cmnd/$device/Sensor2Function",
+          "optimistic": true
+        }
+      },
+      {
+        "type": "select",
+        "name": "S2 (A5/D59): Model — Temperature",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          },
+          {
+            "value": "ds18b20",
+            "name": "DS18B20"
+          }
+        ],
+        "id": "M_82b152b4",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor2TemperatureModel",
+          "command_topic": "cmnd/$device/Sensor2TemperatureModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_bf3550cb",
+              "equals": "temperature"
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S2 (A5/D59): Model — Humidity",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          }
+        ],
+        "id": "M_1b7e5823",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor2HumidityModel",
+          "command_topic": "cmnd/$device/Sensor2HumidityModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_bf3550cb",
+              "equals": "humidity"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S2 (A5/D59): Invert input",
+        "id": "M_48f5666a",
+        "persist": true,
+        "default": false,
+        "ha": {
+          "state_topic": "stat/$device/Sensor2Inverted",
+          "command_topic": "cmnd/$device/Sensor2Inverted",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_bf3550cb",
+              "equals": "digital"
+            },
+            {
+              "field": "M_bf3550cb",
+              "equals": "level"
+            },
+            {
+              "field": "M_bf3550cb",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S2 (A5/D59): Internal pull-up",
+        "id": "M_14918319",
+        "persist": true,
+        "default": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor2Pullup",
+          "command_topic": "cmnd/$device/Sensor2Pullup",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_bf3550cb",
+              "equals": "digital"
+            },
+            {
+              "field": "M_bf3550cb",
+              "equals": "level"
+            },
+            {
+              "field": "M_bf3550cb",
+              "equals": "leak"
+            },
+            {
+              "field": "M_bf3550cb",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S2 (A5/D59): Debounce (ms)",
+        "id": "M_d531324c",
+        "persist": true,
+        "default": "50",
+        "ha": {
+          "state_topic": "stat/$device/Sensor2DebounceMs",
+          "command_topic": "cmnd/$device/Sensor2DebounceMs",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_bf3550cb",
+              "equals": "digital"
+            },
+            {
+              "field": "M_bf3550cb",
+              "equals": "level"
+            },
+            {
+              "field": "M_bf3550cb",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S2 (A5/D59): Pulses per litre",
+        "id": "M_46c504a0",
+        "persist": true,
+        "default": "450",
+        "ha": {
+          "state_topic": "stat/$device/Sensor2PulsesPerLitre",
+          "command_topic": "cmnd/$device/Sensor2PulsesPerLitre",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_bf3550cb",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "name": "S2 (A5/D59): Humidity (%)",
+        "id": "M_830fcef6",
+        "persist": false,
+        "readonly": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor2Humidity",
+          "unit_of_measurement": "%",
+          "device_class": "humidity"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_bf3550cb",
+              "equals": "humidity"
+            },
+            {
+              "and": [
+                {
+                  "field": "M_bf3550cb",
+                  "equals": "temperature"
+                },
+                {
+                  "or": [
+                    {
+                      "field": "M_82b152b4",
+                      "equals": "dht11"
+                    },
+                    {
+                      "field": "M_82b152b4",
+                      "equals": "dht12"
+                    },
+                    {
+                      "field": "M_82b152b4",
+                      "equals": "dht21"
+                    },
+                    {
+                      "field": "M_82b152b4",
+                      "equals": "dht22"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S3 (A6/D60): Function",
+        "options": [
+          {
+            "value": "analog",
+            "name": "Analog voltage"
+          },
+          {
+            "value": "temperature",
+            "name": "Temperature"
+          },
+          {
+            "value": "humidity",
+            "name": "Humidity"
+          },
+          {
+            "value": "digital",
+            "name": "Digital ON/OFF"
+          },
+          {
+            "value": "level",
+            "name": "Water level"
+          },
+          {
+            "value": "leak",
+            "name": "Water leak"
+          },
+          {
+            "value": "ph",
+            "name": "pH"
+          },
+          {
+            "value": "disabled",
+            "name": "Disabled"
+          }
+        ],
+        "id": "M_09054f00",
+        "persist": true,
+        "default": "analog",
+        "ha": {
+          "state_topic": "stat/$device/Sensor3Function",
+          "command_topic": "cmnd/$device/Sensor3Function",
+          "optimistic": true
+        }
+      },
+      {
+        "type": "select",
+        "name": "S3 (A6/D60): Model — Temperature",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          },
+          {
+            "value": "ds18b20",
+            "name": "DS18B20"
+          }
+        ],
+        "id": "M_35c4318f",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor3TemperatureModel",
+          "command_topic": "cmnd/$device/Sensor3TemperatureModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_09054f00",
+              "equals": "temperature"
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S3 (A6/D60): Model — Humidity",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          }
+        ],
+        "id": "M_afa11212",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor3HumidityModel",
+          "command_topic": "cmnd/$device/Sensor3HumidityModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_09054f00",
+              "equals": "humidity"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S3 (A6/D60): Invert input",
+        "id": "M_463cb29d",
+        "persist": true,
+        "default": false,
+        "ha": {
+          "state_topic": "stat/$device/Sensor3Inverted",
+          "command_topic": "cmnd/$device/Sensor3Inverted",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_09054f00",
+              "equals": "digital"
+            },
+            {
+              "field": "M_09054f00",
+              "equals": "level"
+            },
+            {
+              "field": "M_09054f00",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S3 (A6/D60): Internal pull-up",
+        "id": "M_8562d582",
+        "persist": true,
+        "default": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor3Pullup",
+          "command_topic": "cmnd/$device/Sensor3Pullup",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_09054f00",
+              "equals": "digital"
+            },
+            {
+              "field": "M_09054f00",
+              "equals": "level"
+            },
+            {
+              "field": "M_09054f00",
+              "equals": "leak"
+            },
+            {
+              "field": "M_09054f00",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S3 (A6/D60): Debounce (ms)",
+        "id": "M_f1db6953",
+        "persist": true,
+        "default": "50",
+        "ha": {
+          "state_topic": "stat/$device/Sensor3DebounceMs",
+          "command_topic": "cmnd/$device/Sensor3DebounceMs",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_09054f00",
+              "equals": "digital"
+            },
+            {
+              "field": "M_09054f00",
+              "equals": "level"
+            },
+            {
+              "field": "M_09054f00",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S3 (A6/D60): Pulses per litre",
+        "id": "M_a8474683",
+        "persist": true,
+        "default": "450",
+        "ha": {
+          "state_topic": "stat/$device/Sensor3PulsesPerLitre",
+          "command_topic": "cmnd/$device/Sensor3PulsesPerLitre",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_09054f00",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "name": "S3 (A6/D60): Humidity (%)",
+        "id": "M_5328b83d",
+        "persist": false,
+        "readonly": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor3Humidity",
+          "unit_of_measurement": "%",
+          "device_class": "humidity"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_09054f00",
+              "equals": "humidity"
+            },
+            {
+              "and": [
+                {
+                  "field": "M_09054f00",
+                  "equals": "temperature"
+                },
+                {
+                  "or": [
+                    {
+                      "field": "M_35c4318f",
+                      "equals": "dht11"
+                    },
+                    {
+                      "field": "M_35c4318f",
+                      "equals": "dht12"
+                    },
+                    {
+                      "field": "M_35c4318f",
+                      "equals": "dht21"
+                    },
+                    {
+                      "field": "M_35c4318f",
+                      "equals": "dht22"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S4 (A7/D61): Function",
+        "options": [
+          {
+            "value": "analog",
+            "name": "Analog voltage"
+          },
+          {
+            "value": "temperature",
+            "name": "Temperature"
+          },
+          {
+            "value": "humidity",
+            "name": "Humidity"
+          },
+          {
+            "value": "digital",
+            "name": "Digital ON/OFF"
+          },
+          {
+            "value": "level",
+            "name": "Water level"
+          },
+          {
+            "value": "leak",
+            "name": "Water leak"
+          },
+          {
+            "value": "ph",
+            "name": "pH"
+          },
+          {
+            "value": "disabled",
+            "name": "Disabled"
+          }
+        ],
+        "id": "M_e7d74181",
+        "persist": true,
+        "default": "analog",
+        "ha": {
+          "state_topic": "stat/$device/Sensor4Function",
+          "command_topic": "cmnd/$device/Sensor4Function",
+          "optimistic": true
+        }
+      },
+      {
+        "type": "select",
+        "name": "S4 (A7/D61): Model — Temperature",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          },
+          {
+            "value": "ds18b20",
+            "name": "DS18B20"
+          }
+        ],
+        "id": "M_5c9d1f62",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor4TemperatureModel",
+          "command_topic": "cmnd/$device/Sensor4TemperatureModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_e7d74181",
+              "equals": "temperature"
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S4 (A7/D61): Model — Humidity",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          }
+        ],
+        "id": "M_9571f0f5",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor4HumidityModel",
+          "command_topic": "cmnd/$device/Sensor4HumidityModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_e7d74181",
+              "equals": "humidity"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S4 (A7/D61): Invert input",
+        "id": "M_2275a5d0",
+        "persist": true,
+        "default": false,
+        "ha": {
+          "state_topic": "stat/$device/Sensor4Inverted",
+          "command_topic": "cmnd/$device/Sensor4Inverted",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_e7d74181",
+              "equals": "digital"
+            },
+            {
+              "field": "M_e7d74181",
+              "equals": "level"
+            },
+            {
+              "field": "M_e7d74181",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S4 (A7/D61): Internal pull-up",
+        "id": "M_0e9c1f2b",
+        "persist": true,
+        "default": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor4Pullup",
+          "command_topic": "cmnd/$device/Sensor4Pullup",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_e7d74181",
+              "equals": "digital"
+            },
+            {
+              "field": "M_e7d74181",
+              "equals": "level"
+            },
+            {
+              "field": "M_e7d74181",
+              "equals": "leak"
+            },
+            {
+              "field": "M_e7d74181",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S4 (A7/D61): Debounce (ms)",
+        "id": "M_ee2df872",
+        "persist": true,
+        "default": "50",
+        "ha": {
+          "state_topic": "stat/$device/Sensor4DebounceMs",
+          "command_topic": "cmnd/$device/Sensor4DebounceMs",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_e7d74181",
+              "equals": "digital"
+            },
+            {
+              "field": "M_e7d74181",
+              "equals": "level"
+            },
+            {
+              "field": "M_e7d74181",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S4 (A7/D61): Pulses per litre",
+        "id": "M_0ebbdd5a",
+        "persist": true,
+        "default": "450",
+        "ha": {
+          "state_topic": "stat/$device/Sensor4PulsesPerLitre",
+          "command_topic": "cmnd/$device/Sensor4PulsesPerLitre",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_e7d74181",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "name": "S4 (A7/D61): Humidity (%)",
+        "id": "M_6ddf5088",
+        "persist": false,
+        "readonly": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor4Humidity",
+          "unit_of_measurement": "%",
+          "device_class": "humidity"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_e7d74181",
+              "equals": "humidity"
+            },
+            {
+              "and": [
+                {
+                  "field": "M_e7d74181",
+                  "equals": "temperature"
+                },
+                {
+                  "or": [
+                    {
+                      "field": "M_5c9d1f62",
+                      "equals": "dht11"
+                    },
+                    {
+                      "field": "M_5c9d1f62",
+                      "equals": "dht12"
+                    },
+                    {
+                      "field": "M_5c9d1f62",
+                      "equals": "dht21"
+                    },
+                    {
+                      "field": "M_5c9d1f62",
+                      "equals": "dht22"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S5 (A8/D62): Function",
+        "options": [
+          {
+            "value": "analog",
+            "name": "Analog voltage"
+          },
+          {
+            "value": "temperature",
+            "name": "Temperature"
+          },
+          {
+            "value": "humidity",
+            "name": "Humidity"
+          },
+          {
+            "value": "digital",
+            "name": "Digital ON/OFF"
+          },
+          {
+            "value": "level",
+            "name": "Water level"
+          },
+          {
+            "value": "leak",
+            "name": "Water leak"
+          },
+          {
+            "value": "flow",
+            "name": "Flow rate"
+          },
+          {
+            "value": "ph",
+            "name": "pH"
+          },
+          {
+            "value": "disabled",
+            "name": "Disabled"
+          }
+        ],
+        "id": "M_3e5b8f7e",
+        "persist": true,
+        "default": "analog",
+        "ha": {
+          "state_topic": "stat/$device/Sensor5Function",
+          "command_topic": "cmnd/$device/Sensor5Function",
+          "optimistic": true
+        }
+      },
+      {
+        "type": "select",
+        "name": "S5 (A8/D62): Model — Temperature",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          },
+          {
+            "value": "ds18b20",
+            "name": "DS18B20"
+          }
+        ],
+        "id": "M_f30c6cfd",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor5TemperatureModel",
+          "command_topic": "cmnd/$device/Sensor5TemperatureModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_3e5b8f7e",
+              "equals": "temperature"
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S5 (A8/D62): Model — Humidity",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          }
+        ],
+        "id": "M_d260e0c4",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor5HumidityModel",
+          "command_topic": "cmnd/$device/Sensor5HumidityModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_3e5b8f7e",
+              "equals": "humidity"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S5 (A8/D62): Invert input",
+        "id": "M_f09fcdc3",
+        "persist": true,
+        "default": false,
+        "ha": {
+          "state_topic": "stat/$device/Sensor5Inverted",
+          "command_topic": "cmnd/$device/Sensor5Inverted",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_3e5b8f7e",
+              "equals": "digital"
+            },
+            {
+              "field": "M_3e5b8f7e",
+              "equals": "level"
+            },
+            {
+              "field": "M_3e5b8f7e",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S5 (A8/D62): Internal pull-up",
+        "id": "M_412c4b04",
+        "persist": true,
+        "default": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor5Pullup",
+          "command_topic": "cmnd/$device/Sensor5Pullup",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_3e5b8f7e",
+              "equals": "digital"
+            },
+            {
+              "field": "M_3e5b8f7e",
+              "equals": "level"
+            },
+            {
+              "field": "M_3e5b8f7e",
+              "equals": "leak"
+            },
+            {
+              "field": "M_3e5b8f7e",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S5 (A8/D62): Debounce (ms)",
+        "id": "M_704553a1",
+        "persist": true,
+        "default": "50",
+        "ha": {
+          "state_topic": "stat/$device/Sensor5DebounceMs",
+          "command_topic": "cmnd/$device/Sensor5DebounceMs",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_3e5b8f7e",
+              "equals": "digital"
+            },
+            {
+              "field": "M_3e5b8f7e",
+              "equals": "level"
+            },
+            {
+              "field": "M_3e5b8f7e",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S5 (A8/D62): Pulses per litre",
+        "id": "M_29581a9d",
+        "persist": true,
+        "default": "450",
+        "ha": {
+          "state_topic": "stat/$device/Sensor5PulsesPerLitre",
+          "command_topic": "cmnd/$device/Sensor5PulsesPerLitre",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_3e5b8f7e",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "name": "S5 (A8/D62): Humidity (%)",
+        "id": "M_05800647",
+        "persist": false,
+        "readonly": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor5Humidity",
+          "unit_of_measurement": "%",
+          "device_class": "humidity"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_3e5b8f7e",
+              "equals": "humidity"
+            },
+            {
+              "and": [
+                {
+                  "field": "M_3e5b8f7e",
+                  "equals": "temperature"
+                },
+                {
+                  "or": [
+                    {
+                      "field": "M_f30c6cfd",
+                      "equals": "dht11"
+                    },
+                    {
+                      "field": "M_f30c6cfd",
+                      "equals": "dht12"
+                    },
+                    {
+                      "field": "M_f30c6cfd",
+                      "equals": "dht21"
+                    },
+                    {
+                      "field": "M_f30c6cfd",
+                      "equals": "dht22"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S6 (A9/D63): Function",
+        "options": [
+          {
+            "value": "analog",
+            "name": "Analog voltage"
+          },
+          {
+            "value": "temperature",
+            "name": "Temperature"
+          },
+          {
+            "value": "humidity",
+            "name": "Humidity"
+          },
+          {
+            "value": "digital",
+            "name": "Digital ON/OFF"
+          },
+          {
+            "value": "level",
+            "name": "Water level"
+          },
+          {
+            "value": "leak",
+            "name": "Water leak"
+          },
+          {
+            "value": "flow",
+            "name": "Flow rate"
+          },
+          {
+            "value": "ph",
+            "name": "pH"
+          },
+          {
+            "value": "disabled",
+            "name": "Disabled"
+          }
+        ],
+        "id": "M_fbedddb7",
+        "persist": true,
+        "default": "analog",
+        "ha": {
+          "state_topic": "stat/$device/Sensor6Function",
+          "command_topic": "cmnd/$device/Sensor6Function",
+          "optimistic": true
+        }
+      },
+      {
+        "type": "select",
+        "name": "S6 (A9/D63): Model — Temperature",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          },
+          {
+            "value": "ds18b20",
+            "name": "DS18B20"
+          }
+        ],
+        "id": "M_49e7ea70",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor6TemperatureModel",
+          "command_topic": "cmnd/$device/Sensor6TemperatureModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_fbedddb7",
+              "equals": "temperature"
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S6 (A9/D63): Model — Humidity",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          }
+        ],
+        "id": "M_82e17ebf",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor6HumidityModel",
+          "command_topic": "cmnd/$device/Sensor6HumidityModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_fbedddb7",
+              "equals": "humidity"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S6 (A9/D63): Invert input",
+        "id": "M_de7eb9c6",
+        "persist": true,
+        "default": false,
+        "ha": {
+          "state_topic": "stat/$device/Sensor6Inverted",
+          "command_topic": "cmnd/$device/Sensor6Inverted",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_fbedddb7",
+              "equals": "digital"
+            },
+            {
+              "field": "M_fbedddb7",
+              "equals": "level"
+            },
+            {
+              "field": "M_fbedddb7",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S6 (A9/D63): Internal pull-up",
+        "id": "M_be44f7d5",
+        "persist": true,
+        "default": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor6Pullup",
+          "command_topic": "cmnd/$device/Sensor6Pullup",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_fbedddb7",
+              "equals": "digital"
+            },
+            {
+              "field": "M_fbedddb7",
+              "equals": "level"
+            },
+            {
+              "field": "M_fbedddb7",
+              "equals": "leak"
+            },
+            {
+              "field": "M_fbedddb7",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S6 (A9/D63): Debounce (ms)",
+        "id": "M_40f14a90",
+        "persist": true,
+        "default": "50",
+        "ha": {
+          "state_topic": "stat/$device/Sensor6DebounceMs",
+          "command_topic": "cmnd/$device/Sensor6DebounceMs",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_fbedddb7",
+              "equals": "digital"
+            },
+            {
+              "field": "M_fbedddb7",
+              "equals": "level"
+            },
+            {
+              "field": "M_fbedddb7",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S6 (A9/D63): Pulses per litre",
+        "id": "M_7842b824",
+        "persist": true,
+        "default": "450",
+        "ha": {
+          "state_topic": "stat/$device/Sensor6PulsesPerLitre",
+          "command_topic": "cmnd/$device/Sensor6PulsesPerLitre",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_fbedddb7",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "name": "S6 (A9/D63): Humidity (%)",
+        "id": "M_5f98c842",
+        "persist": false,
+        "readonly": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor6Humidity",
+          "unit_of_measurement": "%",
+          "device_class": "humidity"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_fbedddb7",
+              "equals": "humidity"
+            },
+            {
+              "and": [
+                {
+                  "field": "M_fbedddb7",
+                  "equals": "temperature"
+                },
+                {
+                  "or": [
+                    {
+                      "field": "M_49e7ea70",
+                      "equals": "dht11"
+                    },
+                    {
+                      "field": "M_49e7ea70",
+                      "equals": "dht12"
+                    },
+                    {
+                      "field": "M_49e7ea70",
+                      "equals": "dht21"
+                    },
+                    {
+                      "field": "M_49e7ea70",
+                      "equals": "dht22"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S7 (A10/D64): Function",
+        "options": [
+          {
+            "value": "analog",
+            "name": "Analog voltage"
+          },
+          {
+            "value": "temperature",
+            "name": "Temperature"
+          },
+          {
+            "value": "humidity",
+            "name": "Humidity"
+          },
+          {
+            "value": "digital",
+            "name": "Digital ON/OFF"
+          },
+          {
+            "value": "level",
+            "name": "Water level"
+          },
+          {
+            "value": "leak",
+            "name": "Water leak"
+          },
+          {
+            "value": "flow",
+            "name": "Flow rate"
+          },
+          {
+            "value": "ph",
+            "name": "pH"
+          },
+          {
+            "value": "disabled",
+            "name": "Disabled"
+          }
+        ],
+        "id": "M_67e9ce6c",
+        "persist": true,
+        "default": "analog",
+        "ha": {
+          "state_topic": "stat/$device/Sensor7Function",
+          "command_topic": "cmnd/$device/Sensor7Function",
+          "optimistic": true
+        }
+      },
+      {
+        "type": "select",
+        "name": "S7 (A10/D64): Model — Temperature",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          },
+          {
+            "value": "ds18b20",
+            "name": "DS18B20"
+          }
+        ],
+        "id": "M_b7c7f8bb",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor7TemperatureModel",
+          "command_topic": "cmnd/$device/Sensor7TemperatureModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_67e9ce6c",
+              "equals": "temperature"
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S7 (A10/D64): Model — Humidity",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          }
+        ],
+        "id": "M_857c098e",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor7HumidityModel",
+          "command_topic": "cmnd/$device/Sensor7HumidityModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_67e9ce6c",
+              "equals": "humidity"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S7 (A10/D64): Invert input",
+        "id": "M_db4d26e9",
+        "persist": true,
+        "default": false,
+        "ha": {
+          "state_topic": "stat/$device/Sensor7Inverted",
+          "command_topic": "cmnd/$device/Sensor7Inverted",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_67e9ce6c",
+              "equals": "digital"
+            },
+            {
+              "field": "M_67e9ce6c",
+              "equals": "level"
+            },
+            {
+              "field": "M_67e9ce6c",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S7 (A10/D64): Internal pull-up",
+        "id": "M_a6ce489e",
+        "persist": true,
+        "default": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor7Pullup",
+          "command_topic": "cmnd/$device/Sensor7Pullup",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_67e9ce6c",
+              "equals": "digital"
+            },
+            {
+              "field": "M_67e9ce6c",
+              "equals": "level"
+            },
+            {
+              "field": "M_67e9ce6c",
+              "equals": "leak"
+            },
+            {
+              "field": "M_67e9ce6c",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S7 (A10/D64): Debounce (ms)",
+        "id": "M_a24e2967",
+        "persist": true,
+        "default": "50",
+        "ha": {
+          "state_topic": "stat/$device/Sensor7DebounceMs",
+          "command_topic": "cmnd/$device/Sensor7DebounceMs",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_67e9ce6c",
+              "equals": "digital"
+            },
+            {
+              "field": "M_67e9ce6c",
+              "equals": "level"
+            },
+            {
+              "field": "M_67e9ce6c",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S7 (A10/D64): Pulses per litre",
+        "id": "M_513a35b7",
+        "persist": true,
+        "default": "450",
+        "ha": {
+          "state_topic": "stat/$device/Sensor7PulsesPerLitre",
+          "command_topic": "cmnd/$device/Sensor7PulsesPerLitre",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_67e9ce6c",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "name": "S7 (A10/D64): Humidity (%)",
+        "id": "M_90223219",
+        "persist": false,
+        "readonly": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor7Humidity",
+          "unit_of_measurement": "%",
+          "device_class": "humidity"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_67e9ce6c",
+              "equals": "humidity"
+            },
+            {
+              "and": [
+                {
+                  "field": "M_67e9ce6c",
+                  "equals": "temperature"
+                },
+                {
+                  "or": [
+                    {
+                      "field": "M_b7c7f8bb",
+                      "equals": "dht11"
+                    },
+                    {
+                      "field": "M_b7c7f8bb",
+                      "equals": "dht12"
+                    },
+                    {
+                      "field": "M_b7c7f8bb",
+                      "equals": "dht21"
+                    },
+                    {
+                      "field": "M_b7c7f8bb",
+                      "equals": "dht22"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S8 (A11/D65): Function",
+        "options": [
+          {
+            "value": "analog",
+            "name": "Analog voltage"
+          },
+          {
+            "value": "temperature",
+            "name": "Temperature"
+          },
+          {
+            "value": "humidity",
+            "name": "Humidity"
+          },
+          {
+            "value": "digital",
+            "name": "Digital ON/OFF"
+          },
+          {
+            "value": "level",
+            "name": "Water level"
+          },
+          {
+            "value": "leak",
+            "name": "Water leak"
+          },
+          {
+            "value": "flow",
+            "name": "Flow rate"
+          },
+          {
+            "value": "ph",
+            "name": "pH"
+          },
+          {
+            "value": "disabled",
+            "name": "Disabled"
+          }
+        ],
+        "id": "M_cee7647d",
+        "persist": true,
+        "default": "analog",
+        "ha": {
+          "state_topic": "stat/$device/Sensor8Function",
+          "command_topic": "cmnd/$device/Sensor8Function",
+          "optimistic": true
+        }
+      },
+      {
+        "type": "select",
+        "name": "S8 (A11/D65): Model — Temperature",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          },
+          {
+            "value": "ds18b20",
+            "name": "DS18B20"
+          }
+        ],
+        "id": "M_d15ae6ee",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor8TemperatureModel",
+          "command_topic": "cmnd/$device/Sensor8TemperatureModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_cee7647d",
+              "equals": "temperature"
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "S8 (A11/D65): Model — Humidity",
+        "options": [
+          {
+            "value": "dht11",
+            "name": "DHT11"
+          },
+          {
+            "value": "dht12",
+            "name": "DHT12 (single-wire)"
+          },
+          {
+            "value": "dht21",
+            "name": "DHT21 / AM2301"
+          },
+          {
+            "value": "dht22",
+            "name": "DHT22 / AM2302"
+          }
+        ],
+        "id": "M_612ad0e1",
+        "persist": true,
+        "default": "dht11",
+        "ha": {
+          "state_topic": "stat/$device/Sensor8HumidityModel",
+          "command_topic": "cmnd/$device/Sensor8HumidityModel",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_cee7647d",
+              "equals": "humidity"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S8 (A11/D65): Invert input",
+        "id": "M_0040ea0c",
+        "persist": true,
+        "default": false,
+        "ha": {
+          "state_topic": "stat/$device/Sensor8Inverted",
+          "command_topic": "cmnd/$device/Sensor8Inverted",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_cee7647d",
+              "equals": "digital"
+            },
+            {
+              "field": "M_cee7647d",
+              "equals": "level"
+            },
+            {
+              "field": "M_cee7647d",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "switch",
+        "name": "S8 (A11/D65): Internal pull-up",
+        "id": "M_566d3227",
+        "persist": true,
+        "default": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor8Pullup",
+          "command_topic": "cmnd/$device/Sensor8Pullup",
+          "payload_on": "on",
+          "payload_off": "off"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_cee7647d",
+              "equals": "digital"
+            },
+            {
+              "field": "M_cee7647d",
+              "equals": "level"
+            },
+            {
+              "field": "M_cee7647d",
+              "equals": "leak"
+            },
+            {
+              "field": "M_cee7647d",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S8 (A11/D65): Debounce (ms)",
+        "id": "M_587dc646",
+        "persist": true,
+        "default": "50",
+        "ha": {
+          "state_topic": "stat/$device/Sensor8DebounceMs",
+          "command_topic": "cmnd/$device/Sensor8DebounceMs",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_cee7647d",
+              "equals": "digital"
+            },
+            {
+              "field": "M_cee7647d",
+              "equals": "level"
+            },
+            {
+              "field": "M_cee7647d",
+              "equals": "leak"
+            }
+          ]
+        }
+      },
+      {
+        "type": "edit",
+        "name": "S8 (A11/D65): Pulses per litre",
+        "id": "M_20bb30fe",
+        "persist": true,
+        "default": "450",
+        "ha": {
+          "state_topic": "stat/$device/Sensor8PulsesPerLitre",
+          "command_topic": "cmnd/$device/Sensor8PulsesPerLitre",
+          "optimistic": true
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_cee7647d",
+              "equals": "flow"
+            }
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "name": "S8 (A11/D65): Humidity (%)",
+        "id": "M_41f3cc34",
+        "persist": false,
+        "readonly": true,
+        "ha": {
+          "state_topic": "stat/$device/Sensor8Humidity",
+          "unit_of_measurement": "%",
+          "device_class": "humidity"
+        },
+        "visibleWhen": {
+          "or": [
+            {
+              "field": "M_cee7647d",
+              "equals": "humidity"
+            },
+            {
+              "and": [
+                {
+                  "field": "M_cee7647d",
+                  "equals": "temperature"
+                },
+                {
+                  "or": [
+                    {
+                      "field": "M_d15ae6ee",
+                      "equals": "dht11"
+                    },
+                    {
+                      "field": "M_d15ae6ee",
+                      "equals": "dht12"
+                    },
+                    {
+                      "field": "M_d15ae6ee",
+                      "equals": "dht21"
+                    },
+                    {
+                      "field": "M_d15ae6ee",
+                      "equals": "dht22"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "select",
+        "name": "PWM1 (D5): Function",
+        "options": [
+          {
+            "value": "pwm",
+            "name": "Pwm"
+          },
+          {
+            "value": "servo",
+            "name": "Servo"
+          }
+        ],
+        "id": "M_a4f56877",
+        "persist": true,
+        "default": "pwm",
+        "ha": {
+          "state_topic": "stat/$device/PWMOutput1Device",
+          "command_topic": "cmnd/$device/PWMOutput1Device",
+          "optimistic": true
+        }
+      },
+      {
+        "type": "select",
+        "name": "PWM2 (D44): Function",
+        "options": [
+          {
+            "value": "pwm",
+            "name": "Pwm"
+          },
+          {
+            "value": "servo",
+            "name": "Servo"
+          }
+        ],
+        "id": "M_9cfbc76a",
+        "persist": true,
+        "default": "pwm",
+        "ha": {
+          "state_topic": "stat/$device/PWMOutput2Device",
+          "command_topic": "cmnd/$device/PWMOutput2Device",
+          "optimistic": true
+        }
+      },
+      {
+        "type": "select",
+        "name": "PWM3 (D45): Function",
+        "options": [
+          {
+            "value": "pwm",
+            "name": "Pwm"
+          },
+          {
+            "value": "servo",
+            "name": "Servo"
+          }
+        ],
+        "id": "M_64472f39",
+        "persist": true,
+        "default": "pwm",
+        "ha": {
+          "state_topic": "stat/$device/PWMOutput3Device",
+          "command_topic": "cmnd/$device/PWMOutput3Device",
+          "optimistic": true
+        }
+      },
+      {
+        "type": "select",
+        "name": "PWM4 (D46): Function",
+        "options": [
+          {
+            "value": "pwm",
+            "name": "Pwm"
+          },
+          {
+            "value": "servo",
+            "name": "Servo"
+          }
+        ],
+        "id": "M_ec9b2994",
+        "persist": true,
+        "default": "pwm",
+        "ha": {
+          "state_topic": "stat/$device/PWMOutput4Device",
+          "command_topic": "cmnd/$device/PWMOutput4Device",
+          "optimistic": true
+        }
+      },
+      {
+        "type": "select",
+        "name": "PWM5 (D11): Function",
+        "options": [
+          {
+            "value": "pwm",
+            "name": "Pwm"
+          },
+          {
+            "value": "servo",
+            "name": "Servo"
+          }
+        ],
+        "id": "M_cb6f9733",
+        "persist": true,
+        "default": "pwm",
+        "ha": {
+          "state_topic": "stat/$device/PWMOutput5Device",
+          "command_topic": "cmnd/$device/PWMOutput5Device",
+          "optimistic": true
+        }
+      },
+      {
+        "type": "select",
+        "name": "PWM6 (D12): Function",
+        "options": [
+          {
+            "value": "pwm",
+            "name": "Pwm"
+          },
+          {
+            "value": "servo",
+            "name": "Servo"
+          }
+        ],
+        "id": "M_b847c546",
+        "persist": true,
+        "default": "pwm",
+        "ha": {
+          "state_topic": "stat/$device/PWMOutput6Device",
+          "command_topic": "cmnd/$device/PWMOutput6Device",
+          "optimistic": true
         }
       }
     ]

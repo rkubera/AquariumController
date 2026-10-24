@@ -130,5 +130,6 @@ int main() {
   pwm.pwmOutputControlMode=CONTROL_MODE_MANUAL;pwm.pwmOutputManualMode=65535;
   pwm.pwmOutputApplyValue();assert(pwmValue[DIGITAL_PWM_OUT_PIN_1]==0);
   testAcquisition();
+  testPeripheralInputs();
   puts("PASS: ADC averaging, negative/zero readings, bounds, single input, duplicate fail-safe, reassignment, validity, stale inputs, hysteresis, GPIO, PID, manual overrides, LINK state, numeric parsing, CONFIG configuration isolation.");
 }

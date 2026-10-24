@@ -18,6 +18,7 @@ for bits in itertools.product((0,1),repeat=7):
  ps=pages(opts);ids={p['id'] for p in ps};fields=[f for p in ps for f in p['fields']]
  assert {'led','schedule','clock'}<=ids
  assert ('relays'in ids)==bool(bits[0]);assert ('pwm'in ids)==bool(bits[1]);assert ('inputs'in ids)==bool(bits[2])
+ assert ('peripherals'in ids)==bool(bits[1]or bits[2])
  assert ('fan'in ids)==bool(bits[3]and bits[6]);assert ('dht'in ids)==bool(bits[3]and not bits[6])
  profiles.append(((bits[3]|(bits[4]<<1)|(bits[5]<<2)|((bits[3]and bits[6])<<3),4*bits[0],6*bits[1],8*bits[2]),{f['ha']['state_topic'].rsplit('/',1)[-1]for f in fields},2+sum(f.get('persist',False)for f in fields)))
  assert not any(f['ha']['state_topic'].endswith('/ClockRtcStatus') for f in fields)
@@ -53,10 +54,47 @@ int main(){ControllerFeatures all={15,4,6,8},off={0,0,0,0},out;uint8_t p[5];all.
 panelKeys=[f['ha']['state_topic'].rsplit('/',1)[-1]for p in base for f in p['fields']]
 checks='static const uint16_t panelIds[]={'+','.join(str(wireKeys.index(k)+1)for k in panelKeys)+'};\n'
 for caps,keys,count in profiles:
- checks+='{ControllerFeatures caps={'+','.join(map(str,caps))+'};const char* expected="'+''.join('1'if k in keys else '0'for k in panelKeys)+'";for(unsigned i=0;i<295;i++)assert(acFieldSupported(panelIds[i],caps)==(expected[i]==\'1\'));assert(acActiveRestoreCount(caps)=='+str(count)+');}\n'
+ checks+='{ControllerFeatures caps={'+','.join(map(str,caps))+'};const char* expected="'+''.join('1'if k in keys else '0'for k in panelKeys)+'";for(unsigned i=0;i<'+str(len(panelKeys))+';i++)assert(acFieldSupported(panelIds[i],caps)==(expected[i]==\'1\'));assert(acActiveRestoreCount(caps)=='+str(count)+');}\n'
+disabled_keys={f['ha']['state_topic'].rsplit('/',1)[-1] for p in base if p['id']=='peripherals' for f in p['fields']}
+checks+='{ControllerFeatures caps={31,4,6,8};assert(caps.valid());uint8_t data[5];caps.encode(data);ControllerFeatures decoded;assert(ControllerFeatures::decode(data,5,decoded)&&decoded.same(caps));'
+for key in disabled_keys:
+ checks+='assert(!acFieldSupported('+str(wireKeys.index(key)+1)+',caps));'
+for key in ('Sensor1Value','PWMOutput1ManualValue'):
+ if key in wireKeys:checks+='assert(acFieldSupported('+str(wireKeys.index(key)+1)+',caps));'
+checks+='}\n'
 code=code.replace('int main(){','int main(){'+checks)
 assert (root/'ControllerFeatures.h').read_bytes()==(root.parent/'AC-ATMEGA/ControllerFeatures.h').read_bytes()
 with tempfile.TemporaryDirectory()as tmp:
  src=Path(tmp)/'test.cpp';src.write_text(code);exe=Path(tmp)/'test'
  subprocess.run(['c++','-std=c++17','-I',str(root),str(src),'-o',str(exe)],check=True);subprocess.run([str(exe)],check=True)
 print('PASS: all 128 feature combinations, channel limits, dependencies, shared manifest and restore filtering.')
+
+peripherals=next(p for p in base if p['id']=='peripherals')
+for channel in range(1,9):
+ fields={f['ha']['state_topic'].rsplit('/',1)[-1]:f for f in peripherals['fields']}
+ prefix='Sensor'+str(channel)
+ function=fields[prefix+'Function']
+ assert ('flow' in [o['value'] for o in function['options']])==(channel>=5)
+ assert [o['value']for o in fields[prefix+'TemperatureModel']['options']]==['dht11','dht12','dht21','dht22','ds18b20']
+ assert [o['value']for o in fields[prefix+'HumidityModel']['options']]==['dht11','dht12','dht21','dht22']
+ def evaluate(rule,values):
+  if 'field'in rule:return values.get(rule['field'])==rule['equals']
+  if 'and'in rule:return all(evaluate(c,values)for c in rule['and'])
+  return any(evaluate(c,values)for c in rule['or'])
+ values={function['id']:'temperature',fields[prefix+'TemperatureModel']['id']:'ds18b20'}
+ assert not evaluate(fields[prefix+'Humidity']['visibleWhen'],values)
+ values[fields[prefix+'TemperatureModel']['id']]='dht22'
+ assert evaluate(fields[prefix+'Humidity']['visibleWhen'],values)
+print('PASS: function/model selectors, thermometer/humidity restrictions, DS humidity visibility and flow-capable pins.')
+
+# Optional peripherals: no page, inputs only, outputs only, or both.
+for enabled in (0,1):
+ for inputs,pwm in ((0,0),(2,0),(0,3),(2,3)):
+  ps=pages({'AC_ENABLE_PERIPHERALS':enabled,'AC_INPUT_COUNT':inputs,'AC_PWM_COUNT':pwm})
+  pp=next((p for p in ps if p['id']=='peripherals'),None)
+  assert bool(pp)==bool(enabled and (inputs or pwm))
+  if pp:
+   keys={f['ha']['state_topic'].rsplit('/',1)[-1]for f in pp['fields']}
+   assert any(k.startswith('Sensor')for k in keys)==bool(inputs)
+   assert any(k.startswith('PWMOutput')for k in keys)==bool(pwm)
+print('PASS: peripherals toggle and all four input/output page variants.')

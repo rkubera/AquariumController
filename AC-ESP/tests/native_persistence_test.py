@@ -12,6 +12,7 @@ support=(root/'tests/host_support.hpp').read_text().split('const int bufferOutSi
 support=support.replace('  const char* c_str()', '  float toFloat() const {return strtof(value.c_str(),nullptr);}\n  const char* c_str()')
 support=support.replace('  int indexOf(char ch)', '  bool equalsIgnoreCase(const String& o) const {return strcasecmp(value.c_str(),o.value.c_str())==0;}\n  int indexOf(char ch)')
 fixture=r'''
+#include <bitset>
 #include <strings.h>
 #include <map>
 namespace ArdJSON {
@@ -25,7 +26,7 @@ struct Json {::String stringify(const JSONVar& v){return v.type()==JSONVar::Type
 }
 const uint16_t PANEL_FIELD_COUNT=3;
 bool panelFieldEnabled(uint16_t){return true;}
-bool panelSaveConfirmed[3]={},panelSeen[3]={true,true,true},configMegaReady=true,panelUpdating=false,panelPersistenceBatch=false;
+std::bitset<3> panelSaveConfirmed;bool panelSeen[3]={true,true,true},configMegaReady=true,panelUpdating=false,panelPersistenceBatch=false;
 uint16_t panelRegisteredMask=511;String panelPendingField;byte panelQueuedCount=0;
 String actual[3];
 uint8_t panelFieldPage(uint16_t){return 0;}
@@ -33,7 +34,7 @@ bool panelFieldPersistent(uint16_t i){return i<2;}
 String panelControlIdAt(uint16_t i){return String(i);}
 String panelValue(uint16_t i){return actual[i];}
 void bridgeSerialService(){}
-String panelFieldProperty(uint16_t i){return i==1?String("LedState"):String("Name");}
+String panelFieldProperty(uint16_t i){return i==1?String("Inverted"):String("Name");}
 void panelLedConfirm(uint16_t,const String&){}
 bool panelLedComponent(uint16_t){return false;}void panelRenderLed(){}
 struct Field{uint8_t group=0;};Field panelField(uint16_t){return Field();}

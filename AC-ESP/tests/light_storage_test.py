@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Use real ArdPortal/ArdFS to verify a volatile light plus explicit settings."""
 from pathlib import Path
-import json,subprocess,tempfile
+import json,subprocess,tempfile,re
 root=Path(__file__).resolve().parents[1]
 lib=Path('/Users/radoslawkubera/Documents/Developer/Arduino/libraries/ArdPortal')
-fixture=(lib/'tests/memory-host/dynamic-patch.cpp').read_text().split('int main(){')[0]
+fixture=re.split(r'\bint\s+main\s*\(\s*\)\s*\{',(lib/'tests/memory-host/dynamic-patch.cpp').read_text(),maxsplit=1)[0]
 fixture=fixture.replace('../../src/',str(lib/'src')+'/')
 light=next(f for p in json.loads((root/'tests/panel_schema.json').read_text())for f in p['fields']if f['type']=='light')
 page=json.dumps(dict(id='led',name='LED',order=0,fields=[light]),ensure_ascii=False,separators=(',',':'))

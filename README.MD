@@ -24,9 +24,10 @@ The drawing illustrates the hardware layout. Use the pin table below for the cur
 - LED brightness from 0–100%, mapped to 16-bit PWM; 100% produces a constant high output.
 - Up to four relays and six independent 16-bit PWM outputs.
 - Manual control, time-of-day scheduling, threshold/hysteresis control and PWM PID control.
-- One analog input per threshold or PID controller, with calibration and filtered measurements.
+- One input per threshold or PID controller, with calibration and filtered measurements.
 - A shared schedule for lighting, relays and PWM, with either daily times or separate weekday/weekend times.
-- DHT11 temperature and humidity readings, temperature alarms and temperature-controlled cooling.
+- Independent DHT11 temperature and humidity readings, temperature alarms and temperature-controlled cooling.
+- A Peripherals page for DHT11/DHT12/DHT21/DHT22 and DS18B20 on S1–S8, and servo signals on PWM1–PWM6.
 - DS1307 RTC support, UTC synchronization from the ESP and configurable local-time rules.
 - Nokia 5110 display, 4×4 keypad and local contrast adjustment.
 - Active-alarm diagnostics, including the three most recently activated alarms that are still active.
@@ -56,6 +57,30 @@ The Portal and Home Assistant use the same field definitions. All channels of ea
 D3 is available for an additional 16-bit PWM channel. D13 is intentionally unused because it can toggle during boot/upload. The firmware currently controls RGB, without a white channel.
 
 RGB, the six PWM outputs and the display backlight use a range of **0–65535** at approximately 244 Hz. The fan uses standard **0–255** PWM on D4 without changing Timer0 timing.
+
+### Configurable peripherals
+
+The **Peripherals** page requires `AC_ENABLE_PERIPHERALS=1` and appears when `AC_INPUT_COUNT` or `AC_PWM_COUNT` is greater than zero. Input devices are listed first. It uses the same settings in the Portal and Home Assistant; ArdPortal persists them in ArdFS and restores them to Mega at startup. Both firmwares must be updated together because the UART field schema has changed. Existing HA entities are not automatically removed.
+
+| Channel | Signal pin | Devices |
+| --- | --- | --- |
+| S1–S8 | A4–A11 (D58–D65), respectively | Analog voltage/pH, digital input, water level, leak, DHT11/12/21/22, DS18B20, Disabled |
+| S5–S8 | A8–A11 (D62–D65), respectively | Pulse flow meter, counted with PORTK pin-change interrupts |
+| PWM1–PWM6 | D5, D44, D45, D46, D11, D12, respectively | Normal 16-bit PWM or servo |
+
+Each configured digital input owns one physical sensor on its channel pin. Choose **Function** first, then the sensor model for **Temperature** or **Humidity**. Temperature supports DHT11/12/21/22 and DS18B20; humidity supports DHT11/12/21/22. The model selections are saved independently. Humidity also has a separate readout. Other functions use the generic electrical interfaces described below. These values feed the existing input calibration, filtering, limits, threshold/PID and output-assignment logic. Digital sensors are polled approximately every two seconds; missing, stale or invalid readings enter the existing input alarm/fail-safe path. Changing a device or DHT measurement during operation resets that input's calibration to identity; names, limits and assignments remain configurable on Inputs. Analog inputs retain their existing 100 ms acquisition and at-most-once-per-second publication.
+
+Digital ON/OFF, water-level and leak inputs support inversion, an optional internal pull-up and configurable debounce (0–5000 ms; default 50 ms). After inversion, **1 means water present** for level sensors and **1 means wet/alarm** for leak sensors. A low water level or detected leak enters the existing Errors/Diagnostics/buzzer lifecycle and clears when the condition clears. Their 0/1 readings also feed existing output regulation. A simple digital pin cannot distinguish a disconnected wire from a legitimate electrical state; choose contact wiring/polarity appropriate to the desired failure response. These functions accept dry contacts or compatible digital sensor modules, not bare pH electrodes or arbitrary powered sensor outputs.
+
+Flow meters are available only on S5–S8. Set **Pulses per litre** from the actual meter's calibration (the initial value 450 is only a starting value, not universal). Rising edges are counted in interrupts and converted to l/min approximately once per second; zero pulses produce a valid zero flow. Use the existing input limits/threshold logic to detect insufficient flow. More than 4096 pulses in a measurement window (normally one second) pauses that channel's interrupts until the next window and invalidates its reading. The shared interrupt handler also stops after 32768 IRQs per window, including events whose sampled level has not changed, to bound aliased high-frequency noise. This bounds interrupt storms from noisy wiring. An unrepresentable rate also invalidates the input. Digital debounce does not apply to pulse counting.
+
+The pH function reads an **analog conditioning module with an output within 0–5 V** through the existing 100 ms ADC/filter path. Calibrate the two input points using the module/probe and buffer measurements; the initial 0–14 mapping is not a calibration of your probe. Raw values remain ADC counts (0–1023). The ADC alone cannot reliably distinguish a disconnected module from a legitimate voltage; configure limits for the module's failure signal. It can then drive the existing threshold/PID logic. No digital Atlas/EZO protocol, EC or SHT4x driver is included in this extension.
+
+Use one externally powered, three-wire DS18B20 per selected input, with a **4.7 kΩ pull-up** on DATA. Parasite power and multiple devices on one bus are not supported. DHT modules also require the appropriate DATA pull-up (often present on the module). DHT12 is supported in its single-wire mode; I²C DHT models such as DHT20 are not interchangeable with these input drivers. The original DHT11 on D32 remains independent and supplies the fan.
+
+Servo mode maps the existing PWM control value **0–65535** to **1000–2000 µs pulses every 20 ms**. Manual, schedule, threshold and PID behavior remains on the PWM page. A disabled/interlocked output stops pulses. Servo timing uses the spare Timer1 compare C interrupt; it does not change the hardware PWM timers or require the Arduino Servo library. Power servos from a suitable external supply with a common ground; the PWM pin carries only their signal. Other PWM channels, RGB and the display backlight retain their existing timing.
+
+Sensor conversion waits are asynchronous. The OneWire driver uses bounded atomic slots of about 13 µs for sampling, rather than blocking the main loop while a temperature conversion completes. No additional sensor/servo libraries are required.
 
 ### Mega–ESP connection
 
@@ -94,10 +119,13 @@ Edit the definitions at the beginning of `AC-ESP/AC-ESP.ino`. Counts of zero dis
 | `AC_RELAY_COUNT` | 4 | 0–4 |
 | `AC_PWM_COUNT` | 0 | 0–6 |
 | `AC_INPUT_COUNT` | 0 | 0–8 |
+| `AC_ENABLE_PERIPHERALS` | 1 | 0 or 1; requires inputs and/or PWM channels |
 | `AC_ENABLE_DHT` | 1 | 0 or 1 |
 | `AC_ENABLE_RTC` | 1 | 0 or 1 |
 | `AC_ENABLE_BUZZER` | 1 | 0 or 1 |
 | `AC_ENABLE_FAN` | 1 | 0 or 1 |
+
+With peripherals enabled, `AC_INPUT_COUNT` selects the input-device rows and `AC_PWM_COUNT` selects the output-device rows. With both counts zero the page is omitted. Disabling peripherals keeps normal analog inputs and PWM outputs; it disables their optional sensor/servo assignments on Mega without deleting saved settings or existing HA entities. Update both firmwares for the extended feature manifest.
 
 RGB lighting, the software clock and scheduling are always available. Without analog inputs, threshold/PID controls disappear. The fan requires DHT. With DHT enabled and the fan disabled, a DHT page replaces the fan page. Diagnostics is available when analog inputs, DHT or RTC are enabled. Existing Home Assistant entities are not automatically deleted when features are disabled.
 
@@ -122,7 +150,7 @@ These definitions are also at the top of `AC-ESP.ino`. They select library modul
 | `ARDPORTAL_ENABLE_CONTROL_SLIDER`, `_TEXT`, `_SELECT`, `_SWITCH`, `_DATE`, `_TIME`, `_LIGHT` | 1 | Enable each control type used by this project; each suffix follows `ARDPORTAL_ENABLE_CONTROL` |
 | `ARDPORTAL_ENABLE_CONTROL_EDIT` | Automatic | Include editable text fields when relays, PWM outputs or analog inputs are enabled |
 | `ARDPORTAL_ENABLE_CONTROL_BINARY_SENSOR` | 0 | Binary-sensor control implementation |
-| `ARDPORTAL_ENABLE_TEXT_TYPES` | 0 | Exclude unused numeric text subtypes; sensor HA metadata is defined explicitly |
+| `ARDPORTAL_ENABLE_CLASSES` | 0 | Exclude the optional semantic class catalogue; sensor HA metadata is defined explicitly |
 
 `MEGA_SERIAL` selects `Serial2` on ESP32 and `Serial` on ESP8266. `DIAGNOSTIC_SERIAL` selects `Serial` on ESP32 and `Serial1` on ESP8266. The corresponding `_NAME` definitions provide diagnostic labels. `MEGA_SERIAL_BAUD` and `DIAGNOSTIC_SERIAL_BAUD` are constants set to 115200; `SERIAL_DIAGNOSTICS_ENABLED` is currently `true`.
 
@@ -173,14 +201,19 @@ Verified core versions: Arduino AVR **1.8.8** and ESP32 **3.3.12**. Select the E
 
 **ESP32 is recommended when all features are enabled**, including all relay, PWM and analog-input channels, DHT, RTC, buzzer and fan support. ESP8266 is supported, but available heap and flash/OTA space constrain larger configurations. This repository does not bundle ArdPortal.
 
+For a 4 MB ESP32 with the complete panel and current ArdPortal, select **Minimal SPIFFS (1.9 MB APP with OTA/128 KB SPIFFS)**. The full build exceeds the default 1.2 MB application partition. Changing an existing device's partition layout requires a USB upload and backing up its settings first.
+
 Example Arduino CLI builds:
 
 ```sh
 arduino-cli compile --fqbn arduino:avr:mega AC-ATMEGA
-arduino-cli compile --fqbn esp32:esp32:esp32 AC-ESP
+arduino-cli compile --fqbn esp32:esp32:esp32:PartitionScheme=min_spiffs AC-ESP
 # Alternatively:
 arduino-cli compile --fqbn esp8266:esp8266:generic AC-ESP
 ```
+
+
+See [MemoryAudit.md](MemoryAudit.md) for the latest compiled sizes, RAM headroom, safety/latency changes and offline-test limits.
 
 ## Communication and diagnostics
 

@@ -12,10 +12,10 @@ fixture=r'''
 #include <functional>
 uint32_t testClock=0;
 uint32_t millis(){return testClock;}
-constexpr byte PANEL_PAGE_COUNT=10;
-constexpr uint16_t PANEL_FIELD_COUNT=1,PANEL_PAGE_MASK=511;
+constexpr byte PANEL_PAGE_COUNT=11;
+constexpr uint16_t PANEL_FIELD_COUNT=1,PANEL_PAGE_MASK=1535;
 uint16_t panelActiveFieldCount(){return PANEL_FIELD_COUNT;}
-const char* panelPageNames[]={"led","relays","schedule","inputs","pwm","clock","fan","buzzer","diagnostics","dht"};
+const char* panelPageNames[]={"led","relays","schedule","inputs","pwm","clock","fan","buzzer","diagnostics","dht","peripherals"};
 byte panelRegisteringPage=255,panelRegisteredPages=0;
 uint16_t panelRegisteredMask=0;
 bool panelReady=false,panelSeen[1]={true},panelNeedsRender[1]={false};
@@ -23,7 +23,7 @@ bool panelSaveConfirmed[1]={};
 bool panelPersistenceBatch=false;
 bool panelFieldPersistent(uint16_t){return true;}
 uint16_t panelWireId(uint16_t i){return i+1;}
-String panelRegistrationErrors[10],panelDefinitionHostname;
+String panelRegistrationErrors[11],panelDefinitionHostname;
 String panelMemoryDiagnostic(){return "";}
 String panelFieldName(uint16_t){return "Sensor1Name";}
 String panelControlIdAt(uint16_t){return "M_test";}
@@ -69,9 +69,9 @@ int main(){
  portal.mode=3;panelService();assert(panelRegisteredPages==2 && panelRegisteringPage==255 && panelRegistrationErrors[1].length());
  portal.mode=0;panelService();portal.finish(false);assert(panelRegisteredPages==2 && panelRegisteringPage==255 && panelRegistrationErrors[5].length());
  portal.mode=1;for(int i=0;i<5;i++)panelService();
- assert(panelRegisteredPages==6);
+ assert(panelRegisteredPages==7);
  testClock=30001;for(int i=0;i<12;i++)panelService();
- assert(panelRegisteredPages==9 && panelRegisteredMask==PANEL_PAGE_MASK);
+ assert(panelRegisteredPages==10 && panelRegisteredMask==PANEL_PAGE_MASK);
  assert(!panelRegistrationErrors[5].length() && !panelRegistrationErrors[1].length() && !panelRegistrationErrors[3].length());
  puts("Registration: inline/deferred success, failures, busy gate and retry passed");
 }

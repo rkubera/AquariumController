@@ -11,6 +11,7 @@
 
 class sensorClass {
   public:
+  sensorClass():valid(false),validityPublished(false),lastPublishedValid(false){}
 
   byte sensorType= SENSOR_TYPE_NONE;
   
@@ -27,9 +28,7 @@ class sensorClass {
   float criticalMaxValue = FLT_MAX;
   
   float Value = NAN;
-  bool valid = false;
-  bool validityPublished = false;
-  bool lastPublishedValid = false;
+  uint8_t valid:1,validityPublished:1,lastPublishedValid:1;
   byte readingCount = 0;
   unsigned long lastReadingMillis = 0;
   float rawValue = NAN;
@@ -101,10 +100,10 @@ class sensorClass {
   }
 
   bool isValid() {
-    return valid && millis() - lastReadingMillis <= SENSOR_MAX_AGE_MILLIS;
+    return valid && millis() - lastReadingMillis <= (AcPeripheral::isExternal(peripheralInputDevice(sensorPin)) ? 10000UL : SENSOR_MAX_AGE_MILLIS);
   }
 
-  void finishReading(uint16_t rawSum) {
+  void finishReading(uint16_t rawSum, float scale = SENSOR_ADC_SAMPLES, bool signedSample = false) {
     if (!isfinite(calibRawRead1) || !isfinite(calibRawRead2) ||
         !isfinite(calibValue1) || !isfinite(calibValue2) ||
         calibRawRead1 == calibRawRead2) {
@@ -113,7 +112,7 @@ class sensorClass {
     }
     float a = (calibValue2-calibValue1)/(calibRawRead2-calibRawRead1);
     float b = calibValue1-a*calibRawRead1;
-    float rawReading = rawSum/(float)SENSOR_ADC_SAMPLES;
+    float rawReading = (signedSample ? int16_t(rawSum) : float(rawSum))/scale;
     float myValue = a*rawReading+b;
     //Check the current sample, before smoothing can conceal a critical value.
     if (!isfinite(myValue) || myValue < minValue || myValue > maxValue ||
@@ -121,7 +120,7 @@ class sensorClass {
       resetReadings();
       return;
     }
-    byte window = constrain(numReadings, 1, SENSOR_FILTER_WINDOW);
+    byte window = AcPeripheral::isBinary(peripheralInputDevice(sensorPin)) ? 1 : constrain(numReadings, 1, SENSOR_FILTER_WINDOW);
     if (readingCount > window) readingCount = window;
     for (int i=window-1; i>0; i--) {
       rawReadings[i] = rawReadings[i-1];
@@ -130,9 +129,9 @@ class sensorClass {
     if (readingCount < window) readingCount++;
     float rawValueSum = 0;
     for (byte i=0; i<readingCount; i++) {
-      rawValueSum += rawReadings[i];
+      rawValueSum += signedSample ? int16_t(rawReadings[i]) : float(rawReadings[i]);
     }
-    rawValue = rawValueSum/(SENSOR_ADC_SAMPLES*(float)readingCount);
+    rawValue = rawValueSum/(scale*(float)readingCount);
     //Calibration is affine: calibrating the raw average equals averaging
     //calibrated samples, without a second 20-float buffer per input.
     Value = a*rawValue+b;
@@ -151,8 +150,8 @@ class sensorClass {
     if (sensorType >= RELAYS_COUNT+PWMOUTPUTS_COUNT) sensorType = SENSOR_TYPE_NONE;
     if (!isfinite(calibValue1) || !isfinite(calibValue2) ||
         !isfinite(calibRawRead1) || !isfinite(calibRawRead2) ||
-        calibRawRead1 < 0 || calibRawRead1 > 1023 ||
-        calibRawRead2 < 0 || calibRawRead2 > 1023 || calibRawRead1 == calibRawRead2) {
+        calibRawRead1 < -55 || calibRawRead1 > 1023 ||
+        calibRawRead2 < -55 || calibRawRead2 > 1023 || calibRawRead1 == calibRawRead2) {
       sensorType = SENSOR_TYPE_NONE;
       calibValue1 = 0; calibRawRead1 = 0;
       calibValue2 = 1; calibRawRead2 = 1023;
@@ -188,6 +187,10 @@ class sensorClass {
 
   void publishAll() {
     String sType = sensorsGetStringSensorType(sensorType);
+    peripheralsReportSettings(sensorPin);peripheralsReportFunction(sensorPin);
+    reportField(sensorField(sensorPin,SensorField::Device),peripheralDeviceName(peripheralInputDevice(sensorPin)));
+    reportField(sensorField(sensorPin,SensorField::Measurement),peripheralInputMeasurement(sensorPin)?"humidity":"temperature");
+    reportField(sensorField(sensorPin,SensorField::Humidity),peripheralHumidityString(sensorPin));
     reportField(sensorField(sensorPin,SensorField::MinValue),sensorsLimitToString(minValue));
     reportField(sensorField(sensorPin,SensorField::MaxValue),sensorsLimitToString(maxValue));
     reportField(sensorField(sensorPin,SensorField::CriticalMinValue),sensorsLimitToString(criticalMinValue));
@@ -253,6 +256,7 @@ void sensorsOutputInputChanged(byte target){
 }
 void sensorsAssignInput(byte input,byte target){
  if(!input || input>megaFeatures.inputs || (target!=SENSOR_TYPE_NONE && (target<RELAYS_COUNT?target>=megaFeatures.relays:target-RELAYS_COUNT>=megaFeatures.pwm)))return;
+ if(target!=SENSOR_TYPE_NONE && peripheralInputDevice(input)==AcPeripheral::Disabled)return;
  bool affected[RELAYS_COUNT+PWMOUTPUTS_COUNT]={false};
  for(byte i=0;i<SENSORS_COUNT;i++){
   byte old=mySensors[i].sensorType;
@@ -344,14 +348,14 @@ void sensorsSetSensor(byte sensorNr, byte valueType, float Value) {
         mySensors[sensorNumber].calibValue1 = Value;
         break;
       case SENSORS_VALUE_CALIB_RAW_VALUE1:
-        if (Value < 0 || Value > 1023) return;
+        if (Value < (AcPeripheral::isDigital(peripheralInputDevice(sensorNr)) ? -55 : 0) || Value > 1023) return;
         mySensors[sensorNumber].calibRawRead1 = Value;
         break;
       case SENSORS_VALUE_CALIB_VALUE2:
         mySensors[sensorNumber].calibValue2 = Value;
         break;
       case SENSORS_VALUE_CALIB_RAW_VALUE2:
-        if (Value < 0 || Value > 1023) return;
+        if (Value < (AcPeripheral::isDigital(peripheralInputDevice(sensorNr)) ? -55 : 0) || Value > 1023) return;
         mySensors[sensorNumber].calibRawRead2 = Value;
         break;
       case SENSORS_VALUE_MIN:
@@ -430,9 +434,9 @@ void sensorsMillisEvent() {
   }
   if(sensorAcquisitionChannel>=megaFeatures.inputs){sensorSweepActive=false;return;}
   sensorClass& sensor=mySensors[sensorAcquisitionChannel];
-  if(sensor.sensorType==SENSOR_TYPE_NONE||sensor.sensorType==255){
+  if(!AcPeripheral::isAnalog(peripheralInputDevice(sensorAcquisitionChannel+1)) || ((sensor.sensorType==SENSOR_TYPE_NONE||sensor.sensorType==255)&&peripheralInputDevice(sensorAcquisitionChannel+1)!=AcPeripheral::Ph)){
     if(sensorConversionPending&&!sensorAdc.ready())return;
-    sensor.resetReadings();sensorConversionPending=false;
+    if(!AcPeripheral::isExternal(peripheralInputDevice(sensorAcquisitionChannel+1)))sensor.resetReadings();sensorConversionPending=false;
     ++sensorAcquisitionChannel;sensorBatchSamples=0;sensorBatchSum=0;sensorDiscardSample=true;return;
   }
   if(!sensorConversionPending){sensorAdc.start(sensor.analogPin);sensorConversionPending=true;return;}
@@ -454,4 +458,33 @@ String sensorsLimitToString(float value) {
 //Spread complete snapshots across channels to keep acquisition and regulation running.
 void sensorsReportChannel(byte channel) {
   if (channel < SENSORS_COUNT) mySensors[channel].publishAll();
+}
+
+// Digital devices enter the same calibrated, filtered and range-checked path.
+byte sensorsPeripheralPin(byte channel){return channel&&channel<=SENSORS_COUNT?analogInputToDigitalPin(mySensors[channel-1].analogPin):255;}
+void sensorsDigitalReading(byte channel,float value,byte scale){
+ if(!channel||channel>megaFeatures.inputs)return;
+ if(!scale||!isfinite(value)||value*scale < -32768.0f||value*scale > 32767.0f){mySensors[channel-1].resetReadings();return;}
+ mySensors[channel-1].finishReading(uint16_t(int16_t(round(value*scale))),scale,true);
+}
+void sensorsDeviceChanged(byte channel,bool resetCalibration){
+ if(!channel||channel>SENSORS_COUNT)return;
+ sensorClass& s=mySensors[channel-1];s.resetReadings();
+ if(resetCalibration){
+  s.calibValue1=s.calibRawRead1=0;s.calibValue2=1;
+  s.calibRawRead2=AcPeripheral::isExternal(peripheralInputDevice(channel))?1:1023;
+  if(peripheralInputDevice(channel)==AcPeripheral::Ph)s.calibValue2=14;
+  sensorsSaveConfig(channel-1);
+  reportField(sensorField(channel,SensorField::CalibValue1),floatToString(s.calibValue1));
+  reportField(sensorField(channel,SensorField::CalibValue2),floatToString(s.calibValue2));
+  reportField(sensorField(channel,SensorField::CalibRawValue1),floatToString(s.calibRawRead1));
+  reportField(sensorField(channel,SensorField::CalibRawValue2),floatToString(s.calibRawRead2));
+ }
+}
+
+bool sensorsPeripheralAlarm(byte ch){
+ if(!ch||ch>megaFeatures.inputs)return false;
+ byte type=peripheralInputDevice(ch);sensorClass& s=mySensors[ch-1];
+ if(!s.isValid())return false;
+ return (type==AcPeripheral::Level&&s.rawValue==0)||(type==AcPeripheral::Leak&&s.rawValue==1);
 }

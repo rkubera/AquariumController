@@ -8,10 +8,10 @@ bool panelUpdating=false,panelReady=false;
 byte panelRegisteredPages=0;
 byte panelRegisteringPage=255;
 uint16_t panelRegisteredMask=0;
-static const char* panelPageNames[]={"led","relays","schedule","inputs","pwm","clock","fan","buzzer","diagnostics","dht"};
+static const char* panelPageNames[]={"led","relays","schedule","inputs","pwm","clock","fan","buzzer","diagnostics","dht","peripherals"};
 static const byte PANEL_PAGE_COUNT=sizeof(panelPageNames)/sizeof(panelPageNames[0]);
-static const uint16_t PANEL_PAGE_MASK=(1<<0)|(1<<2)|(1<<5)|(AC_ACTIVE_RELAYS?1<<1:0)|(AC_ACTIVE_INPUTS?1<<3:0)|(AC_ACTIVE_PWM?1<<4:0)|(AC_ACTIVE_FAN?1<<6:0)|(AC_ENABLE_BUZZER?1<<7:0)|(AC_ACTIVE_DIAGNOSTICS?1<<8:0)|(AC_ENABLE_DHT&&!AC_ACTIVE_FAN?1<<9:0);
-static const byte PANEL_ACTIVE_PAGE_COUNT=3+(AC_ACTIVE_RELAYS>0)+(AC_ACTIVE_INPUTS>0)+(AC_ACTIVE_PWM>0)+AC_ACTIVE_FAN+AC_ENABLE_BUZZER+bool(AC_ACTIVE_DIAGNOSTICS)+(AC_ENABLE_DHT&&!AC_ACTIVE_FAN);
+static const uint16_t PANEL_PAGE_MASK=(1<<0)|(1<<2)|(1<<5)|(AC_ACTIVE_RELAYS?1<<1:0)|(AC_ACTIVE_INPUTS?1<<3:0)|(AC_ACTIVE_PWM?1<<4:0)|(AC_ACTIVE_FAN?1<<6:0)|(AC_ENABLE_BUZZER?1<<7:0)|(AC_ACTIVE_DIAGNOSTICS?1<<8:0)|(AC_ENABLE_DHT&&!AC_ACTIVE_FAN?1<<9:0)|(AC_ACTIVE_PERIPHERALS?1<<10:0);
+static const byte PANEL_ACTIVE_PAGE_COUNT=3+(AC_ACTIVE_RELAYS>0)+(AC_ACTIVE_INPUTS>0)+(AC_ACTIVE_PWM>0)+AC_ACTIVE_FAN+AC_ENABLE_BUZZER+bool(AC_ACTIVE_DIAGNOSTICS)+(AC_ENABLE_DHT&&!AC_ACTIVE_FAN)+bool(AC_ACTIVE_PERIPHERALS);
 bool panelFieldEnabled(uint16_t i){return i<PANEL_FIELD_COUNT&&acFieldSupported(panelWireId(i),portalFeatures);}
 uint16_t panelActiveFieldCount(){uint16_t count=0;for(uint16_t i=0;i<PANEL_FIELD_COUNT;++i)if(panelFieldEnabled(i)){String key=panelFieldProperty(i);if(key!=F("LedState")&&key!=F("CurrentBrightness")&&key!=F("ClockRtcStatus"))++count;}return count;}
 String panelRegistrationErrors[PANEL_PAGE_COUNT];
@@ -56,6 +56,7 @@ void panelConfirmSetting(uint16_t i,const String& raw,bool force=false){
 void panelPersistenceService(){
  // Wait for native HTTP/MQTT persistence; then merge confirmed corrections into
  // the same pending application save. Never serialize a separate configuration.
+ if(panelSaveConfirmed.none())return;
  if(!configMegaReady||(!panelPersistenceBatch&&portal.portalAndAppConfigBusy())||panelPendingField.length()||panelQueuedCount)return;
  uint32_t started=millis();byte applied=0;
  for(uint16_t i=0;i<PANEL_FIELD_COUNT;i++)if(panelSaveConfirmed[i]&&panelSeen[i]){
@@ -88,7 +89,8 @@ void panelStore(uint16_t i,const String& value) {
   bridgeTelemetry[panelWireId(i)-1]=value; panelSeen[i]=true;
 }
 String panelCached(const String& key) {
-  for (uint16_t i=0;i<PANEL_FIELD_COUNT;i++) if (key==panelFieldName(i)) return panelValue(i);
+  uint16_t i=wirePanelIndex(acFieldId(key));
+  if(i<PANEL_FIELD_COUNT)return panelValue(i);
   return "";
 }
 uint32_t panelLargestHeapBlock() { return ArdHeap::sample().block8; }
@@ -186,12 +188,12 @@ void panelRenderField(uint16_t i) {
   String id=panelControlIdAt(i);
   auto definition=portal.getAppConfigValue(id.c_str());
   if (definition.isUndefined()) return;
-  String property=panelFieldProperty(i),raw=panelValue(i);
+  String raw=panelValue(i);
   // Native configuration already supplies unchanged settings. Avoid allocating
   // a second runtime JSON member for every field in the initial snapshot.
   String current=panelNativeRaw(definition);
   if (definition.type()==ArdJSON::JSONVar::Type::Number ? panelValuesEqual(raw,current) : raw==current) return;
-  if (property==F("State") || property==F("LedState") || property==F("BuzzerMorning") || property==F("BuzzerAfternoon") || property==F("BuzzerEvening") || property==F("BuzzerNight") || (panelField(i).group==1 && (property==F("MorningMode") || property==F("AfternoonMode") || property==F("EveningMode") || property==F("NightMode")))) panelState(id.c_str(),ArdJSON::JSONVar(raw==F("on")));
+  if (definition.type()==ArdJSON::JSONVar::Type::Boolean) panelState(id.c_str(),ArdJSON::JSONVar(raw==F("on")));
   else if (definition.type()==ArdJSON::JSONVar::Type::Number) panelState(id.c_str(),ArdJSON::JSONVar(raw.toFloat()));
   else panelState(id.c_str(),ArdJSON::JSONVar(raw));
 }
@@ -210,17 +212,15 @@ void panelReceiveValue(const String& topic,const String& value){
  String prefix="stat/"+bridgeHostname()+"/";
  if(topic.startsWith(prefix))panelReceiveWireValue(acFieldId(topic.substring(prefix.length())),value);
 }
-void panelReply(String payload) {
-  int first=payload.indexOf(' '),second=payload.indexOf(' ',first+1);
-  if (first<1 || second<0 || payload.substring(0,first)!=String(panelId) || !panelPendingField.length()) return;
-  String field=payload.substring(first+1,second),actual=payload.substring(second+1),readback=panelPendingField;
-  if (field!=readback) return;
-  uint16_t acknowledged=wirePanelIndex(acFieldId(field));
+// ACK fields are already decoded by UART: do not rebuild/parse a text frame.
+void panelReplyValue(uint32_t operation,uint16_t wireId,const String& actual){
+ if(operation!=panelId||!panelPendingField.length()||panelPendingIndex>=PANEL_FIELD_COUNT||panelWireId(panelPendingIndex)!=wireId)return;
+ String field=panelPendingField;uint16_t acknowledged=panelPendingIndex;
   if(panelQueuedSlot(acknowledged)<0)panelConfirmSetting(acknowledged,actual,true);
   panelPendingIndex=UINT16_MAX;
-  panelReceiveValue("stat/"+bridgeHostname()+"/"+field,actual);
-  uint16_t wireId=acFieldId(field);if(wireId)bridgeTelemetryDirty[wireId-1]=true;
-  uint16_t confirmed=wirePanelIndex(acFieldId(field));
+  panelReceiveWireValue(wireId,actual);
+  if(wireId)bridgeTelemetryDirty[wireId-1]=true;
+  uint16_t confirmed=acknowledged;
   if(confirmed<PANEL_FIELD_COUNT){panelNeedsRender[confirmed]=false;panelRenderField(confirmed);}
   bool same=actual.equalsIgnoreCase(panelPendingValue);
   char *a=nullptr,*b=nullptr;
@@ -229,6 +229,12 @@ void panelReply(String payload) {
   panelOperation=(same ? "Mega confirmed: " : "Mega returned a different value: ")+field+" = "+actual;
   AC_PORTAL_LOG(panelOperation);
   panelPendingField=""; panelPendingValue="";
+}
+// Compatibility adapter for local callers/tests; UART uses panelReplyValue.
+void panelReply(String payload){
+ int first=payload.indexOf(' '),second=payload.indexOf(' ',first+1);
+ if(first<1||second<0||payload.substring(0,first)!=String(panelId))return;
+ panelReplyValue(panelId,acFieldId(payload.substring(first+1,second)),payload.substring(second+1));
 }
 void panelRollbackPending(){
   if(panelPendingIndex<PANEL_FIELD_COUNT){
@@ -245,14 +251,14 @@ bool panelSendSetting(uint16_t i,String value) {
   if(i>=PANEL_FIELD_COUNT || !panelFieldEnabled(i))return false;
   String field=panelCommandField(i),property=panelFieldProperty(i);
   if (!field.length()) return false;
-  if(property==F("State") || property==F("LedState") || property==F("BuzzerMorning") || property==F("BuzzerAfternoon") || property==F("BuzzerEvening") || property==F("BuzzerNight") || (panelField(i).group==1 && (property==F("MorningMode") || property==F("AfternoonMode") || property==F("EveningMode") || property==F("NightMode")))){
+  if(property==F("Inverted") || property==F("Pullup") || property==F("State") || property==F("LedState") || property==F("BuzzerMorning") || property==F("BuzzerAfternoon") || property==F("BuzzerEvening") || property==F("BuzzerNight") || (panelField(i).group==1 && (property==F("MorningMode") || property==F("AfternoonMode") || property==F("EveningMode") || property==F("NightMode")))){
     value.trim();value.toLowerCase();if(value==F("true"))value="on";else if(value==F("false"))value="off";
     if(value!=F("on")&&value!=F("off"))return false;
   }
   if (!configMegaReady || !panelSeen[i] || !panelLinked || millis()-panelLastRx>20000UL) {
     panelOperation="No current data from Mega"; AC_PORTAL_LOG(panelOperation); panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true;
   }
-  if ((property==F("Name") && value.length()>15) || !value.length() || value.indexOf(']')>=0 || value.indexOf('\r')>=0 || value.indexOf('\n')>=0) {
+  if ((property==F("Name") && value.length()>15) || value.length()>AcWire::Link::MaxMessage-6 || !value.length() || value.indexOf(']')>=0 || value.indexOf('\r')>=0 || value.indexOf('\n')>=0) {
     AC_PORTAL_LOG("Panel: rejected value for "+field);panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true;
   }
   if(panelPendingField.length() || (panelQueuedCount && !panelDrainingSetting)){
@@ -270,7 +276,7 @@ bool panelSendSetting(uint16_t i,String value) {
     return true;
   }
   if (++panelId==0 || panelId==UINT32_MAX) panelId=1;
-  if (!bridgeQueueFrame(String(F("[panelset "))+String(panelId)+" "+field+" "+value+"]")) { AC_PORTAL_LOG(F("Panel: RS queue full"));panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true; }
+  if (!bridgeQueueSetting(panelId,panelWireId(i),value)) { AC_PORTAL_LOG(F("Panel: RS queue full"));panelRenderField(i);bridgeTelemetryDirty[panelWireId(i)-1]=true;return true; }
   if(property==F("CurrentBrightness")&&!panelDrainingSetting)panelLedBrightnessManualWanted=panelCached("LedControlMode")==F("manual");
   panelPendingField=field; panelPendingValue=value; panelRequestAt=millis();
   panelPendingIndex=i;panelPendingActual=panelValue(i);
@@ -281,7 +287,7 @@ bool panelSendSetting(uint16_t i,String value) {
 }
 void panelFlushQueuedSetting(){
   if(!panelQueuedCount || panelPendingField.length() || !configMegaReady || !panelLinked || millis()-panelLastRx>20000UL || bridgeTxFree()<96)return;
-  uint16_t i=panelQueuedIndex[0];String value=panelQueuedValue[0],actual=panelQueuedActual[0];
+  uint16_t i=panelQueuedIndex[0];String value=std::move(panelQueuedValue[0]),actual=std::move(panelQueuedActual[0]);
   for(byte slot=1;slot<panelQueuedCount;slot++){
     panelQueuedIndex[slot-1]=panelQueuedIndex[slot];panelQueuedValue[slot-1]=std::move(panelQueuedValue[slot]);panelQueuedActual[slot-1]=std::move(panelQueuedActual[slot]);
   }
@@ -353,6 +359,7 @@ void panelRenderService(){
  static uint16_t render=0;static uint32_t nextAt=0;
  uint32_t start=millis();if(int32_t(start-nextAt)<0)return;nextAt=start+200;
  byte applied=0;
+ if(panelNeedsRender.none())return;
  for(uint16_t scanned=0;scanned<PANEL_FIELD_COUNT;scanned++){
   uint16_t i=render;render=(render+1)%PANEL_FIELD_COUNT;
   if(!panelNeedsRender[i])continue;
@@ -367,7 +374,7 @@ void panelService() {
   if (panelRegisteredMask!=PANEL_PAGE_MASK && panelRegisteringPage==255 && !portal.appConfigPageRegistrationBusy()) {
     //Largest pages first, before smaller schemas fragment the heap.
     //A rejected page must not prevent the other pages or UART from working.
-    static const byte order[]={0,4,3,1,5,6,9,2,7,8};
+    static const byte order[]={0,4,3,1,5,6,9,2,7,8,10};
     static byte nextPage=0;
     static uint32_t retryAt=0;
     if ((long)(millis()-retryAt)>=0) {

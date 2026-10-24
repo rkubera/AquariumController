@@ -9,6 +9,9 @@
 #ifndef AC_INPUT_COUNT
 #define AC_INPUT_COUNT 0 //8
 #endif
+#ifndef AC_ENABLE_PERIPHERALS
+#define AC_ENABLE_PERIPHERALS 1
+#endif
 #ifndef AC_ENABLE_DHT
 #define AC_ENABLE_DHT 1
 #endif
@@ -48,8 +51,8 @@
 #define ARDPORTAL_ENABLE_CONTROLS 0
 #define ARDPORTAL_ENABLE_CONTROL_SLIDER 1
 #define ARDPORTAL_ENABLE_CONTROL_TEXT 1
-// Readouts use explicit HA metadata; no field uses the optional textType API.
-#define ARDPORTAL_ENABLE_TEXT_TYPES 0
+// Readouts use explicit HA metadata; no field uses the optional semantic class catalogue.
+#define ARDPORTAL_ENABLE_CLASSES 0
 #define ARDPORTAL_ENABLE_CONTROL_SELECT 1
 #define ARDPORTAL_ENABLE_CONTROL_EDIT (AC_ACTIVE_RELAYS > 0 || AC_ACTIVE_INPUTS > 0 || AC_ACTIVE_PWM > 0)
 #define ARDPORTAL_ENABLE_CONTROL_BINARY_SENSOR 0
@@ -115,7 +118,8 @@ static const int MEGA_RX_PIN=3,MEGA_TX_PIN=1;
 uint32_t bridgeDroppedFrames=0,bridgeRxBytes=0;
 bool bridgeWifiWasConnected=false,bridgeMqttWasConnected=false;
 String bridgeLastHostname;
-String bridgeTelemetry[AC_WIRE_FIELD_COUNT];
+#include "ActiveTelemetryCache.h"
+ActiveTelemetryCache bridgeTelemetry;
 std::bitset<AC_WIRE_FIELD_COUNT> bridgeTelemetryDirty,bridgeTelemetrySeen;
 bool bridgeDhtSent[2]={};uint32_t bridgeDhtLastSent[2]={};
 

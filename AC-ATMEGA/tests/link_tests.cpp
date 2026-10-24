@@ -502,6 +502,24 @@ int main() {
   errorReport(false);assert(errorsCount==0);
   megaFeatures.flags |= ControllerFeatures::Rtc;clockRtcStatus=1;
 
+  drain();
+  for(byte ch=1;ch<=SENSORS_COUNT;ch++){
+    std::string base="Sensor"+std::to_string(ch);
+    for(const char* device:{"dht11","dht12","dht21","dht22","ds18b20","disabled","analog"}){
+      command(base+"Device",device);assert(retained(base+"Device")==device);
+      if(AcPeripheral::isDht(peripheralInputDevice(ch))){command(base+"Measurement","humidity");assert(retained(base+"Measurement")=="humidity");}
+    }
+  }
+  for(byte ch=1;ch<=PWMOUTPUTS_COUNT;ch++){
+    std::string name="PWMOutput"+std::to_string(ch)+"Device";
+    command(name,"servo");assert(retained(name)=="servo");command(name,"pwm");assert(retained(name)=="pwm");
+  }
+  drain();command("Sensor1Function","leak");sensorsDigitalReading(1,1,1);errorReport(true);drain();assert(sensorsPeripheralAlarm(1)&&alarmHistory.codes[0]==1);
+  assert(retained("Status").find("leak")!=std::string::npos);
+  sensorsDigitalReading(1,0,1);errorReport(true);drain();assert(!sensorsPeripheralAlarm(1));
+  command("Sensor1Function","level");sensorsDigitalReading(1,0,1);errorReport(true);drain();assert(sensorsPeripheralAlarm(1)&&alarmHistory.codes[0]==1);
+  assert(retained("Status").find("low level")!=std::string::npos);
+  sensorsDigitalReading(1,1,1);errorReport(true);drain();assert(!sensorsPeripheralAlarm(1));command("Sensor1Function","analog");
   // Every writable Portal/HA field must have a supported Mega readback.
   for(const char* name:testCommandNames){
     drain();Serial3.output.clear();linkPanelId=999;linkPanelField=acFieldId(name);

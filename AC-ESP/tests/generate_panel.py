@@ -1,5 +1,5 @@
 from pathlib import Path
-import json
+import json,re
 esp=Path(__file__).resolve().parents[1]
 def edit(key,label): return dict(key=key,type='edit',name=label,command=key)
 def temporal(key,label,kind): return dict(key=key,type=kind,name=label,command=key)
@@ -10,9 +10,13 @@ def group(id,title,prefix,count,controls):
     defaults={c['key']:c['options'][0] if c['type']=='select' else c['min'] if c['type']=='slider' else '' for c in controls}
     groups.append(dict(id=id,title=title,prefix=prefix,count=count,controls=controls,defaults=defaults))
 name=edit('Name','Name (max. 15 characters)')
-group('UIInputs','Inputs','Sensor',8,[name,select('Type','Assigned output',['notconnected']+['relay'+str(i) for i in range(1,5)]+['pwmoutput'+str(i) for i in range(1,7)])]+[edit(k,l) for k,l in [('CalibValue1','Calibration: value 1'),('CalibRawValue1','Calibration: ADC 1 (0–1023)'),('CalibValue2','Calibration: value 2'),('CalibRawValue2','Calibration: ADC 2 (0–1023)'),('MinValue','Minimum or off'),('MaxValue','Maximum or off'),('CriticalMinValue','Critical minimum or off'),('CriticalMaxValue','Critical maximum or off')]])
+input_device=select('Device','Device',['analog','dht11','dht12','dht21','dht22','ds18b20','disabled','digital','level','leak','flow','ph'])
+input_measurement=select('Measurement','Control measurement',['temperature','humidity'])
+input_function=select('Function','Function',['analog','temperature','humidity','digital','level','leak','flow','ph','disabled'])
+input_models=[select('TemperatureModel','Temperature sensor model',['dht11','dht12','dht21','dht22','ds18b20']),select('HumidityModel','Humidity sensor model',['dht11','dht12','dht21','dht22'])]
+group('UIInputs','Inputs','Sensor',8,[name,input_function]+input_models+[dict(key='Inverted',type='switch',name='Invert input',command='Inverted'),dict(key='Pullup',type='switch',name='Internal pull-up',command='Pullup'),edit('DebounceMs','Debounce (ms)'),edit('PulsesPerLitre','Pulses per litre'),select('Type','Assigned output',['notconnected']+['relay'+str(i) for i in range(1,5)]+['pwmoutput'+str(i) for i in range(1,7)])]+[edit(k,l) for k,l in [('CalibValue1','Calibration: value 1'),('CalibRawValue1','Calibration: raw value 1'),('CalibValue2','Calibration: value 2'),('CalibRawValue2','Calibration: raw value 2'),('MinValue','Minimum or off'),('MaxValue','Maximum or off'),('CriticalMinValue','Critical minimum or off'),('CriticalMaxValue','Critical maximum or off')]])
 def output(pwm):
-    return [name,select('ControlMode','Mode',['manual','partofday','treshold']+(['pid'] if pwm else [])),dict(key='State',type='switch',name='State',command='State'),select('ControlDirection','Direction',['direct','reverse']),select('Input','Analog input',['none']+['sensor'+str(i) for i in range(1,9)]),edit('SensorsSetpoint','Setpoint'),edit('MaxDeviation','Hysteresis half-width')]+[slider(k,l,0,65535) if pwm else dict(key=k,type='switch',name=l,command=k) for k,l in [('MorningMode','Morning'),('AfternoonMode','Afternoon'),('EveningMode','Evening'),('NightMode','Night')]]+([slider('ManualMode','Manual PWM',0,65535)]+[edit(k,k) for k in ['PidKp','PidKi','PidKd']] if pwm else [])
+    return [name]+([select('Device','Device',['pwm','servo'])] if pwm else [])+[select('ControlMode','Mode',['manual','partofday','treshold']+(['pid'] if pwm else [])),dict(key='State',type='switch',name='State',command='State'),select('ControlDirection','Direction',['direct','reverse']),select('Input','Input',['none']+['sensor'+str(i) for i in range(1,9)]),edit('SensorsSetpoint','Setpoint'),edit('MaxDeviation','Hysteresis half-width')]+[slider(k,l,0,65535) if pwm else dict(key=k,type='switch',name=l,command=k) for k,l in [('MorningMode','Morning'),('AfternoonMode','Afternoon'),('EveningMode','Evening'),('NightMode','Night')]]+([slider('ManualMode','Manual PWM',0,65535)]+[edit(k,k) for k in ['PidKp','PidKi','PidKd']] if pwm else [])
 group('UIRelays','Relays','Relay',4,output(False)); group('UIPWM','PWM outputs','PWMOutput',6,[c for c in output(True) if c['key']!='State'])
 colors=['black','red','green','blue','cyan','magenta','yellow','white','wave','custom']
 group('UILed','LED','',0,[dict(key='LedState',type='switch',name='State',command='LedState'),select('LedControlMode','Mode',['manual','partofday']),select('LedManualMode','Manual color',colors),slider('CurrentBrightness','Manual brightness (%)',0,100)]+[edit(k,k+' (RGB 0–16777215)') for k in ['CustomColor']])
@@ -25,7 +29,7 @@ group('UIFan','Fan','',0,[slider(k,'Fan: '+l,0,100) for k,l in [('FanStartTemp',
 group('UIBuzzer','Sounds','',0,[select('BuzzerOnStart','Startup sound',['off','on']),select('BuzzerOnErrors','Alarm sound',['off','on'])]+[dict(key='Buzzer'+key,type='switch',name='Sounds: '+label,command='Buzzer'+key) for key,label in [('Morning','Morning'),('Afternoon','Afternoon'),('Evening','Evening'),('Night','Night')]])
 group('UIDiagnostics','Diagnostics','',0,[])
 # Metadata: persistent settings and telemetry cache, all keys are canonical Mega fields.
-readouts={0:['Value','RawValue'],1:['State','SensorsValue'],2:['Value','SensorsValue'],3:['LedState'],4:['ActualPartOfDay'],5:['ClockRtcStatus','ActualTimezoneOffset','ActualDayOfWeek'],6:['InternalTemperature','InternalHumidity','FanPWMValue'],7:[],8:['ErrorCount','AlarmLast1','AlarmLast2','AlarmLast3']}
+readouts={0:['Value','RawValue','Humidity'],1:['State','SensorsValue'],2:['Value','SensorsValue'],3:['LedState'],4:['ActualPartOfDay'],5:['ClockRtcStatus','ActualTimezoneOffset','ActualDayOfWeek'],6:['InternalTemperature','InternalHumidity','FanPWMValue'],7:[],8:['ErrorCount','AlarmLast1','AlarmLast2','AlarmLast3']}
 meta=[]; cache=[]
 for n,g in enumerate(groups):
     keys=[c['key'] for c in g['controls'] if c['key']!='channel']
@@ -67,7 +71,7 @@ for index,(n,ch,field,prop) in enumerate(cache):
     records.append((index,profiles.index(profile)))
 
 # The same scalar fields are rendered by the Portal and discovered by HA.
-page_defs=[('led','LED',0),('relays','Relays',10),('schedule','Schedule',20),('inputs','Inputs',30),('pwm','PWM outputs',40),('clock','Clock',50),('fan','Fan',60),('buzzer','Sounds',70),('diagnostics','Diagnostics',80)]
+page_defs=[('led','LED',0),('relays','Relays',10),('schedule','Schedule',20),('inputs','Inputs',30),('pwm','PWM outputs',40),('clock','Clock',50),('fan','Fan',60),('buzzer','Sounds',70),('diagnostics','Diagnostics',80),('peripherals','Peripherals',90)]
 pages=[dict(id=id,name=name,order=order,fields=[]) for id,name,order in page_defs]
 group_page=[3,1,4,0,2,5,6,7,8]
 commands=[]
@@ -84,6 +88,9 @@ for index,profile_index in records:
         control=next(c for c in groups[n]['controls'] if c['key']==prop)
         default=control['options'][0] if control['type']=='select' else control['min'] if control['type']=='slider' else False if control['type']=='switch' else '0'
         if prop=='Name': default=''
+        if prop=='Pullup':default=True
+        if prop=='DebounceMs':default='50'
+        if prop=='PulsesPerLitre':default='450'
         if prop in ('MinValue','MaxValue','CriticalMinValue','CriticalMaxValue'): default='off'
         if prop in ('CalibValue2',): default='1'
         if prop=='CalibRawValue2': default='1023'
@@ -128,9 +135,35 @@ for index,profile_index in records:
             for b in mode_key.encode(): dependency_hash=((dependency_hash^b)*16777619)&0xffffffff
             dependency_id='M_'+format(dependency_hash,'08x')
             f['visibleWhen']={'or':[dict(field=dependency_id,equals=value) for value in mode]} if isinstance(mode,list) else dict(field=dependency_id,equals=mode)
-    page=group_page[n] if n<len(group_page) else 5
+    page=9 if n in (0,2) and prop in ('Function','Humidity','Inverted','Pullup','DebounceMs','PulsesPerLitre','TemperatureModel','HumidityModel','AnalogModel','DigitalModel','LevelModel','LeakModel','FlowModel','PhModel','Device') else group_page[n] if n<len(group_page) else 5
+    if page==9:
+        pin=([58,59,60,61,62,63,64,65] if n==0 else [5,44,45,46,11,12])[ch-1]
+        names={'Function':'Function','Device':'Function','Humidity':'Humidity (%)','Inverted':'Invert input','Pullup':'Internal pull-up','DebounceMs':'Debounce (ms)','PulsesPerLitre':'Pulses per litre'}
+        f['name']=(f'S{ch} (A{ch+3}/D{pin}): ' if n==0 else f'PWM{ch} (D{pin}): ')+names.get(prop,'Model — '+(prop[:-5] if prop.endswith('Model') else prop))
+        function_hash=2166136261
+        for b in f'Sensor{ch}Function'.encode():function_hash=((function_hash^b)*16777619)&0xffffffff
+        kinds=None
+        if prop.endswith('Model'):kinds=(prop[:-5].lower(),)
+        elif prop=='Humidity':kinds=('temperature','humidity')
+        elif prop in ('Inverted','DebounceMs'):kinds=('digital','level','leak')
+        elif prop=='Pullup':kinds=('digital','level','leak','flow')
+        elif prop=='PulsesPerLitre':kinds=('flow',)
+        if kinds:f['visibleWhen']={'or':[dict(field='M_'+format(function_hash,'08x'),equals=t) for t in kinds]}
+        if prop=='Function':
+            labels={'analog':'Analog voltage','temperature':'Temperature','humidity':'Humidity','digital':'Digital ON/OFF','level':'Water level','leak':'Water leak','flow':'Flow rate','ph':'pH','disabled':'Disabled'}
+            if ch<5:f['options']=[o for o in f['options'] if o['value']!='flow']
+            for option in f['options']:option['name']=labels[option['value']]
+        if prop.endswith('Model') and prop in ('TemperatureModel','HumidityModel'):
+            labels={'dht11':'DHT11','dht12':'DHT12 (single-wire)','dht21':'DHT21 / AM2301','dht22':'DHT22 / AM2302','ds18b20':'DS18B20'}
+            for option in f['options']:option['name']=labels[option['value']]
+        if prop=='Humidity':
+            model_hash=2166136261
+            for b in f'Sensor{ch}TemperatureModel'.encode():model_hash=((model_hash^b)*16777619)&0xffffffff
+            f['visibleWhen']={'or':[dict(field='M_'+format(function_hash,'08x'),equals='humidity'),{'and':[dict(field='M_'+format(function_hash,'08x'),equals='temperature'),{'or':[dict(field='M_'+format(model_hash,'08x'),equals=t) for t in ('dht11','dht12','dht21','dht22')]}]}]}
+            f['ha'].update(unit_of_measurement='%',device_class='humidity')
     pages[page]['fields'].append(f)
     commands.append(command_key if command else '')
+pages[9]['fields'].sort(key=lambda f: (0 if '/Sensor' in f['ha']['state_topic'] else 1, int(re.search(r'(?:Sensor|PWMOutput)([1-8])',f['ha']['state_topic']).group(1)), 0 if f['ha']['state_topic'].endswith(('Function','Device')) else 1 if f['ha']['state_topic'].endswith('Model') else 2))
 led_order={'CustomColor':0}
 pages[0]['fields'].sort(key=lambda f: led_order.get(f['ha']['state_topic'].rsplit('/',1)[-1],2))
 # Three Mega parameters share one native light entity in both Portal and HA.
@@ -147,7 +180,7 @@ f['ha'].update(schema='json',brightness=True,brightness_scale=100,supported_colo
 f['ha'].pop('optimistic',None)
 # Compile-time selections affect exactly the shared definitions used by Portal/HA.
 import re
-page_conditions=['1','AC_ACTIVE_RELAYS > 0','1','AC_ACTIVE_INPUTS > 0','AC_ACTIVE_PWM > 0','1','AC_ACTIVE_FAN','AC_ENABLE_BUZZER','AC_ACTIVE_DIAGNOSTICS','AC_ENABLE_DHT && !AC_ACTIVE_FAN']
+page_conditions=['1','AC_ACTIVE_RELAYS > 0','1','AC_ACTIVE_INPUTS > 0','AC_ACTIVE_PWM > 0','1','AC_ACTIVE_FAN','AC_ENABLE_BUZZER','AC_ACTIVE_DIAGNOSTICS','AC_ENABLE_DHT && !AC_ACTIVE_FAN','AC_ACTIVE_PERIPHERALS']
 regulation={'ControlDirection','Input','SensorsSetpoint','SensorsValue','MaxDeviation','PidKp','PidKi','PidKd'}
 def field_condition(f):
     key=f['ha']['state_topic'].rsplit('/',1)[-1]
@@ -171,7 +204,7 @@ def encode_field(f):
         out+=raw((',' if j else '')+json.dumps(option,ensure_ascii=False,separators=(',',':')))
         if cond!='1':out+='#endif\n'
     return out+raw(']}')
-compiled_pages=pages+[dict(id='dht',name='DHT',order=60,fields=[f for f in pages[6]['fields'] if f['ha']['state_topic'].rsplit('/',1)[-1] in ('MaxIntTemp','InternalTemperature','InternalHumidity')])]
+compiled_pages=pages[:9]+[dict(id='dht',name='DHT',order=60,fields=[f for f in pages[6]['fields'] if f['ha']['state_topic'].rsplit('/',1)[-1] in ('MaxIntTemp','InternalTemperature','InternalHumidity')]),pages[9]]
 header='// Generated shared Portal/HA definitions, filtered by ESP feature defines.\n'
 for i,page in enumerate(compiled_pages):
     encoded=json.dumps(page,ensure_ascii=False,separators=(',',':'))
@@ -179,10 +212,16 @@ for i,page in enumerate(compiled_pages):
     header+='#if '+page_conditions[i]+'\nstatic const char PANEL_PAGE_'+str(i)+'[] PROGMEM =\n'
     head={k:v for k,v in page.items() if k!='fields'}
     header+=raw(json.dumps(head,ensure_ascii=False,separators=(',',':'))[:-1]+',"fields":[')
+    preceding=[]
     for j,f in enumerate(page['fields']):
         cond=field_condition(f)
         if cond!='1':header+='#if '+cond+'\n'
-        if j:header+=raw(',')
+        if preceding:
+            comma_condition=' || '.join('('+c+')' for c in preceding)
+            if '1' not in preceding:header+='#if '+comma_condition+'\n'
+            header+=raw(',')
+            if '1' not in preceding:header+='#endif\n'
+        if cond not in preceding:preceding.append(cond)
         header+=encode_field(f)
         if cond!='1':header+='#endif\n'
     header+=raw(']}')+';\n#endif\n'

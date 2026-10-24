@@ -128,6 +128,8 @@ void applySetting(uint16_t endpoint,const String& RawValue) {
     return;
   }
 
+  if(peripheralsApplySetting(endpoint,Value))return;
+
   //Buzzer
   if (endpoint==FieldId::BuzzerOnStart) {
     if (Value == setBufferFromFlash(charOff)) {    

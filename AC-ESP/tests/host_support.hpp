@@ -16,6 +16,7 @@ using std::isfinite;
 #ifndef F
 #define F(x) (x)
 #endif
+#define strcmp_P strcmp
 #define PROGMEM
 #define INPUT 0
 #define OUTPUT 1

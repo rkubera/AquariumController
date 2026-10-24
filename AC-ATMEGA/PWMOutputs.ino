@@ -75,6 +75,7 @@ class pwmOutputClass {
   }
 
   void pwmOutputReportAll() {
+    reportField(pwmField(pwmOutputPin,PWMOutputField::Device),peripheralOutputDevice(pwmOutputPin)?"servo":"pwm");
     reportField(pwmField(pwmOutputPin,PWMOutputField::Input),sensorsOutputInputString(pwmOutputPin,OUTPUT_TYPE_PWM));
 
     reportField(pwmField(pwmOutputPin,PWMOutputField::SensorsValue),floatToString(sensorsGetSensorsValue(pwmOutputPin,OUTPUT_TYPE_PWM)));
@@ -119,7 +120,7 @@ class pwmOutputClass {
     bool healthy=megaConfigReady && pwmOutputPin<=megaFeatures.pwm && (!controlled || inputValid);
     if(!healthy)value=0;
     pwmOutputValue=value;
-    pwmOutputSetValue(value);
+    peripheralWritePwm(pwmOutputPin,digitalPin,value,healthy);
     if (pwmOutputControlMode == CONTROL_MODE_PID && pwmOutputPID.GetMode() == PID_MANUAL)
       pwmOutputPIDOutput = value; //Track the actual output for a bumpless return to automatic mode.
 
@@ -137,7 +138,7 @@ class pwmOutputClass {
   }
 
   void pwmOutputSetValue(uint16_t pwmOutputVal) {
-    pwmWrite16(digitalPin,pwmOutputVal);
+    peripheralWritePwm(pwmOutputPin,digitalPin,pwmOutputVal,megaConfigReady && pwmOutputPin<=megaFeatures.pwm);
   }
   
   void saveConfig(int CONFIG_addr) {
@@ -432,3 +433,5 @@ void pwmOutputsReportChannel(byte channel) {
 }
 
 void pwmOutputsInputChanged(byte channel){if(!channel||channel>PWMOUTPUTS_COUNT)return;auto& pwm=myPwmOutputs[channel-1];pwm.thresholdInitialized=false;pwm.regulatedValue=0;pwm.pwmOutputPIDOutput=0;pwm.pwmOutputPID.SetMode(PID_MANUAL);pwm.ControlEvent();}
+
+void pwmOutputsRefreshChannel(byte channel){if(channel&&channel<=PWMOUTPUTS_COUNT)myPwmOutputs[channel-1].pwmOutputApplyValue();}

@@ -3,8 +3,8 @@ volatile uint16_t buzzerHalfPeriodTicks=0,buzzerRemainingTicks=0;
 volatile byte buzzerChunk=0;
 volatile byte* buzzerPort;
 byte buzzerPortMask;
-static volatile byte* dhtInputPort;
-static byte dhtInputMask;
+static volatile byte* volatile dhtInputPort;
+static volatile byte dhtInputMask;
 static volatile byte dhtLastSampleTicks=0;
 static volatile uint16_t dhtPulseRemainingTicks=0;
 void controlTimersInit(){
@@ -38,6 +38,7 @@ void dhtTimerStart(){
 void dhtTimerStop(){TIMSK2 &= ~_BV(OCIE2B);dhtPulseRemainingTicks=0;}
 void dhtStartPulse(){byte saved=SREG;cli();dhtPulseRemainingTicks=36000;OCR2B=TCNT2+200;TIFR2=_BV(OCF2B);TIMSK2|=_BV(OCIE2B);SREG=saved;}
 ISR(TIMER2_COMPB_vect){
+ if(peripheralOneWireActive){peripheralOneWireTick();return;}
  if(dhtPulseRemainingTicks){
   dhtPulseRemainingTicks-=200;
   if(!dhtPulseRemainingTicks){TIMSK2 &= ~_BV(OCIE2B);dhtReleaseStartPulse();}
@@ -48,3 +49,5 @@ ISR(TIMER2_COMPB_vect){
  dhtLastSampleTicks=sampledAt;OCR2B=sampledAt+20;
  dhtCaptureTickElapsed((*dhtInputPort&dhtInputMask)!=0,elapsed);
 }
+
+void dhtSelectPin(byte pin){dhtBusPin=pin;dhtInputPort=portInputRegister(digitalPinToPort(pin));dhtInputMask=digitalPinToBitMask(pin);}

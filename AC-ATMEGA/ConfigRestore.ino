@@ -6,7 +6,7 @@ uint16_t megaConfigReceived=0;
 uint32_t megaConfigToken=0,megaConfigDigest=0,megaConfigReceiveAt=0,megaConfigLastRequest=0;
 void megaFeatureInterlock(){
  megaConfigReady=false;megaReceivingConfig=false;linkPanelField=0;linkWireQueue.clear();
- relaysInit();pwmOutputsInit();initFan();ledInit();buzzerDisable();dhtDisable();rtcDisable();
+ peripheralsDisable();relaysInit();pwmOutputsInit();initFan();ledInit();buzzerDisable();dhtDisable();rtcDisable();
 }
 void megaConfigSession(bool connected){
  linkWireQueue.clear();linkPanelField=0;megaReceivingConfig=false;

@@ -12,6 +12,7 @@ def function(name):
 support=(root/'tests/host_support.hpp').read_text().split('const int bufferOutSize')[0]
 support=support.replace('  int indexOf(char ch)', '  bool equalsIgnoreCase(const String& o) const {return strcasecmp(value.c_str(),o.value.c_str())==0;}\n  int indexOf(char ch,int from) const {auto n=value.find(ch,from);return n==std::string::npos?-1:int(n);}\n  int indexOf(char ch)')
 fixture=r'''#include <strings.h>
+namespace AcWire{struct Link{static const uint16_t MaxMessage=160;};}
 const uint16_t PANEL_FIELD_COUNT=2;
 bool panelLedBrightnessManualWanted=false;
 String panelCached(const String&){return "manual";}
@@ -29,17 +30,19 @@ uint32_t panelLastRx=0,panelRequestAt=0,panelId=0;
 struct Portal {void log(const String&) {}} portal;
 String panelCommandField(uint16_t i){return i==0?"CurrentBrightness":"Sensor1Name";}
 struct MockField{byte group;}; MockField panelField(uint16_t){return {0};}
-String panelFieldProperty(uint16_t i){return i==0?"CurrentBrightness":"Name";}
+bool invertedTest=false;
+String panelFieldProperty(uint16_t i){return i==0?"CurrentBrightness":invertedTest?"Inverted":"Name";}
 uint16_t panelWireId(uint16_t i){return i+1;}
 uint16_t wirePanelIndex(uint16_t id){return id>=1 && id<=2?id-1:UINT16_MAX;}
 uint16_t acFieldId(const String& f){return f=="CurrentBrightness"?1:f=="Sensor1Name"?2:3;}
 String bridgeHostname(){return "test";}
 bool bridgeQueueFrame(const String&){return queueOk;}
+bool bridgeQueueSetting(uint32_t,uint16_t,const String&){return queueOk;}
 void panelRenderField(uint16_t){}
 void panelConfirmSetting(uint16_t,const String&,bool=false){}
 '''
 # Declare handlers before combining the actual source functions.
-names=['panelQueuedSlot','panelValue','panelStore','panelReceiveWireValue','panelReceiveValue','panelReply','panelRollbackPending','panelSendSetting','panelMqttSetting','panelFlushQueuedSetting']
+names=['panelQueuedSlot','panelValue','panelStore','panelReceiveWireValue','panelReceiveValue','panelReplyValue','panelReply','panelRollbackPending','panelSendSetting','panelMqttSetting','panelFlushQueuedSetting']
 funcs=[function(n) for n in names]
 protos='\n'.join(f[:f.index('{')].strip()+';' for f in funcs)
 main=r'''int main(){
@@ -63,8 +66,10 @@ main=r'''int main(){
  panelSendSetting(0,"80");panelSendSetting(0,"90");panelReply(String(panelId)+" CurrentBrightness 80");
  panelFlushQueuedSetting();panelRollbackPending();panelPendingField="";panelPendingValue="";assert(panelValue(0)=="80");
  // Invalid values never replace a queued valid request.
- panelSendSetting(0,"30");panelSendSetting(1,"valid");panelSendSetting(1,"invalid\nvalue");assert(panelValue(1)=="valid" && panelQueuedCount==1);
+ panelSendSetting(0,"30");panelSendSetting(1,"valid");panelSendSetting(1,"invalid\nvalue");panelSendSetting(0,String(std::string(200,'1')));assert(panelValue(1)=="valid" && panelQueuedCount==1);
  panelReply(String(panelId)+" CurrentBrightness 30");panelFlushQueuedSetting();panelReply(String(panelId)+" Sensor1Name valid");
+ invertedTest=true;panelSendSetting(1,"true");assert(panelPendingValue=="on");panelReplyValue(panelId,2,"on");
+ panelSendSetting(1,"false");assert(panelPendingValue=="off");panelReplyValue(panelId,2,"off");
 }'''
 with tempfile.TemporaryDirectory() as d:
  p=Path(d);(p/'test.cpp').write_text('#include <strings.h>\n'+support+fixture+protos+'\n'.join(funcs)+main)

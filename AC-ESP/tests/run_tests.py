@@ -3,10 +3,10 @@
 from pathlib import Path
 import subprocess,sys,json
 root=Path(__file__).resolve().parents[1]
-for name in ['feature_test.py','run_wire_tests.py','run_replication_tests.py','registration_test.py','cache_test.py','pacing_test.py','optimistic_test.py','native_persistence_test.py','light_test.py','light_storage_test.py']:
+for name in ['feature_test.py','active_cache_test.py','decoder_memory_test.py','run_wire_tests.py','run_replication_tests.py','registration_test.py','cache_test.py','pacing_test.py','optimistic_test.py','native_persistence_test.py','light_test.py','light_storage_test.py']:
  subprocess.run([sys.executable,str(root/'tests'/name)],check=True)
 pages=json.loads((root/'tests/panel_schema.json').read_text())
-assert len(pages)==9 and sum(len(p['fields']) for p in pages)==295
+assert len(pages)==10 and sum(len(p['fields']) for p in pages)==365
 all_ids=[f['id'] for p in pages for f in p['fields']];assert len(all_ids)==len(set(all_ids))
 for page in pages:
  ids={f['id'] for f in page['fields']}

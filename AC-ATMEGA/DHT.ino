@@ -58,9 +58,9 @@ void dhtCaptureTick(bool high) { dhtCaptureTickElapsed(high,20); }
 
 void dhtReleaseStartPulse() {
   dhtStartPulseMillis=18;
-  dhtStartPinLevel=digitalRead(DHT_PIN);
+  dhtStartPinLevel=digitalRead(dhtBusPin);
   dhtCaptureBegin();
-  pinMode(DHT_PIN,INPUT_PULLUP);
+  pinMode(dhtBusPin,INPUT_PULLUP);
   dhtTimerStart();
   dhtStartReleased=true;
 }
@@ -70,6 +70,7 @@ void dhtInit() {
   dhtTimerStop();
 #endif
   dhtTimerStop(); dhtCaptureState=0;
+  dhtBusPin=DHT_PIN;dhtSelectPin(DHT_PIN);
   dhtCaptureReady=false; dhtCaptureOk=false;
   dhtCaptureTicks=0; dhtCaptureElapsed=0; dhtCaptureBits=0;
   dhtTemperature=NAN; dhtHumidity=NAN; dhtFailures=0; dhtLastReinit=millis();
@@ -90,7 +91,7 @@ void dhtReportAll() {
 }
 
 void dhtGetDataMillisEvent() {
-  if(!megaFeatures.has(ControllerFeatures::Dht))return;
+  if(!megaFeatures.has(ControllerFeatures::Dht)||peripheralsBusBusy())return;
   static unsigned long lastPublish=0;
   static bool measurementsPublished=false;
   if (dhtRequestState==0) {
@@ -158,3 +159,5 @@ void dhtGetDataMillisEvent() {
 }
 
 void dhtDisable(){dhtTimerStop();dhtCaptureState=0;dhtRequestState=0;dhtCaptureReady=false;dhtCaptureOk=false;dhtValid=false;dhtTemperature=NAN;dhtHumidity=NAN;pinMode(DHT_PIN,INPUT_PULLUP);}
+
+bool dhtBusAvailable(){return dhtRequestState==0;}

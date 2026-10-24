@@ -35,7 +35,7 @@ int activations=0,beeps=0;std::map<uint16_t,String> actual;
 void configLoad(){configStorage.begin();}
 void configSaveValue(byte v,int a){configStorage.update(a,v);}
 void initFan(){}void ledInit(){}void buzzerDisable(){}void dhtDisable(){}void rtcDisable(){}void dhtInit(){}void rtcInit(){}void errorReport(bool){}
-void sensorsResetAcquisition(){}void relaysInit(){}void pwmOutputsInit(){}
+void peripheralsDisable(){}void sensorsResetAcquisition(){}void relaysInit(){}void pwmOutputsInit(){}
 void clockUpdateTimezoneRules(){}void clockInvalidateLocalTime(){}void clockGetLocalTime(){}
 void buzzerInit(){beeps++;}void linkRequestSnapshot(){activations++;}
 void applySetting(uint16_t id,String v){actual[id]=v;}
