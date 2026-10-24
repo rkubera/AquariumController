@@ -4,9 +4,12 @@ This audit covers AquariumController source and offline tests. ArdPortal was not
 
 ## Changes
 
-- Mega: pack input validity/debounce flags and store peripheral DHT humidity as integer tenths. Static RAM falls from 6012 to 5958 bytes, saving 54 bytes net without reducing precision or channel counts.
+- Mega: pack input validity/debounce flags and store peripheral DHT humidity as integer tenths. Static RAM falls from 6012 to 5959 bytes, saving 53 bytes net without reducing precision or channel counts.
 - Mega: do not touch the GPIO latch when detaching an already detached servo. This removes needless critical sections and prevents a short LOW glitch on a normal PWM output previously used by a servo.
 - Mega: limit each flow input to 4096 rising edges per measurement window, normally one second. On excess edges, suspend that channel's pin-change interrupts until the next window and invalidate the measurement. A separate two-byte counter caps all shared pin-change IRQs at 32768 per window, including aliased noise that does not appear as a sampled rising edge. This bounds interrupt storms from noisy wiring.
+- Mega: editing a flow input preserves counts, pending edges, overflow lockouts and the measurement deadline of the other inputs. The edited input discards its partial first window; the warmup bitmap costs one byte.
+- Mega: remove cross-slot servo interrupt masking from OneWire. Its short callbacks already run atomically inside Timer2; ordinary interrupt latency still requires hardware timing validation. The production short-callback path normally did not enter the removed masking branch, so no measured servo-jitter improvement is claimed.
+- ESP/Mega: builds include the new optional-peripherals feature manifest; saved assignments and existing Home Assistant entities are preserved.
 - ESP: omit telemetry String objects for disabled hardware. The compact cache preserves the numeric UART/MQTT field IDs. Fully enabled builds retain direct indexing and the original cache footprint.
 - ESP: replace whole-panel name scans and temporary dictionary Strings with direct numeric mapping and flash-string comparison.
 - ESP: send settings and process acknowledgements as typed fields rather than assembling and reparsing text frames. Move queued String buffers instead of copying them.
@@ -33,11 +36,11 @@ All sizes below are bytes. Mega firmware means loadable program size, not the AS
 
 | Build | Firmware | Image-area budget | Remaining image area | Static RAM | RAM after globals |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Mega | 102,858 | 253,952 | 151,094 | 5,958 | 2,234 |
-| ESP32 current | 1,239,232 | 1,966,080 | 726,848 | 59,932 | 267,748 |
-| ESP32 full | 1,329,248 | 1,966,080 | 636,832 | 64,684 | 262,996 |
-| ESP8266 current | 527,328 | 962,560 | 435,232 | 46,324 | 33,868 |
-| ESP8266 full | 617,376 | 962,560 | 345,184 | 49,900 | 30,292 |
+| Mega | 102,822 | 253,952 | 151,130 | 5,959 | 2,233 |
+| ESP32 current | 1,238,608 | 1,966,080 | 727,472 | 59,932 | 267,748 |
+| ESP32 full | 1,329,152 | 1,966,080 | 636,928 | 64,684 | 262,996 |
+| ESP8266 current | 527,264 | 962,560 | 435,296 | 46,324 | 33,868 |
+| ESP8266 full | 617,344 | 962,560 | 345,216 | 49,900 | 30,292 |
 
 ESP32 uses `PartitionScheme=min_spiffs`: each OTA application slot is 1,966,080 bytes. "Remaining image area" is firmware growth room inside one slot, not the total flash chip's unused storage. The second OTA slot and filesystem are separate.
 
@@ -52,6 +55,6 @@ ESP8266 instruction RAM uses 60,815 / 65,536 bytes, including the instruction-ca
 
 ## Validation
 
-Controller/input/servo/flow tests, UART and native persistence tests, all 128 feature combinations, compact-cache mapping tests, LED/optimistic command tests and actual ArdPortal/ArdFS persistence tests passed. Host tests use address/undefined-behavior sanitizers. Allocation-failure tests exercise the actual ESP decoding paths, and 20,000 repeated decoding/lookup iterations passed. The dictionary lookup test also asserts that an existing-key lookup constructs no temporary String.
+Controller/input/servo/flow tests (including flow-channel edit isolation, pending-edge preservation, overflow lockouts and servo interrupt availability throughout OneWire), UART and native persistence tests, all 128 feature combinations, compact-cache mapping tests, LED/optimistic command tests and actual ArdPortal/ArdFS persistence tests passed. Host tests use address/undefined-behavior sanitizers. Allocation-failure tests exercise the actual ESP decoding paths, and 20,000 repeated decoding/lookup iterations passed. The dictionary lookup test also asserts that an existing-key lookup constructs no temporary String.
 
 No physical restart-free duration or runtime heap minimum is claimed by these offline checks.

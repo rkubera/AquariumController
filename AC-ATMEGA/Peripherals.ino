@@ -5,7 +5,7 @@ static volatile uint16_t peripheralFlowPulses[4]={};
 // Bound interrupt work if a noisy/disconnected pulse input oscillates.
 static const uint16_t PERIPHERAL_FLOW_PULSE_LIMIT=4096,PERIPHERAL_FLOW_IRQ_LIMIT=32768;
 static volatile uint16_t peripheralFlowInterrupts=0;
-static volatile byte peripheralFlowOverflow=0,peripheralFlowMask=0,peripheralFlowPrevious=0;
+static volatile byte peripheralFlowOverflow=0,peripheralFlowMask=0,peripheralFlowPrevious=0,peripheralFlowWarmup=0;
 static uint32_t peripheralFlowAt=0,peripheralBinaryAt=0;
 static bool peripheralPinsDirty=true;
 #include <util/delay.h>
@@ -62,10 +62,8 @@ void peripheralWritePwm(byte channel,byte pin,uint16_t value,bool healthy){
 bool peripheralsBusBusy(){return dhtPeripheralActive||peripheralOneWireActive;}
 void peripheralOneWireTick(){
  uint8_t next=peripheralSlots.advance();
- // Prevent a servo edge ISR from stretching a short OneWire slot. Other PWM
- // channels remain hardware driven. UART and Timer0 interrupts stay enabled.
- if(peripheralSlots.shortWindow())TIMSK1&=~_BV(OCIE1C);
- else if(peripheralServo.enabled)TIMSK1|=_BV(OCIE1C);
+ // This runs inside the Timer2 ISR. The 6/13 us callbacks are already
+ // atomic; masking Timer1 across slots can defer a servo edge until wrap.
  if(next)OCR2B=TCNT2+next;else {TIMSK2&=~_BV(OCIE2B);}
 }
 void peripheralOneWireStart(byte first,byte second,byte commands,byte reads){
@@ -86,13 +84,20 @@ void peripheralReleaseBus(){
 }
 void peripheralsInputChanged(byte channel){
  peripheralSwitches[channel-1].reset();peripheralPinsDirty=true;
- if(channel>=5){byte saved=SREG;cli();peripheralFlowMask&=~(1<<(channel-5));PCMSK2=peripheralFlowMask;for(byte i=0;i<4;i++)peripheralFlowPulses[i]=0;peripheralFlowOverflow=0;peripheralFlowInterrupts=0;peripheralFlowAt=millis();SREG=saved;}
+ if(channel>=5){
+  byte index=channel-5,bit=1<<index,saved=SREG;cli();
+  peripheralFlowMask&=~bit;PCMSK2&=~bit;
+  peripheralFlowPulses[index]=0;peripheralFlowOverflow&=~bit;peripheralFlowWarmup|=bit;
+  // Keep other channels' counts, overflow protection and measurement deadline.
+  SREG=saved;
+ }
  if(peripheralChannel==channel)peripheralReleaseBus();
  peripheralDsPending&=~(1<<(channel-1));peripheralAttempt[channel-1]=millis();peripheralHumidity[channel-1]=65535;
  pinMode(sensorsPeripheralPin(channel),INPUT);
 }
 void peripheralsDisable(){
- byte saved=SREG;cli();PCMSK2=0;PCICR&=~_BV(PCIE2);peripheralFlowMask=0;SREG=saved;peripheralPinsDirty=true;
+ byte saved=SREG;cli();PCMSK2=0;PCICR&=~_BV(PCIE2);peripheralFlowMask=0;peripheralFlowOverflow=0;peripheralFlowWarmup=0;peripheralFlowInterrupts=0;
+ for(byte i=0;i<4;i++)peripheralFlowPulses[i]=0;peripheralFlowAt=millis();SREG=saved;peripheralPinsDirty=true;
  for(byte i=0;i<8;i++)peripheralSwitches[i].reset();
  peripheralReleaseBus();peripheralDsPending=0;peripheralNext=0;
  for(byte i=0;i<6;i++)peripheralServoDetach(i);
@@ -132,8 +137,11 @@ void peripheralsDiscreteService(){
     if(type==AcPeripheral::Flow&&ch>=5)mask|=1<<(ch-5);
    }
   }
-  byte saved=SREG;cli();peripheralFlowPrevious=PINK;peripheralFlowMask=mask;PCMSK2=mask;
-  if(mask){PCIFR=_BV(PCIF2);PCICR|=_BV(PCIE2);}else PCICR&=~_BV(PCIE2);
+  byte saved=SREG;cli();
+  // Preserve pending edges on unchanged channels when another pin is edited.
+  peripheralFlowPrevious=(peripheralFlowPrevious&peripheralFlowMask)|(PINK&~peripheralFlowMask);
+  peripheralFlowMask=mask;PCMSK2=mask&~peripheralFlowOverflow;
+  if(mask){if(!(PCICR&_BV(PCIE2)))PCIFR=_BV(PCIF2);PCICR|=_BV(PCIE2);}else PCICR&=~_BV(PCIE2);
   SREG=saved;peripheralPinsDirty=false;
  }
  bool refresh=uint32_t(now-peripheralBinaryAt)>=100;if(refresh)peripheralBinaryAt=now;
@@ -145,7 +153,7 @@ void peripheralsDiscreteService(){
  }
  uint32_t elapsed=now-peripheralFlowAt;if(elapsed<1000)return;
  peripheralFlowAt=now;
- uint16_t counts[4];byte saved=SREG;cli();byte overflow=peripheralFlowOverflow;peripheralFlowOverflow=0;peripheralFlowInterrupts=0;
+ uint16_t counts[4];byte saved=SREG;cli();byte overflow=peripheralFlowOverflow|peripheralFlowWarmup;peripheralFlowOverflow=0;peripheralFlowWarmup=0;peripheralFlowInterrupts=0;
  for(byte i=0;i<4;i++){counts[i]=peripheralFlowPulses[i];peripheralFlowPulses[i]=0;}
  peripheralFlowPrevious=PINK;PCIFR=_BV(PCIF2);PCMSK2=peripheralFlowMask;SREG=saved;
  for(byte i=0;i<4;i++)if(i+5<=megaFeatures.inputs&&peripheralInputDevice(i+5)==AcPeripheral::Flow){

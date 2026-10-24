@@ -81,8 +81,35 @@ int main(){
  peripheralFlowPulses[0]=PERIPHERAL_FLOW_PULSE_LIMIT;PINK=1;PCINT2_vect();assert(!(PCMSK2&1));clockMs+=1000;peripheralsService();assert(std::isnan(values[4])&&(PCMSK2&1));
  peripheralFlowInterrupts=PERIPHERAL_FLOW_IRQ_LIMIT;PCINT2_vect();assert(!PCMSK2&&peripheralFlowOverflow);
  clockMs+=1000;peripheralsService();assert(std::isnan(values[4])&&(PCMSK2&1));
+ // Editing S6 must not reset S5's count, deadline or overflow lockout.
+ device[5]=AcPeripheral::Flow;peripheralsInputChanged(6);peripheralsService();
+ clockMs+=1000;peripheralsService(); // discard S6's partial first window
+ PINK=0;PCINT2_vect();
+ for(unsigned i=0;i<225;i++){PINK=1;PCINT2_vect();PINK=0;PCINT2_vect();}
+ uint32_t deadline=peripheralFlowAt;uint16_t irqCount=peripheralFlowInterrupts;
+ clockMs+=500;peripheralsInputChanged(6);
+ assert(peripheralFlowPulses[0]==225&&peripheralFlowAt==deadline&&peripheralFlowInterrupts==irqCount);
+ peripheralsService();
+ for(unsigned i=0;i<225;i++){PINK=1;PCINT2_vect();PINK=0;PCINT2_vect();}
+ clockMs+=500;peripheralsService();assert(fabs(values[4]-60)<.001&&std::isnan(values[5]));
+ PINK=1; // S5 has a rising edge pending while S6 is edited.
+ peripheralsInputChanged(6);peripheralsService();PCINT2_vect();
+ assert(peripheralFlowPulses[0]==1);PINK=0;PCINT2_vect();
+ peripheralFlowOverflow=1;PCMSK2&=~1;peripheralsInputChanged(6);peripheralsService();
+ assert(peripheralFlowOverflow&1);assert(!(PCMSK2&1));
  peripheralsDisable();assert(!PCMSK2&&!(PCICR&_BV(PCIE2)));
- puts("PASS: actual peripheral driver: servo attach/update/detach and PWM isolation; shared DHT arbitration, humidity selection and timeout; DS ROM/conversion/CRC sequencing and cancellation; debounced binary inputs, interrupt flow counting, zero flow and overflow.");
+ // No OneWire state may mask the servo compare interrupt across slots.
+ peripheralWritePwm(1,5,65535,true);
+ peripheralPort=ports+58;peripheralDdr=ddrs+58;peripheralInput=inputs+58;peripheralMask=1;inputs[58]=0;
+ peripheralOneWireStart(0x33,0,1,8);
+ // Also cover the generic edge/sample fallback, rather than only short callbacks.
+ peripheralSlots.shortRead=nullptr;peripheralSlots.shortWrite=nullptr;
+ for(unsigned i=0;i<1000&&peripheralSlots.active;i++){
+  peripheralOneWireTick();assert(TIMSK1&_BV(OCIE1C));
+ }
+ assert(peripheralSlots.done);peripheralReleaseBus();peripheralsDisable();
+
+ puts("PASS: actual peripheral driver: servo attach/update/detach and PWM isolation; shared DHT arbitration, humidity selection and timeout; DS ROM/conversion/CRC sequencing and cancellation; debounced binary inputs, interrupt flow counting, zero flow and overflow; independent channel edits and servo interrupt availability across OneWire slots.");
 }
 '''
 source=support+(root/'Peripherals.ino').read_text().replace('#include <util/delay.h>','')+main
