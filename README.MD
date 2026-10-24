@@ -27,7 +27,7 @@ The drawing illustrates the hardware layout. Use the pin table below for the cur
 - One input per threshold or PID controller, with calibration and filtered measurements.
 - A shared schedule for lighting, relays and PWM, with either daily times or separate weekday/weekend times.
 - Independent DHT11 temperature and humidity readings, temperature alarms and temperature-controlled cooling.
-- A Peripherals page for DHT11/DHT12/DHT21/DHT22 and DS18B20 on S1–S8, and servo signals on PWM1–PWM6.
+- A configurable Peripherals page for temperature/humidity sensors, digital contacts, water level/leak sensors, pulse flow meters, analog pH modules and servo outputs.
 - DS1307 RTC support, UTC synchronization from the ESP and configurable local-time rules.
 - Nokia 5110 display, 4×4 keypad and local contrast adjustment.
 - Active-alarm diagnostics, including the three most recently activated alarms that are still active.
@@ -58,29 +58,100 @@ D3 is available for an additional 16-bit PWM channel. D13 is intentionally unuse
 
 RGB, the six PWM outputs and the display backlight use a range of **0–65535** at approximately 244 Hz. The fan uses standard **0–255** PWM on D4 without changing Timer0 timing.
 
-### Configurable peripherals
+### Peripherals
 
-The **Peripherals** page requires `AC_ENABLE_PERIPHERALS=1` and appears when `AC_INPUT_COUNT` or `AC_PWM_COUNT` is greater than zero. Input devices are listed first. It uses the same settings in the Portal and Home Assistant; ArdPortal persists them in ArdFS and restores them to Mega at startup. Both firmwares must be updated together because the UART field schema has changed. Existing HA entities are not automatically removed.
+The **Peripherals** page assigns a device function to an existing Mega input or PWM output. It does not allocate extra pins or create a second control system: measurements use the **Inputs** settings, and servo outputs use the **PWM outputs** settings. Input devices appear first, followed by output devices. The Portal and Home Assistant share the same field definitions.
 
-| Channel | Signal pin | Devices |
+#### Enable the page
+
+Set these definitions at the beginning of `AC-ESP/AC-ESP.ino`, then rebuild the ESP firmware:
+
+```cpp
+#define AC_ENABLE_PERIPHERALS 1
+#define AC_INPUT_COUNT 8   // Active S1–S8 channels; 0 disables inputs
+#define AC_PWM_COUNT 6     // Active PWM1–PWM6 channels; 0 disables PWM outputs
+```
+
+The example enables every peripheral channel. The project's current defaults are **0 inputs and 0 PWM outputs**, so the page is hidden until at least one count is increased. Counts enable consecutive channels starting at 1.
+
+| Peripheral switch | Input count | PWM count | Page contents |
+| --- | --- | --- | --- |
+| `0` | Any | Any | Page hidden; ordinary ADC/PWM operation remains available |
+| `1` | `0` | `0` | Page hidden |
+| `1` | Greater than `0` | `0` | Input devices only |
+| `1` | `0` | Greater than `0` | Output devices only |
+| `1` | Greater than `0` | Greater than `0` | Input and output devices |
+
+Feature definitions belong only to the ESP. Mega receives the feature manifest at startup; update both firmwares together when adopting this functionality. ArdPortal saves peripheral settings in ArdFS on the ESP and restores them to Mega over UART before outputs are enabled. Disabling peripherals preserves saved assignments and does not automatically remove existing Home Assistant entities. The independent DHT11 on **D32** is controlled by `AC_ENABLE_DHT`, not by this page, and continues to supply the fan.
+
+#### Channel and function selection
+
+Channel labels include the physical pin, for example **S1 (A4/D58)** or **PWM1 (D5)**. These assignments are fixed; the page selects the function of each channel, rather than an arbitrary free pin.
+
+| Channel | Mega signal pin | Supported functions |
 | --- | --- | --- |
-| S1–S8 | A4–A11 (D58–D65), respectively | Analog voltage/pH, digital input, water level, leak, DHT11/12/21/22, DS18B20, Disabled |
-| S5–S8 | A8–A11 (D62–D65), respectively | Pulse flow meter, counted with PORTK pin-change interrupts |
-| PWM1–PWM6 | D5, D44, D45, D46, D11, D12, respectively | Normal 16-bit PWM or servo |
+| S1–S8 | A4–A11 / D58–D65, respectively | Analog voltage, Temperature, Humidity, Digital ON/OFF, Water level, Water leak, pH, Disabled |
+| S5–S8 only | A8–A11 / D62–D65, respectively | Also Flow rate, using PORTK pin-change interrupts |
+| PWM1–PWM6 | D5, D44, D45, D46, D11, D12, respectively | Normal PWM or Servo |
 
-Each configured digital input owns one physical sensor on its channel pin. Choose **Function** first, then the sensor model for **Temperature** or **Humidity**. Temperature supports DHT11/12/21/22 and DS18B20; humidity supports DHT11/12/21/22. The model selections are saved independently. Humidity also has a separate readout. Other functions use the generic electrical interfaces described below. These values feed the existing input calibration, filtering, limits, threshold/PID and output-assignment logic. Digital sensors are polled approximately every two seconds; missing, stale or invalid readings enter the existing input alarm/fail-safe path. Changing a device or DHT measurement during operation resets that input's calibration to identity; names, limits and assignments remain configurable on Inputs. Analog inputs retain their existing 100 ms acquisition and at-most-once-per-second publication.
+Choose **Function** first. For Temperature or Humidity, a dependent **Model** selector then appears. Only the settings relevant to the chosen function are shown.
 
-Digital ON/OFF, water-level and leak inputs support inversion, an optional internal pull-up and configurable debounce (0–5000 ms; default 50 ms). After inversion, **1 means water present** for level sensors and **1 means wet/alarm** for leak sensors. A low water level or detected leak enters the existing Errors/Diagnostics/buzzer lifecycle and clears when the condition clears. Their 0/1 readings also feed existing output regulation. A simple digital pin cannot distinguish a disconnected wire from a legitimate electrical state; choose contact wiring/polarity appropriate to the desired failure response. These functions accept dry contacts or compatible digital sensor modules, not bare pH electrodes or arbitrary powered sensor outputs.
+| Input function | Model or electrical interface | Measurement and settings |
+| --- | --- | --- |
+| Analog voltage | Analog module output within 0–5 V | ADC counts 0–1023, mapped through the input's two-point calibration |
+| Temperature | DHT11; DHT12 in single-wire mode; DHT21 / AM2301; DHT22 / AM2302; DS18B20 | Temperature in °C before user calibration; DHT also exposes a humidity readout |
+| Humidity | DHT11; DHT12 in single-wire mode; DHT21 / AM2301; DHT22 / AM2302 | Relative humidity in % before user calibration; DS18B20 is not offered |
+| Digital ON/OFF | Dry contact or compatible digital-output module | 0/1; inversion, internal pull-up and debounce |
+| Water level | Contact or compatible digital-output level sensor | After inversion, 1 = water present; 0 = low-level alarm |
+| Water leak | Contact or compatible digital-output leak module | After inversion, 1 = wet/alarm; 0 = dry |
+| Flow rate | Pulse-output flow meter, S5–S8 only | l/min; pulses-per-litre calibration and optional internal pull-up |
+| pH | Analog pH conditioning module with a 0–5 V output | Two-point calibration on Inputs; initial 0–14 mapping must be calibrated for the actual probe/module |
+| Disabled | No device | Stops sampling that input and removes its output assignment |
 
-Flow meters are available only on S5–S8. Set **Pulses per litre** from the actual meter's calibration (the initial value 450 is only a starting value, not universal). Rising edges are counted in interrupts and converted to l/min approximately once per second; zero pulses produce a valid zero flow. Use the existing input limits/threshold logic to detect insufficient flow. More than 4096 pulses in a measurement window (normally one second) pauses that channel's interrupts until the next window and invalidates its reading. The shared interrupt handler also stops after 32768 IRQs per window, including events whose sampled level has not changed, to bound aliased high-frequency noise. This bounds interrupt storms from noisy wiring. An unrepresentable rate also invalidates the input. Editing one flow channel preserves the other channels' pulse counts, measurement window and overflow lockouts. The edited channel discards its partial first window before reporting a full-window reading. Digital debounce does not apply to pulse counting.
+Temperature and humidity model selections are saved independently. Each input channel represents **one physical sensor on its own signal pin**; sharing a DHT signal pin between two input channels is not supported. The additional DHT humidity readout is shown for Temperature with a DHT model, and for Humidity; it is hidden for DS18B20. The selected function determines which measurement feeds the channel's control logic.
 
-The pH function reads an **analog conditioning module with an output within 0–5 V** through the existing 100 ms ADC/filter path. Calibrate the two input points using the module/probe and buffer measurements; the initial 0–14 mapping is not a calibration of your probe. Raw values remain ADC counts (0–1023). The ADC alone cannot reliably distinguish a disconnected module from a legitimate voltage; configure limits for the module's failure signal. It can then drive the existing threshold/PID logic. No digital Atlas/EZO protocol, EC or SHT4x driver is included in this extension.
+#### Configure measurements and regulation
 
-Use one externally powered, three-wire DS18B20 per selected input, with a **4.7 kΩ pull-up** on DATA. Parasite power and multiple devices on one bus are not supported. DHT modules also require the appropriate DATA pull-up (often present on the module). DHT12 is supported in its single-wire mode; I²C DHT models such as DHT20 are not interchangeable with these input drivers. The original DHT11 on D32 remains independent and supplies the fan.
+1. On **Peripherals**, select the channel's function and, if applicable, its sensor model.
+2. On **Inputs**, set its name, calibration, limits and output assignment. The calibrated/filtered value is the value used by output regulation.
+3. On **Relays** or **PWM outputs**, select the mode and input, then configure the setpoint, hysteresis or PID parameters. Each threshold/PID controller uses one input.
 
-Servo mode maps the existing PWM control value **0–65535** to **1000–2000 µs pulses every 20 ms**. Manual, schedule, threshold and PID behavior remains on the PWM page. A disabled/interlocked output stops pulses. Servo timing uses the spare Timer1 compare C interrupt; it does not change the hardware PWM timers or require the Arduino Servo library. Power servos from a suitable external supply with a common ground; the PWM pin carries only their signal. OneWire does not mask the servo compare interrupt across slots; short atomic wire samples can still introduce bounded interrupt latency. Other PWM channels, RGB and the display backlight retain their existing timing.
+For example, to regulate PWM1 from a DS18B20 on S1, choose **S1 → Temperature → DS18B20**, configure S1 on Inputs, then choose **PWM1 → Threshold or PID → S1** on PWM outputs. Choosing Servo for PWM1 on Peripherals changes its signal format while retaining that regulation logic.
 
-Sensor conversion waits are asynchronous. The OneWire driver uses bounded atomic slots of about 13 µs for sampling, rather than blocking the main loop while a temperature conversion completes. No additional sensor/servo libraries are required.
+Changing an input function during operation resets its calibration to the appropriate initial mapping. Review calibration and limits after changing the function or model. Conversion waits are asynchronous. DHT/DS18B20 transactions are scheduled at approximately two-second intervals with an additional asynchronous DS18B20 conversion wait; analog inputs retain the existing 100 ms acquisition and at-most-once-per-second automatic telemetry publication.
+
+Configured external sensors report missing, invalid or stale readings through the existing **Errors / Diagnostics** and output fail-safe logic, even when they are not assigned to an output. Unused, unassigned ordinary analog inputs do not generate missing-sensor alarms. Low-level and leak alarms clear when their conditions clear. Buzzer behavior also follows the Sounds settings and the current time-of-day permissions. Active alarms are runtime state and are not saved as configuration.
+
+#### Digital contacts and flow meters
+
+Digital ON/OFF, water-level and leak inputs have **Invert input**, **Internal pull-up**, and **Debounce (ms)** controls. Debounce accepts 0–5000 ms; its initial value is 50 ms. A simple digital input cannot distinguish a disconnected wire from a legitimate electrical state, so select contact wiring and polarity for the intended failure response.
+
+For flow meters, set **Pulses per litre** from the actual meter's calibration; the initial value **450** is only a starting value. Rising edges are counted in interrupts and converted to l/min approximately once per second. Zero pulses produce a valid zero flow; use input limits or threshold logic to detect insufficient flow. Digital debounce does not apply to pulse counting.
+
+To bound interrupt storms, more than 4096 pulses in a measurement window pauses that channel's interrupts until the next window and invalidates its reading. The shared handler also stops after 32768 IRQs per window, including events with an unchanged sampled level. An unrepresentable rate invalidates the input as well. Editing one channel preserves the other channels' counts, pending edges, measurement deadline and overflow lockouts. The edited channel discards its partial first window before reporting a full-window reading.
+
+#### Sensor wiring and calibration
+
+- Use one externally powered, **three-wire DS18B20** per selected input, with a **4.7 kΩ DATA pull-up**. Parasite power and multiple devices on one bus are not supported.
+- DHT devices require the appropriate DATA pull-up, often already fitted to a module. **DHT12 uses single-wire mode**; I²C devices such as DHT20 are not supported by these drivers.
+- Digital functions accept dry contacts or electrically compatible digital outputs. Check the module's supply and signal requirements and use a common ground with Mega.
+- The pH function requires an **analog conditioning module**, not a bare electrode. Calibrate both input points using the module/probe and buffer measurements; raw calibration values are ADC counts, 0–1023. Configure limits for any documented module failure voltage, since the ADC cannot reliably detect a disconnected module by itself.
+
+#### Servo outputs
+
+On Peripherals, set the PWM channel's **Function** to **Servo**. On PWM outputs, use the existing manual, time-of-day, threshold or PID settings. The control range remains **0–65535**:
+
+| PWM control value | Servo pulse width |
+| ---: | ---: |
+| 0 | 1000 µs |
+| 32768 | Approximately 1500 µs |
+| 65535 | 2000 µs |
+
+Pulses repeat nominally every **20 ms**. A value of 0 selects the minimum pulse width; it does **not** detach the servo. An interlocked/unhealthy output stops pulses. Selecting **PWM** again restores ordinary 16-bit PWM on the same channel. Pulse endpoints are fixed; there is no separate angle or minimum/maximum pulse-width control.
+
+Servo timing uses the spare Timer1 compare C interrupt and does not change the hardware PWM timers. OneWire does not mask that interrupt across slots; its short atomic samples can still cause bounded interrupt latency. RGB, other PWM channels and the display backlight retain their existing timing. Supply servos from a suitable external supply with a common ground; the PWM pin carries only the control signal.
+
+The peripheral drivers are included in Mega firmware. No additional DHT, OneWire, DallasTemperature or Arduino Servo library is required. OneWire samples use bounded atomic slots of about 13 µs, rather than blocking the main loop throughout a temperature conversion.
 
 ### Mega–ESP connection
 
