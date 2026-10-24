@@ -2388,6 +2388,43 @@ R"JSON(]})JSON"
 #if (AC_ACTIVE_INPUTS >= 1)
 R"JSON(,)JSON"
 #endif
+R"JSON({"type":"select","name":"S1 (A4/D58): Model — Level","id":"M_f10f7d09","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor1LevelModel","command_topic":"cmnd/$device/Sensor1LevelModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_2f414012","equals":"level"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0204","name":"DFRobot SEN0204 / XKC-Y25-T12V"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 1
+#if (AC_ACTIVE_INPUTS >= 1)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S1 (A4/D58): Model — Leak","id":"M_6377ef7e","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor1LeakModel","command_topic":"cmnd/$device/Sensor1LeakModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_2f414012","equals":"leak"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"grove101020018","name":"Seeed Grove Water Sensor (101020018)"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 1
+#if (AC_ACTIVE_INPUTS >= 1)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S1 (A4/D58): Model — Flow","id":"M_e21d3e67","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor1FlowModel","command_topic":"cmnd/$device/Sensor1FlowModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_2f414012","equals":"flow"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0217","name":"DFRobot SEN0217 / YF-S201"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 1
+#if (AC_ACTIVE_INPUTS >= 1)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S1 (A4/D58): Model — Ph","id":"M_d036c313","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor1PhModel","command_topic":"cmnd/$device/Sensor1PhModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_2f414012","equals":"ph"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0161v2","name":"DFRobot SEN0161-V2 (periodic measurement)"})JSON"
+R"JSON(,{"value":"sen0169v2","name":"DFRobot SEN0169-V2 (continuous measurement)"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 1
+#if (AC_ACTIVE_INPUTS >= 1)
+R"JSON(,)JSON"
+#endif
 R"JSON({"type":"switch","name":"S1 (A4/D58): Invert input","id":"M_1d4ee537","persist":true,"default":false,"ha":{"state_topic":"stat/$device/Sensor1Inverted","command_topic":"cmnd/$device/Sensor1Inverted","payload_on":"on","payload_off":"off"},"visibleWhen":{"or":[{"field":"M_2f414012","equals":"digital"},{"field":"M_2f414012","equals":"level"},{"field":"M_2f414012","equals":"leak"}]}})JSON"
 #endif
 #if AC_ACTIVE_INPUTS >= 1
@@ -2450,6 +2487,43 @@ R"JSON({"value":"dht11","name":"DHT11"})JSON"
 R"JSON(,{"value":"dht12","name":"DHT12 (single-wire)"})JSON"
 R"JSON(,{"value":"dht21","name":"DHT21 / AM2301"})JSON"
 R"JSON(,{"value":"dht22","name":"DHT22 / AM2302"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 2
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S2 (A5/D59): Model — Level","id":"M_20835928","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor2LevelModel","command_topic":"cmnd/$device/Sensor2LevelModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_bf3550cb","equals":"level"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0204","name":"DFRobot SEN0204 / XKC-Y25-T12V"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 2
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S2 (A5/D59): Model — Leak","id":"M_c2ae2f95","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor2LeakModel","command_topic":"cmnd/$device/Sensor2LeakModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_bf3550cb","equals":"leak"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"grove101020018","name":"Seeed Grove Water Sensor (101020018)"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 2
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S2 (A5/D59): Model — Flow","id":"M_49834e64","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor2FlowModel","command_topic":"cmnd/$device/Sensor2FlowModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_bf3550cb","equals":"flow"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0217","name":"DFRobot SEN0217 / YF-S201"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 2
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S2 (A5/D59): Model — Ph","id":"M_2769f4a8","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor2PhModel","command_topic":"cmnd/$device/Sensor2PhModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_bf3550cb","equals":"ph"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0161v2","name":"DFRobot SEN0161-V2 (periodic measurement)"})JSON"
+R"JSON(,{"value":"sen0169v2","name":"DFRobot SEN0169-V2 (continuous measurement)"})JSON"
 R"JSON(]})JSON"
 #endif
 #if AC_ACTIVE_INPUTS >= 2
@@ -2524,6 +2598,43 @@ R"JSON(]})JSON"
 #if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3)
 R"JSON(,)JSON"
 #endif
+R"JSON({"type":"select","name":"S3 (A6/D60): Model — Level","id":"M_3d46555b","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor3LevelModel","command_topic":"cmnd/$device/Sensor3LevelModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_09054f00","equals":"level"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0204","name":"DFRobot SEN0204 / XKC-Y25-T12V"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 3
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S3 (A6/D60): Model — Leak","id":"M_943b737c","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor3LeakModel","command_topic":"cmnd/$device/Sensor3LeakModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_09054f00","equals":"leak"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"grove101020018","name":"Seeed Grove Water Sensor (101020018)"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 3
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S3 (A6/D60): Model — Flow","id":"M_63b7d1ad","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor3FlowModel","command_topic":"cmnd/$device/Sensor3FlowModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_09054f00","equals":"flow"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0217","name":"DFRobot SEN0217 / YF-S201"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 3
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S3 (A6/D60): Model — Ph","id":"M_608ec99d","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor3PhModel","command_topic":"cmnd/$device/Sensor3PhModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_09054f00","equals":"ph"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0161v2","name":"DFRobot SEN0161-V2 (periodic measurement)"})JSON"
+R"JSON(,{"value":"sen0169v2","name":"DFRobot SEN0169-V2 (continuous measurement)"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 3
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3)
+R"JSON(,)JSON"
+#endif
 R"JSON({"type":"switch","name":"S3 (A6/D60): Invert input","id":"M_463cb29d","persist":true,"default":false,"ha":{"state_topic":"stat/$device/Sensor3Inverted","command_topic":"cmnd/$device/Sensor3Inverted","payload_on":"on","payload_off":"off"},"visibleWhen":{"or":[{"field":"M_09054f00","equals":"digital"},{"field":"M_09054f00","equals":"level"},{"field":"M_09054f00","equals":"leak"}]}})JSON"
 #endif
 #if AC_ACTIVE_INPUTS >= 3
@@ -2586,6 +2697,43 @@ R"JSON({"value":"dht11","name":"DHT11"})JSON"
 R"JSON(,{"value":"dht12","name":"DHT12 (single-wire)"})JSON"
 R"JSON(,{"value":"dht21","name":"DHT21 / AM2301"})JSON"
 R"JSON(,{"value":"dht22","name":"DHT22 / AM2302"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 4
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S4 (A7/D61): Model — Level","id":"M_8159cada","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor4LevelModel","command_topic":"cmnd/$device/Sensor4LevelModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_e7d74181","equals":"level"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0204","name":"DFRobot SEN0204 / XKC-Y25-T12V"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 4
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S4 (A7/D61): Model — Leak","id":"M_4f24af33","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor4LeakModel","command_topic":"cmnd/$device/Sensor4LeakModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_e7d74181","equals":"leak"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"grove101020018","name":"Seeed Grove Water Sensor (101020018)"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 4
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S4 (A7/D61): Model — Flow","id":"M_404a09a2","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor4FlowModel","command_topic":"cmnd/$device/Sensor4FlowModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_e7d74181","equals":"flow"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0217","name":"DFRobot SEN0217 / YF-S201"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 4
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S4 (A7/D61): Model — Ph","id":"M_1f7b3222","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor4PhModel","command_topic":"cmnd/$device/Sensor4PhModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_e7d74181","equals":"ph"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0161v2","name":"DFRobot SEN0161-V2 (periodic measurement)"})JSON"
+R"JSON(,{"value":"sen0169v2","name":"DFRobot SEN0169-V2 (continuous measurement)"})JSON"
 R"JSON(]})JSON"
 #endif
 #if AC_ACTIVE_INPUTS >= 4
@@ -2661,6 +2809,43 @@ R"JSON(]})JSON"
 #if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5)
 R"JSON(,)JSON"
 #endif
+R"JSON({"type":"select","name":"S5 (A8/D62): Model — Level","id":"M_0c28ba35","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor5LevelModel","command_topic":"cmnd/$device/Sensor5LevelModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_3e5b8f7e","equals":"level"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0204","name":"DFRobot SEN0204 / XKC-Y25-T12V"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 5
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S5 (A8/D62): Model — Leak","id":"M_f8be01ea","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor5LeakModel","command_topic":"cmnd/$device/Sensor5LeakModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_3e5b8f7e","equals":"leak"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"grove101020018","name":"Seeed Grove Water Sensor (101020018)"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 5
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S5 (A8/D62): Model — Flow","id":"M_66403db3","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor5FlowModel","command_topic":"cmnd/$device/Sensor5FlowModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_3e5b8f7e","equals":"flow"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0217","name":"DFRobot SEN0217 / YF-S201"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 5
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S5 (A8/D62): Model — Ph","id":"M_ffde8a2f","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor5PhModel","command_topic":"cmnd/$device/Sensor5PhModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_3e5b8f7e","equals":"ph"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0161v2","name":"DFRobot SEN0161-V2 (periodic measurement)"})JSON"
+R"JSON(,{"value":"sen0169v2","name":"DFRobot SEN0169-V2 (continuous measurement)"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 5
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5)
+R"JSON(,)JSON"
+#endif
 R"JSON({"type":"switch","name":"S5 (A8/D62): Invert input","id":"M_f09fcdc3","persist":true,"default":false,"ha":{"state_topic":"stat/$device/Sensor5Inverted","command_topic":"cmnd/$device/Sensor5Inverted","payload_on":"on","payload_off":"off"},"visibleWhen":{"or":[{"field":"M_3e5b8f7e","equals":"digital"},{"field":"M_3e5b8f7e","equals":"level"},{"field":"M_3e5b8f7e","equals":"leak"}]}})JSON"
 #endif
 #if AC_ACTIVE_INPUTS >= 5
@@ -2724,6 +2909,43 @@ R"JSON({"value":"dht11","name":"DHT11"})JSON"
 R"JSON(,{"value":"dht12","name":"DHT12 (single-wire)"})JSON"
 R"JSON(,{"value":"dht21","name":"DHT21 / AM2301"})JSON"
 R"JSON(,{"value":"dht22","name":"DHT22 / AM2302"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 6
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5) || (AC_ACTIVE_INPUTS >= 6)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S6 (A9/D63): Model — Level","id":"M_b71eb984","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor6LevelModel","command_topic":"cmnd/$device/Sensor6LevelModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_fbedddb7","equals":"level"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0204","name":"DFRobot SEN0204 / XKC-Y25-T12V"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 6
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5) || (AC_ACTIVE_INPUTS >= 6)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S6 (A9/D63): Model — Leak","id":"M_29277c01","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor6LeakModel","command_topic":"cmnd/$device/Sensor6LeakModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_fbedddb7","equals":"leak"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"grove101020018","name":"Seeed Grove Water Sensor (101020018)"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 6
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5) || (AC_ACTIVE_INPUTS >= 6)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S6 (A9/D63): Model — Flow","id":"M_959a94d0","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor6FlowModel","command_topic":"cmnd/$device/Sensor6FlowModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_fbedddb7","equals":"flow"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0217","name":"DFRobot SEN0217 / YF-S201"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 6
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5) || (AC_ACTIVE_INPUTS >= 6)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S6 (A9/D63): Model — Ph","id":"M_cd12e5f4","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor6PhModel","command_topic":"cmnd/$device/Sensor6PhModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_fbedddb7","equals":"ph"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0161v2","name":"DFRobot SEN0161-V2 (periodic measurement)"})JSON"
+R"JSON(,{"value":"sen0169v2","name":"DFRobot SEN0169-V2 (continuous measurement)"})JSON"
 R"JSON(]})JSON"
 #endif
 #if AC_ACTIVE_INPUTS >= 6
@@ -2799,6 +3021,43 @@ R"JSON(]})JSON"
 #if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5) || (AC_ACTIVE_INPUTS >= 6) || (AC_ACTIVE_INPUTS >= 7)
 R"JSON(,)JSON"
 #endif
+R"JSON({"type":"select","name":"S7 (A10/D64): Model — Level","id":"M_c180d6f7","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor7LevelModel","command_topic":"cmnd/$device/Sensor7LevelModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_67e9ce6c","equals":"level"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0204","name":"DFRobot SEN0204 / XKC-Y25-T12V"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 7
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5) || (AC_ACTIVE_INPUTS >= 6) || (AC_ACTIVE_INPUTS >= 7)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S7 (A10/D64): Model — Leak","id":"M_11ed6c78","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor7LeakModel","command_topic":"cmnd/$device/Sensor7LeakModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_67e9ce6c","equals":"leak"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"grove101020018","name":"Seeed Grove Water Sensor (101020018)"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 7
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5) || (AC_ACTIVE_INPUTS >= 6) || (AC_ACTIVE_INPUTS >= 7)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S7 (A10/D64): Model — Flow","id":"M_060207c9","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor7FlowModel","command_topic":"cmnd/$device/Sensor7FlowModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_67e9ce6c","equals":"flow"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0217","name":"DFRobot SEN0217 / YF-S201"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 7
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5) || (AC_ACTIVE_INPUTS >= 6) || (AC_ACTIVE_INPUTS >= 7)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S7 (A10/D64): Model — Ph","id":"M_0cda5429","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor7PhModel","command_topic":"cmnd/$device/Sensor7PhModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_67e9ce6c","equals":"ph"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0161v2","name":"DFRobot SEN0161-V2 (periodic measurement)"})JSON"
+R"JSON(,{"value":"sen0169v2","name":"DFRobot SEN0169-V2 (continuous measurement)"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 7
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5) || (AC_ACTIVE_INPUTS >= 6) || (AC_ACTIVE_INPUTS >= 7)
+R"JSON(,)JSON"
+#endif
 R"JSON({"type":"switch","name":"S7 (A10/D64): Invert input","id":"M_db4d26e9","persist":true,"default":false,"ha":{"state_topic":"stat/$device/Sensor7Inverted","command_topic":"cmnd/$device/Sensor7Inverted","payload_on":"on","payload_off":"off"},"visibleWhen":{"or":[{"field":"M_67e9ce6c","equals":"digital"},{"field":"M_67e9ce6c","equals":"level"},{"field":"M_67e9ce6c","equals":"leak"}]}})JSON"
 #endif
 #if AC_ACTIVE_INPUTS >= 7
@@ -2862,6 +3121,43 @@ R"JSON({"value":"dht11","name":"DHT11"})JSON"
 R"JSON(,{"value":"dht12","name":"DHT12 (single-wire)"})JSON"
 R"JSON(,{"value":"dht21","name":"DHT21 / AM2301"})JSON"
 R"JSON(,{"value":"dht22","name":"DHT22 / AM2302"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 8
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5) || (AC_ACTIVE_INPUTS >= 6) || (AC_ACTIVE_INPUTS >= 7) || (AC_ACTIVE_INPUTS >= 8)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S8 (A11/D65): Model — Level","id":"M_ab74c9c6","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor8LevelModel","command_topic":"cmnd/$device/Sensor8LevelModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_cee7647d","equals":"level"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0204","name":"DFRobot SEN0204 / XKC-Y25-T12V"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 8
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5) || (AC_ACTIVE_INPUTS >= 6) || (AC_ACTIVE_INPUTS >= 7) || (AC_ACTIVE_INPUTS >= 8)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S8 (A11/D65): Model — Leak","id":"M_5030880f","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor8LeakModel","command_topic":"cmnd/$device/Sensor8LeakModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_cee7647d","equals":"leak"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"grove101020018","name":"Seeed Grove Water Sensor (101020018)"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 8
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5) || (AC_ACTIVE_INPUTS >= 6) || (AC_ACTIVE_INPUTS >= 7) || (AC_ACTIVE_INPUTS >= 8)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S8 (A11/D65): Model — Flow","id":"M_6a48d98e","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor8FlowModel","command_topic":"cmnd/$device/Sensor8FlowModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_cee7647d","equals":"flow"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0217","name":"DFRobot SEN0217 / YF-S201"})JSON"
+R"JSON(]})JSON"
+#endif
+#if AC_ACTIVE_INPUTS >= 8
+#if (AC_ACTIVE_INPUTS >= 1) || (AC_ACTIVE_INPUTS >= 2) || (AC_ACTIVE_INPUTS >= 3) || (AC_ACTIVE_INPUTS >= 4) || (AC_ACTIVE_INPUTS >= 5) || (AC_ACTIVE_INPUTS >= 6) || (AC_ACTIVE_INPUTS >= 7) || (AC_ACTIVE_INPUTS >= 8)
+R"JSON(,)JSON"
+#endif
+R"JSON({"type":"select","name":"S8 (A11/D65): Model — Ph","id":"M_8df9e86e","persist":true,"default":"generic","ha":{"state_topic":"stat/$device/Sensor8PhModel","command_topic":"cmnd/$device/Sensor8PhModel","optimistic":true},"visibleWhen":{"or":[{"field":"M_cee7647d","equals":"ph"}]},"options":[)JSON"
+R"JSON({"value":"generic","name":"Custom / generic"})JSON"
+R"JSON(,{"value":"sen0161v2","name":"DFRobot SEN0161-V2 (periodic measurement)"})JSON"
+R"JSON(,{"value":"sen0169v2","name":"DFRobot SEN0169-V2 (continuous measurement)"})JSON"
 R"JSON(]})JSON"
 #endif
 #if AC_ACTIVE_INPUTS >= 8

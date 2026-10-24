@@ -17,8 +17,8 @@ strings = '\n'.join(re.findall(r'^const char .+$', main, re.M))
 files = ['PwmHardware.ino','Tools.ino', 'Control.ino', 'Sensors.ino', 'PWMOutputs.ino', 'Relays.ino','PeripheralConfig.ino']
 prototypes = []
 for file in files:
-    prototypes += [line.rstrip(' {') + ';' for line in re.findall(
-        r'^(?:void|bool|float|double|byte|int|String|unsigned long|uint16_t) \w+\s*\([^\n]*\)\s*\{',
+    prototypes += [line[:line.index('{')].rstrip() + ';' for line in re.findall(
+        r'^(?:void|bool|float|double|byte|int|String|unsigned long|uint16_t) \w+\s*\([^\n{]*\)\s*\{',
         (ROOT / file).read_text(), re.M)]
 config = (ROOT / 'Config.ino').read_text()
 name_save = config[config.index('void configSaveString '):config.index('void configSaveLedBrightness')]

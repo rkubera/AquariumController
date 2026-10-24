@@ -82,6 +82,8 @@ The example enables every peripheral channel. The project's current defaults are
 | `1` | `0` | Greater than `0` | Output devices only |
 | `1` | Greater than `0` | Greater than `0` | Input and output devices |
 
+The complete Peripherals definition is approximately 44 KB. Use an ArdPortal revision with asynchronous flash-backed page registration and support for definitions above 32 KB (verified with the installed 0.8.1 revision). The page is scanned in batches instead of copied into one large RAM string.
+
 Feature definitions belong only to the ESP. Mega receives the feature manifest at startup; update both firmwares together when adopting this functionality. ArdPortal saves peripheral settings in ArdFS on the ESP and restores them to Mega over UART before outputs are enabled. Disabling peripherals preserves saved assignments and does not automatically remove existing Home Assistant entities. The independent DHT11 on **D32** is controlled by `AC_ENABLE_DHT`, not by this page, and continues to supply the fan.
 
 #### Channel and function selection
@@ -102,11 +104,27 @@ Choose **Function** first. For Temperature or Humidity, a dependent **Model** se
 | Temperature | DHT11; DHT12 in single-wire mode; DHT21 / AM2301; DHT22 / AM2302; DS18B20 | Temperature in °C before user calibration; DHT also exposes a humidity readout |
 | Humidity | DHT11; DHT12 in single-wire mode; DHT21 / AM2301; DHT22 / AM2302 | Relative humidity in % before user calibration; DS18B20 is not offered |
 | Digital ON/OFF | Dry contact or compatible digital-output module | 0/1; inversion, internal pull-up and debounce |
-| Water level | Contact or compatible digital-output level sensor | After inversion, 1 = water present; 0 = low-level alarm |
-| Water leak | Contact or compatible digital-output leak module | After inversion, 1 = wet/alarm; 0 = dry |
-| Flow rate | Pulse-output flow meter, S5–S8 only | l/min; pulses-per-litre calibration and optional internal pull-up |
-| pH | Analog pH conditioning module with a 0–5 V output | Two-point calibration on Inputs; initial 0–14 mapping must be calibrated for the actual probe/module |
+| Water level | Custom/generic contact or digital module; DFRobot SEN0204 / XKC-Y25-T12V | After inversion, 1 = water present; 0 = low-level alarm |
+| Water leak | Custom/generic module; Seeed Grove Water Sensor (101020018) | After inversion, 1 = wet/alarm; 0 = dry |
+| Flow rate | Custom/generic pulse meter; DFRobot SEN0217 / YF-S201, S5–S8 only | l/min; pulses-per-litre calibration and optional internal pull-up |
+| pH | Custom/generic analog module; DFRobot SEN0161-V2 or SEN0169-V2 | Two-point calibration on Inputs; model-specific initial conversion described below |
 | Disabled | No device | Stops sampling that input and removes its output assignment |
+
+The named level, leak, flow and pH models also have dependent **Model** selectors. **Custom / generic** retains the configurable electrical interface. Model selections for different functions are saved independently.
+
+| Profile | Settings applied when selected for the active function, or when that function is activated |
+| --- | --- |
+| DFRobot SEN0204 / XKC-Y25-T12V | Inversion off; internal pull-up off; debounce 50 ms. Power from **5 V** so the HIGH output remains compatible with Mega. |
+| Seeed Grove Water Sensor (101020018) | Inversion on: wet LOW becomes logical 1/alarm; internal pull-up off because the module has its own pull-up; debounce 50 ms. |
+| DFRobot SEN0217 / YF-S201 | Internal pull-up off; initial calibration 450 pulses/litre. The documented range is 1–30 l/min, with ±5% accuracy specified at 2–30 l/min. Use 5 V power and calibrate the actual unit. |
+| DFRobot SEN0161-V2 | Analog pH conversion with initial nominal points pH 7 at 1500 mV and pH 4 at 2032.44 mV. Laboratory probe for periodic measurements. |
+| DFRobot SEN0169-V2 | The same analog conversion, with an industrial probe intended for continuous monitoring. |
+
+After applying a named profile, electrical settings and flow calibration can still be edited. Selecting the same profile again does not reset those edits. Selecting a different named profile or reactivating its function applies that profile's electrical defaults. Boot restore loads the saved settings without reapplying these presets over user edits. Changing the profile of an inactive function only saves its selection.
+
+The pH profiles use the existing two-point ADC calibration; no DFRobot library or EEPROM store is added. At nominal 5 V ADC reference, their initial points are **306.9 ADC counts → pH 7** and **415.8372 ADC counts → pH 4**. These are factory estimates, not calibration of an individual probe. Calibrate with actual buffer solutions and the displayed raw ADC readings. Changing between pH probe profiles preserves custom calibration points; switching the input to a different function and back resets calibration. Readings outside the named pH profiles' physical 0–14 range are invalidated and follow the input alarm/fail-safe path; a disconnected probe that still produces a plausible voltage cannot be detected reliably. Automatic temperature compensation is not implemented. The conditioning board's analog output is 0–3 V; connect it to S1–S8, power the board from 5 V, and connect the probe through BNC.
+
+Profile settings follow the manufacturer's documented electrical interfaces. They have host-test coverage but have not been physically verified with these specific modules. References: [SEN0204](https://wiki.dfrobot.com/sen0204/), [Grove Water Sensor](https://wiki.seeedstudio.com/Grove-Water_Sensor/), [SEN0217](https://www.dfrobot.com/product-1517.html), [SEN0161-V2](https://wiki.dfrobot.com/sen0161-v2), [SEN0169-V2](https://wiki.dfrobot.com/sen0169-v2/), and [DFRobot's initial pH conversion points](https://github.com/DFRobot/DFRobot_PH/blob/master/DFRobot_PH.cpp).
 
 Temperature and humidity model selections are saved independently. Each input channel represents **one physical sensor on its own signal pin**; sharing a DHT signal pin between two input channels is not supported. The additional DHT humidity readout is shown for Temperature with a DHT model, and for Humidity; it is hidden for DS18B20. The selected function determines which measurement feeds the channel's control logic.
 
@@ -254,7 +272,7 @@ The remaining Mega definitions describe internal mode IDs, field IDs and RAM con
 | Mega | Time | 1.6 | Software timekeeping and date conversion |
 | Mega | Timezone | 1.2.4 | Local-time and daylight-saving rules |
 | Mega | Keypad | 3.1.1, with the symbol rename below | Matrix keypad |
-| ESP32 / ESP8266 | [ArdPortal](https://github.com/rkubera/ArdPortal) | 0.7.8 | HTTP panel, Wi-Fi, MQTT, Home Assistant, OTA, ArdFS and ArdJSON |
+| ESP32 / ESP8266 | [ArdPortal](https://github.com/rkubera/ArdPortal) | 0.8.1 | HTTP panel, Wi-Fi, MQTT, Home Assistant, OTA, ArdFS and ArdJSON |
 
 ArdFS and ArdJSON are supplied by ArdPortal, not separate configuration stores added by this project. Wi-Fi, DNS, networking and firmware-update support come from the selected ESP Arduino core. No separate PubSubClient, LittleFS, DHT, RTC, Nokia display or QuickStats library is required: the Mega drivers are included in this repository.
 

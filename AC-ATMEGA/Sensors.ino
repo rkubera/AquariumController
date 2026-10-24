@@ -115,7 +115,8 @@ class sensorClass {
     float rawReading = (signedSample ? int16_t(rawSum) : float(rawSum))/scale;
     float myValue = a*rawReading+b;
     //Check the current sample, before smoothing can conceal a critical value.
-    if (!isfinite(myValue) || myValue < minValue || myValue > maxValue ||
+    bool boundedPh=peripheralInputDevice(sensorPin)==AcPeripheral::Ph&&peripheralProfile(sensorPin,AcPeripheral::Ph);
+    if (!isfinite(myValue) || (boundedPh&&(myValue<0||myValue>14)) || myValue < minValue || myValue > maxValue ||
         myValue < criticalMinValue || myValue > criticalMaxValue) {
       resetReadings();
       return;
@@ -473,7 +474,11 @@ void sensorsDeviceChanged(byte channel,bool resetCalibration){
  if(resetCalibration){
   s.calibValue1=s.calibRawRead1=0;s.calibValue2=1;
   s.calibRawRead2=AcPeripheral::isExternal(peripheralInputDevice(channel))?1:1023;
-  if(peripheralInputDevice(channel)==AcPeripheral::Ph)s.calibValue2=14;
+  if(peripheralInputDevice(channel)==AcPeripheral::Ph){
+   if(peripheralProfile(channel,AcPeripheral::Ph)){
+    s.calibValue1=7;s.calibRawRead1=306.9f;s.calibValue2=4;s.calibRawRead2=415.8372f;
+   }else s.calibValue2=14;
+  }
   sensorsSaveConfig(channel-1);
   reportField(sensorField(channel,SensorField::CalibValue1),floatToString(s.calibValue1));
   reportField(sensorField(channel,SensorField::CalibValue2),floatToString(s.calibValue2));
@@ -487,4 +492,12 @@ bool sensorsPeripheralAlarm(byte ch){
  byte type=peripheralInputDevice(ch);sensorClass& s=mySensors[ch-1];
  if(!s.isValid())return false;
  return (type==AcPeripheral::Level&&s.rawValue==0)||(type==AcPeripheral::Leak&&s.rawValue==1);
+}
+
+// Default points from DFRobot_PH: pH 7 at 1500 mV; pH 4 at 2032.44 mV.
+// They are only an initial estimate at nominal 5 V ADC reference / 25 C.
+bool peripheralPhDefaultCalibration(byte ch,byte model){
+ const sensorClass& s=mySensors[ch-1];
+ if(!model)return s.calibValue1==0&&s.calibRawRead1==0&&s.calibValue2==14&&s.calibRawRead2==1023;
+ return s.calibValue1==7&&fabs(s.calibRawRead1-306.9f)<0.01f&&s.calibValue2==4&&fabs(s.calibRawRead2-415.8372f)<0.01f;
 }

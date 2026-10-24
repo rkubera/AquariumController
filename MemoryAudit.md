@@ -4,12 +4,14 @@ This audit covers AquariumController source and offline tests. ArdPortal was not
 
 ## Changes
 
-- Mega: pack input validity/debounce flags and store peripheral DHT humidity as integer tenths. Static RAM falls from 6012 to 5959 bytes, saving 53 bytes net without reducing precision or channel counts.
+- Mega: pack input validity/debounce flags and store peripheral DHT humidity as integer tenths. Static RAM falls from 6012 to 5961 bytes, saving 51 bytes net without reducing precision or channel counts.
 - Mega: do not touch the GPIO latch when detaching an already detached servo. This removes needless critical sections and prevents a short LOW glitch on a normal PWM output previously used by a servo.
 - Mega: limit each flow input to 4096 rising edges per measurement window, normally one second. On excess edges, suspend that channel's pin-change interrupts until the next window and invalidate the measurement. A separate two-byte counter caps all shared pin-change IRQs at 32768 per window, including aliased noise that does not appear as a sampled rising edge. This bounds interrupt storms from noisy wiring.
 - Mega: editing a flow input preserves counts, pending edges, overflow lockouts and the measurement deadline of the other inputs. The edited input discards its partial first window; the warmup bitmap costs one byte.
 - Mega: remove cross-slot servo interrupt masking from OneWire. Its short callbacks already run atomically inside Timer2; ordinary interrupt latency still requires hardware timing validation. The production short-callback path normally did not enter the removed masking branch, so no measured servo-jitter improvement is claimed.
 - ESP/Mega: builds include the new optional-peripherals feature manifest; saved assignments and existing Home Assistant entities are preserved.
+- Mega/ESP: add SEN0204, Grove 101020018, SEN0217, SEN0161-V2 and SEN0169-V2 model profiles. Selections occupy previously unused bits in each input options byte; the runtime configuration buffer remains 1050 bytes. Named pH profiles seed the nominal two-point conversion, preserve custom calibration and invalidate values outside pH 0–14.
+- Portal: 397 native fields / 400 bridge metadata fields / 428 UART fields in the full build. The 43,810-byte Peripherals page registers from flash incrementally; the real ArdPortal/ArdFS host test covers registration, profile saving and reboot restore above the old 32 KiB generator guard.
 - ESP: omit telemetry String objects for disabled hardware. The compact cache preserves the numeric UART/MQTT field IDs. Fully enabled builds retain direct indexing and the original cache footprint.
 - ESP: replace whole-panel name scans and temporary dictionary Strings with direct numeric mapping and flash-string comparison.
 - ESP: send settings and process acknowledgements as typed fields rather than assembling and reparsing text frames. Move queued String buffers instead of copying them.
@@ -36,11 +38,11 @@ All sizes below are bytes. Mega firmware means loadable program size, not the AS
 
 | Build | Firmware | Image-area budget | Remaining image area | Static RAM | RAM after globals |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Mega | 102,822 | 253,952 | 151,130 | 5,959 | 2,233 |
-| ESP32 current | 1,238,608 | 1,966,080 | 727,472 | 59,932 | 267,748 |
-| ESP32 full | 1,329,152 | 1,966,080 | 636,928 | 64,684 | 262,996 |
-| ESP8266 current | 527,264 | 962,560 | 435,296 | 46,324 | 33,868 |
-| ESP8266 full | 617,344 | 962,560 | 345,216 | 49,900 | 30,292 |
+| Mega | 104,376 | 253,952 | 149,576 | 5,961 | 2,231 |
+| ESP32 current | 1,239,904 | 1,966,080 | 726,176 | 59,956 | 267,724 |
+| ESP32 full | 1,343,760 | 1,966,080 | 622,320 | 65,220 | 262,460 |
+| ESP8266 current | 528,560 | 962,560 | 434,000 | 46,340 | 33,852 |
+| ESP8266 full | 632,368 | 962,560 | 330,192 | 50,300 | 29,892 |
 
 ESP32 uses `PartitionScheme=min_spiffs`: each OTA application slot is 1,966,080 bytes. "Remaining image area" is firmware growth room inside one slot, not the total flash chip's unused storage. The second OTA slot and filesystem are separate.
 
@@ -48,13 +50,15 @@ ESP8266 uses the generic 1 MiB / 64 KiB FS layout. Its filesystem begins at flas
 
 ESP8266 instruction RAM uses 60,815 / 65,536 bytes, including the instruction-cache reservation; 4,721 bytes remain. This is separate from data RAM/heap.
 
-## Cache RAM savings with the current disabled-channel profile
+## RAM differences between hardware profiles
 
-- ESP32 current: static RAM 64,684 → 59,932; saved 4,752 bytes.
-- ESP8266 current: static RAM 49,884 → 46,324; saved 3,560 bytes.
+- ESP32: full 65,220 bytes; current 59,956 bytes; difference 5,264 bytes.
+- ESP8266: full 50,300 bytes; current 46,340 bytes; difference 3,960 bytes.
+
+These are measured static-RAM differences between hardware profiles, including the compact telemetry cache and other compiled feature data. They are not an isolated before/after cache benchmark or a runtime heap measurement.
 
 ## Validation
 
-Controller/input/servo/flow tests (including flow-channel edit isolation, pending-edge preservation, overflow lockouts and servo interrupt availability throughout OneWire), UART and native persistence tests, all 128 feature combinations, compact-cache mapping tests, LED/optimistic command tests and actual ArdPortal/ArdFS persistence tests passed. Host tests use address/undefined-behavior sanitizers. Allocation-failure tests exercise the actual ESP decoding paths, and 20,000 repeated decoding/lookup iterations passed. The dictionary lookup test also asserts that an existing-key lookup constructs no temporary String.
+Controller/input/servo/flow tests (including flow-channel edit isolation, pending-edge preservation, overflow lockouts and servo interrupt availability throughout OneWire), UART and native persistence tests, all 128 feature combinations, concrete profile defaults/option-bit preservation/pH bounds/custom-calibration tests, compact-cache mapping tests, LED/optimistic command tests and actual ArdPortal/ArdFS persistence tests passed. Host tests use address/undefined-behavior sanitizers. Allocation-failure tests exercise the actual ESP decoding paths, and 20,000 repeated decoding/lookup iterations passed. The dictionary lookup test also asserts that an existing-key lookup constructs no temporary String.
 
 No physical restart-free duration or runtime heap minimum is claimed by these offline checks.

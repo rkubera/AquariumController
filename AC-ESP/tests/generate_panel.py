@@ -14,6 +14,7 @@ input_device=select('Device','Device',['analog','dht11','dht12','dht21','dht22',
 input_measurement=select('Measurement','Control measurement',['temperature','humidity'])
 input_function=select('Function','Function',['analog','temperature','humidity','digital','level','leak','flow','ph','disabled'])
 input_models=[select('TemperatureModel','Temperature sensor model',['dht11','dht12','dht21','dht22','ds18b20']),select('HumidityModel','Humidity sensor model',['dht11','dht12','dht21','dht22'])]
+input_models += [select('LevelModel','Water level model',['generic','sen0204']),select('LeakModel','Water leak model',['generic','grove101020018']),select('FlowModel','Flow meter model',['generic','sen0217']),select('PhModel','pH model',['generic','sen0161v2','sen0169v2'])]
 group('UIInputs','Inputs','Sensor',8,[name,input_function]+input_models+[dict(key='Inverted',type='switch',name='Invert input',command='Inverted'),dict(key='Pullup',type='switch',name='Internal pull-up',command='Pullup'),edit('DebounceMs','Debounce (ms)'),edit('PulsesPerLitre','Pulses per litre'),select('Type','Assigned output',['notconnected']+['relay'+str(i) for i in range(1,5)]+['pwmoutput'+str(i) for i in range(1,7)])]+[edit(k,l) for k,l in [('CalibValue1','Calibration: value 1'),('CalibRawValue1','Calibration: raw value 1'),('CalibValue2','Calibration: value 2'),('CalibRawValue2','Calibration: raw value 2'),('MinValue','Minimum or off'),('MaxValue','Maximum or off'),('CriticalMinValue','Critical minimum or off'),('CriticalMaxValue','Critical maximum or off')]])
 def output(pwm):
     return [name]+([select('Device','Device',['pwm','servo'])] if pwm else [])+[select('ControlMode','Mode',['manual','partofday','treshold']+(['pid'] if pwm else [])),dict(key='State',type='switch',name='State',command='State'),select('ControlDirection','Direction',['direct','reverse']),select('Input','Input',['none']+['sensor'+str(i) for i in range(1,9)]),edit('SensorsSetpoint','Setpoint'),edit('MaxDeviation','Hysteresis half-width')]+[slider(k,l,0,65535) if pwm else dict(key=k,type='switch',name=l,command=k) for k,l in [('MorningMode','Morning'),('AfternoonMode','Afternoon'),('EveningMode','Evening'),('NightMode','Night')]]+([slider('ManualMode','Manual PWM',0,65535)]+[edit(k,k) for k in ['PidKp','PidKi','PidKd']] if pwm else [])
@@ -156,6 +157,9 @@ for index,profile_index in records:
         if prop.endswith('Model') and prop in ('TemperatureModel','HumidityModel'):
             labels={'dht11':'DHT11','dht12':'DHT12 (single-wire)','dht21':'DHT21 / AM2301','dht22':'DHT22 / AM2302','ds18b20':'DS18B20'}
             for option in f['options']:option['name']=labels[option['value']]
+        if prop in ('LevelModel','LeakModel','FlowModel','PhModel'):
+            model_labels={'generic':'Custom / generic','sen0204':'DFRobot SEN0204 / XKC-Y25-T12V','grove101020018':'Seeed Grove Water Sensor (101020018)','sen0217':'DFRobot SEN0217 / YF-S201','sen0161v2':'DFRobot SEN0161-V2 (periodic measurement)','sen0169v2':'DFRobot SEN0169-V2 (continuous measurement)'}
+            for option in f['options']:option['name']=model_labels[option['value']]
         if prop=='Humidity':
             model_hash=2166136261
             for b in f'Sensor{ch}TemperatureModel'.encode():model_hash=((model_hash^b)*16777619)&0xffffffff
@@ -208,7 +212,7 @@ compiled_pages=pages[:9]+[dict(id='dht',name='DHT',order=60,fields=[f for f in p
 header='// Generated shared Portal/HA definitions, filtered by ESP feature defines.\n'
 for i,page in enumerate(compiled_pages):
     encoded=json.dumps(page,ensure_ascii=False,separators=(',',':'))
-    assert len(encoded.encode())<32768,(page['id'],len(encoded.encode()))
+    assert len(encoded.encode())<65535,(page['id'],len(encoded.encode()))
     header+='#if '+page_conditions[i]+'\nstatic const char PANEL_PAGE_'+str(i)+'[] PROGMEM =\n'
     head={k:v for k,v in page.items() if k!='fields'}
     header+=raw(json.dumps(head,ensure_ascii=False,separators=(',',':'))[:-1]+',"fields":[')

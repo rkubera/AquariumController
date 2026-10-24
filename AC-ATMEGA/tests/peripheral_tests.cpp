@@ -46,6 +46,41 @@ void testPeripheralInputs(){
  peripheralsApplySetting(sensorField(1,SensorField::Function),"ph");assert(mySensors[0].calibValue2==14&&mySensors[0].calibRawRead2==1023);mySensors[0].finishReading(512*SENSOR_ADC_SAMPLES);assert(fabs(mySensors[0].Value-14.0*512/1023)<0.001);
  peripheralsApplySetting(sensorField(1,SensorField::Function),"level");sensorsDigitalReading(1,0,1);assert(sensorsPeripheralAlarm(1));sensorsDigitalReading(1,1,1);assert(!sensorsPeripheralAlarm(1));
  peripheralsApplySetting(sensorField(1,SensorField::Function),"leak");sensorsDigitalReading(1,1,1);assert(sensorsPeripheralAlarm(1));sensorsDigitalReading(1,0,1);assert(!sensorsPeripheralAlarm(1));
+ // Concrete profiles configure electrical behavior but survive manual overrides.
+ peripheralsApplySetting(sensorField(1,SensorField::LeakModel),"grove101020018");
+ assert(peripheralProfile(1,AcPeripheral::Leak)==1&&peripheralOptions(1)==1&&peripheralDebounce(1)==50);
+ peripheralsApplySetting(sensorField(1,SensorField::Pullup),"on");
+ assert(peripheralProfile(1,AcPeripheral::Leak)==1&&peripheralOptions(1)==3);
+ peripheralsApplySetting(sensorField(1,SensorField::LeakModel),"grove101020018");assert(peripheralOptions(1)==3);
+ peripheralsApplySetting(sensorField(1,SensorField::LevelModel),"sen0204");
+ peripheralsApplySetting(sensorField(1,SensorField::Function),"level");assert(peripheralOptions(1)==0);
+ peripheralsApplySetting(sensorField(1,SensorField::Inverted),"on");assert(peripheralProfile(1,AcPeripheral::Level)==1&&peripheralProfile(1,AcPeripheral::Leak)==1);
+ peripheralsApplySetting(sensorField(1,SensorField::FlowModel),"sen0217");assert(peripheralProfile(1,AcPeripheral::Flow)==0);
+ peripheralsApplySetting(sensorField(5,SensorField::FlowModel),"sen0217");assert(peripheralPulsesPerLitre(5)==450&&peripheralOptions(5)==0);
+ peripheralsApplySetting(sensorField(5,SensorField::PulsesPerLitre),"470");
+ peripheralsApplySetting(sensorField(5,SensorField::FlowModel),"sen0217");assert(peripheralPulsesPerLitre(5)==470);
+ peripheralsApplySetting(sensorField(1,SensorField::PhModel),"sen0169v2");
+ peripheralsApplySetting(sensorField(1,SensorField::Function),"ph");
+ auto& ph=mySensors[0];assert(ph.calibValue1==7&&ph.calibValue2==4);
+ ph.finishReading(307*SENSOR_ADC_SAMPLES);assert(ph.isValid()&&fabs(ph.Value-7)<0.01);
+ ph.resetReadings();ph.finishReading(416*SENSOR_ADC_SAMPLES);assert(fabs(ph.Value-4)<0.01);
+ ph.calibRawRead1=310;ph.calibRawRead2=420;ph.calibValue1=7;ph.calibValue2=4;
+ peripheralsApplySetting(sensorField(1,SensorField::PhModel),"sen0161v2");assert(ph.calibRawRead1==310&&ph.calibRawRead2==420);
+ // Boot replay stores profiles without overwriting restored electrical/calibration settings.
+ megaConfigReady=false;
+ peripheralsApplySetting(sensorField(1,SensorField::PhModel),"sen0169v2");assert(ph.calibRawRead1==310);
+ peripheralsApplySetting(sensorField(1,SensorField::LeakModel),"generic");
+ assert(peripheralProfile(1,AcPeripheral::Ph)==2&&peripheralProfile(1,AcPeripheral::Level)==1);
+ megaConfigReady=true;
+ peripheralsApplySetting(sensorField(1,SensorField::Function),"leak");
+ // Active generic pH adopts nominal points; invalid physical pH fails safe.
+ peripheralsApplySetting(sensorField(2,SensorField::Function),"ph");
+ peripheralsApplySetting(sensorField(2,SensorField::PhModel),"sen0161v2");
+ assert(mySensors[1].calibValue1==7&&mySensors[1].calibValue2==4);
+ mySensors[1].finishReading(0);assert(!mySensors[1].isValid());
+ mySensors[1].finishReading(1023*SENSOR_ADC_SAMPLES);assert(!mySensors[1].isValid());
+ peripheralsApplySetting(sensorField(2,SensorField::PhModel),"sen0204");assert(peripheralProfile(2,AcPeripheral::Ph)==1);
+ peripheralsApplySetting(sensorField(2,SensorField::PhModel),"generic");assert(mySensors[1].calibRawRead2==1023&&mySensors[1].calibValue2==14);
  // Disabling optional devices preserves assignments but restores normal ADC/PWM.
  peripheralsApplySetting(pwmField(1,PWMOutputField::Device),"servo");
  byte savedFlags=megaFeatures.flags;megaFeatures.flags|=ControllerFeatures::NoPeripherals;

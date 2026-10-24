@@ -98,3 +98,12 @@ for enabled in (0,1):
    assert any(k.startswith('Sensor')for k in keys)==bool(inputs)
    assert any(k.startswith('PWMOutput')for k in keys)==bool(pwm)
 print('PASS: peripherals toggle and all four input/output page variants.')
+
+for channel in range(1,9):
+ fields={f['ha']['state_topic'].rsplit('/',1)[-1]:f for f in peripherals['fields']}
+ for part,models,function in [('LevelModel',['generic','sen0204'],'level'),('LeakModel',['generic','grove101020018'],'leak'),('FlowModel',['generic','sen0217'],'flow'),('PhModel',['generic','sen0161v2','sen0169v2'],'ph')]:
+  f=fields['Sensor'+str(channel)+part]
+  assert [o['value']for o in f['options']]==models
+  assert function in str(f['visibleWhen'])
+  assert f['persist'] and f['default']=='generic'
+print('PASS: concrete sensor model selectors, defaults, dependencies and native persistence metadata.')
