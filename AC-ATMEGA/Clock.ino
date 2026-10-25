@@ -27,6 +27,7 @@ void clockInit() {
 
 void clockReportAll() {
   clockReportSyncState();
+  clockReportBoot();
   clockGetLocalTime();
   clockReportHourDate();
   sprintf(bufferOut,"%+d", timezoneActualOffset);
@@ -100,11 +101,13 @@ char clockGetActualTimezoneOffset() {
 }
 
 void clockUpdateTimezoneRules() {
+  time_t previousBootLocal=megaBoot.utc?myTZ.toLocal(time_t(megaBoot.utc)):0;
   myDST = TimeChangeRule {"EDT", timezoneRule1Week, timezoneRule1DayOfWeek, timezoneRule1Month, timezoneRule1Hour, timezoneRule1Offset*60}; 
   mySTD = TimeChangeRule {"EST", timezoneRule2Week, timezoneRule2DayOfWeek, timezoneRule2Month, timezoneRule2Hour, timezoneRule2Offset*60}; 
   myTZ.setRules (myDST, mySTD);
   clockInvalidateLocalTime();
   clockGetActualTimezoneOffset();
+  if(megaBoot.utc&&previousBootLocal!=myTZ.toLocal(time_t(megaBoot.utc)))clockReportBoot();
   clockReportHourDate();
 }
 
@@ -137,6 +140,11 @@ void clockSyncEvent() {
 void clockMillisEvent() {
 
   time_t utc = now();
+  uint32_t ms=millis();
+  bool bootChanged=false;
+  if(megaConfigReady&&(clockSyncStatus==1||clockSyncStatus==4||clockSyncStatus==5))bootChanged=megaBoot.synchronize(uint32_t(utc),ms);
+  static uint32_t lastBootFallback=0;
+  if(megaConfigReady&&(bootChanged||(!megaBoot.utc&&uint32_t(ms-lastBootFallback)>=10000UL))){lastBootFallback=ms;clockReportBoot();}
   time_t local = clockGetLocalTime();
     
   static unsigned long lastMillisSavedTime = millis();
@@ -244,4 +252,21 @@ const char* clockSyncStatusString() {
 
 void clockReportSyncState() {
   reportField(FieldId::ClockRtcStatus,rtcStatusString());
+}
+
+// Use the offset at the boot instant, including historical DST, not today's offset.
+void clockFormatBoot(char* output,size_t capacity){
+ uint32_t ms=millis();megaBoot.tick(ms);
+ if(!megaBoot.utc){
+  if(megaBoot.elapsedSeconds)snprintf_P(output,capacity,PSTR("%lu%03u ms since start"),(unsigned long)megaBoot.elapsedSeconds,unsigned(megaBoot.remainder(ms)));
+  else snprintf_P(output,capacity,PSTR("%u ms since start"),unsigned(megaBoot.remainder(ms)));
+  return;
+ }
+ TimeChangeRule* rule=nullptr;time_t local=myTZ.toLocal(time_t(megaBoot.utc),&rule);
+ int offset=rule?rule->offset:0;unsigned minutes=offset<0?unsigned(-offset):unsigned(offset);
+ snprintf_P(output,capacity,PSTR("%04d-%02d-%02d %02d:%02d:%02d %c%02u:%02u"),year(local),month(local),day(local),hour(local),minute(local),second(local),offset<0?'-':'+',minutes/60,minutes%60);
+}
+void clockReportBoot(){
+ if(!linkFieldWanted(FieldId::MegaLastBoot))return;
+ clockFormatBoot(bufferOut,bufferOutSize);reportSelectedField(FieldId::MegaLastBoot,String(bufferOut));
 }

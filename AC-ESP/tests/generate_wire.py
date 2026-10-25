@@ -93,7 +93,7 @@ def feature(key):
  if key=='ClockRtcStatus':return 5
  if key.startswith('Buzzer'):return 6+(512 if key=='BuzzerOnErrors' else 0)
  if key in ('FanStartTemp','FanMaxSpeedTemp','FanPWMValue'):return 7
- if key in ('Status','ErrorCount','AlarmLast1','AlarmLast2','AlarmLast3'):return 8
+ if key in ('Status','ErrorCount','AlarmLast1','AlarmLast2','AlarmLast3','MegaLastBoot'):return 8
  return 0
 h='#pragma once\n#include "ControllerFeatures.h"\nstatic const uint16_t AC_FIELD_FEATURES[] PROGMEM={'+','.join(str(feature(k)) for k in keys)+'};\n'
 h+=r'''static bool acFieldSupported(uint16_t id,const ControllerFeatures& caps){

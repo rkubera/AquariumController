@@ -9,7 +9,7 @@ import tempfile
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-for test in ('run_peripheral_tests.py','run_peripheral_driver_tests.py'):
+for test in ('run_boot_timestamp_tests.py','run_peripheral_tests.py','run_peripheral_driver_tests.py'):
     subprocess.run([sys.executable,str(ROOT/'tests'/test)],check=True)
 main = (ROOT / 'AC-ATMEGA.ino').read_text()
 constants = '\n'.join(re.findall(r'^#define .+$', main, re.M))

@@ -25,6 +25,8 @@
 
 #include <avr/wdt.h>
 #include "RuntimeHealth.h"
+#include "BootTimestamp.h"
+BootTimestamp megaBoot;
 #include "ConfigStorage.h"
 #include "PeripheralDevices.h"
 #include "ControllerFeatures.h"
@@ -611,7 +613,7 @@ byte fanPWM = FAN_PWM_MAX;
 //Main program
 //********************************
 
-const int bufferOutSize = 32; // Names <=15 bytes; date/time prefixes <=25 bytes including NUL.
+const int bufferOutSize = 32; // Names <=15 bytes; date/time and boot prefixes <=29 bytes including NUL.
 char bufferOut[bufferOutSize];
 int publishValue = -1;
 uint32_t serialPartialTimeouts=0;
@@ -711,6 +713,7 @@ void setup() {
 
 void loop() {
   uint32_t usbLoopStarted=micros();
+  megaBoot.tick(uint32_t(millis()));
   ledFadeService();
   runtimeMark(RuntimeConfig);lcdContrastStorageService();
   runtimeMark(RuntimeRtc);rtcService();

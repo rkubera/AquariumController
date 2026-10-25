@@ -30,7 +30,7 @@ group('UIFan','Fan','',0,[slider(k,'Fan: '+l,0,100) for k,l in [('FanStartTemp',
 group('UIBuzzer','Sounds','',0,[select('BuzzerOnStart','Startup sound',['off','on']),select('BuzzerOnErrors','Alarm sound',['off','on'])]+[dict(key='Buzzer'+key,type='switch',name='Sounds: '+label,command='Buzzer'+key) for key,label in [('Morning','Morning'),('Afternoon','Afternoon'),('Evening','Evening'),('Night','Night')]])
 group('UIDiagnostics','Diagnostics','',0,[])
 # Metadata: persistent settings and telemetry cache, all keys are canonical Mega fields.
-readouts={0:['Value','RawValue','Humidity'],1:['State','SensorsValue'],2:['Value','SensorsValue'],3:['LedState'],4:['ActualPartOfDay'],5:['ClockRtcStatus','ActualTimezoneOffset','ActualDayOfWeek'],6:['InternalTemperature','InternalHumidity','FanPWMValue'],7:[],8:['ErrorCount','AlarmLast1','AlarmLast2','AlarmLast3']}
+readouts={0:['Value','RawValue','Humidity'],1:['State','SensorsValue'],2:['Value','SensorsValue'],3:['LedState'],4:['ActualPartOfDay'],5:['ClockRtcStatus','ActualTimezoneOffset','ActualDayOfWeek'],6:['InternalTemperature','InternalHumidity','FanPWMValue'],7:[],8:['ErrorCount','AlarmLast1','AlarmLast2','AlarmLast3','MegaLastBoot']}
 meta=[]; cache=[]
 for n,g in enumerate(groups):
     keys=[c['key'] for c in g['controls'] if c['key']!='channel']
@@ -55,7 +55,7 @@ profiles=[]; records=[]
 for index,(n,ch,field,prop) in enumerate(cache):
     if field in ('ClockSyncStatus','ClockLastNtpTime'): continue
     control=next((c for c in groups[n]['controls'] if c['key']==prop),None) if n<len(groups) else None
-    label=control['name'] if control else {'ErrorCount':'Active alarms','AlarmLast1':'Active alarm 1','AlarmLast2':'Active alarm 2','AlarmLast3':'Active alarm 3'}.get(prop,prop) if n==8 else 'Schedule: Current phase' if n==4 and prop=='ActualPartOfDay' else prop
+    label=control['name'] if control else {'MegaLastBoot':'Mega: Last boot','ErrorCount':'Active alarms','AlarmLast1':'Active alarm 1','AlarmLast2':'Active alarm 2','AlarmLast3':'Active alarm 3'}.get(prop,prop) if n==8 else 'Schedule: Current phase' if n==4 and prop=='ActualPartOfDay' else prop
     profile=dict(type='text',name=label)
     if control:
         if control['type']=='select': profile.update(type='select',options=[dict(value=v,name={'partofday':'Time of day','treshold':'Threshold','pid':'PID','notconnected':'Not connected','weekdayweekend':'Mon–Fri and weekend'}.get(v,v.capitalize())) for v in control['options']])

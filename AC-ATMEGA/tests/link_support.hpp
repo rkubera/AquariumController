@@ -1,3 +1,6 @@
+#include "BootTimestamp.h"
+BootTimestamp megaBoot;
+void clockFormatBoot(char* output,size_t capacity){snprintf(output,capacity,"12345 ms since start");}
 enum {Last=0, First, Second, Third, Fourth};
 enum {Sun=1,Mon,Tue,Wed,Thu,Fri,Sat};
 enum {Jan=1,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec};

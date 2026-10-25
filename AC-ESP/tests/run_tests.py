@@ -6,7 +6,7 @@ root=Path(__file__).resolve().parents[1]
 for name in ['feature_test.py','active_cache_test.py','decoder_memory_test.py','run_wire_tests.py','run_replication_tests.py','registration_test.py','cache_test.py','pacing_test.py','optimistic_test.py','native_persistence_test.py','light_test.py','light_storage_test.py','peripheral_profiles_test.py']:
  subprocess.run([sys.executable,str(root/'tests'/name)],check=True)
 pages=json.loads((root/'tests/panel_schema.json').read_text())
-assert len(pages)==10 and sum(len(p['fields']) for p in pages)==397
+assert len(pages)==10 and sum(len(p['fields']) for p in pages)==398
 all_ids=[f['id'] for p in pages for f in p['fields']];assert len(all_ids)==len(set(all_ids))
 for page in pages:
  ids={f['id'] for f in page['fields']}
@@ -75,9 +75,9 @@ assert all('visibleWhen' in f for f in schedule['fields'] if f['type']=='time')
 assert not any(f["ha"]["state_topic"].endswith("State") for f in pwm["fields"])
 
 diag=next(p for p in pages if p['id']=='diagnostics')
-assert len(diag['fields'])==4 and all(f['type']=='text' and f['readonly'] for f in diag['fields'])
-assert {f['ha']['state_topic'].rsplit('/',1)[-1] for f in diag['fields']}=={'ErrorCount','AlarmLast1','AlarmLast2','AlarmLast3'}
-print('PASS: diagnostic page has four readonly Text fields shared with HA.')
+assert len(diag['fields'])==5 and all(f['type']=='text' and f['readonly'] for f in diag['fields'])
+assert {f['ha']['state_topic'].rsplit('/',1)[-1] for f in diag['fields']}=={'ErrorCount','AlarmLast1','AlarmLast2','AlarmLast3','MegaLastBoot'}
+print('PASS: diagnostic page has five readonly Text fields shared with HA.')
 
 # Every descriptor used by the schema must be enabled in this firmware.
 features=(root/'AC-ESP.ino').read_text()

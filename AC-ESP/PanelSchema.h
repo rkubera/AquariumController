@@ -2332,6 +2332,8 @@ R"JSON(,)JSON"
 R"JSON({"type":"text","name":"Active alarm 2","id":"M_215a2004","persist":false,"readonly":true,"ha":{"state_topic":"stat/$device/AlarmLast2"}})JSON"
 R"JSON(,)JSON"
 R"JSON({"type":"text","name":"Active alarm 3","id":"M_225a2197","persist":false,"readonly":true,"ha":{"state_topic":"stat/$device/AlarmLast3"}})JSON"
+R"JSON(,)JSON"
+R"JSON({"type":"text","name":"Mega: Last boot","id":"M_520c8d7f","persist":false,"readonly":true,"ha":{"state_topic":"stat/$device/MegaLastBoot"}})JSON"
 R"JSON(]})JSON"
 ;
 #endif

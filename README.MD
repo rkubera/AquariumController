@@ -30,7 +30,7 @@ The drawing illustrates the hardware layout. Use the pin table below for the cur
 - A configurable Peripherals page for temperature/humidity sensors, digital contacts, water level/leak sensors, pulse flow meters, analog pH modules and servo outputs.
 - DS1307 RTC support, UTC synchronization from the ESP and configurable local-time rules.
 - Nokia 5110 display, 4×4 keypad and local contrast adjustment.
-- Active-alarm diagnostics, including the three most recently activated alarms that are still active.
+- Active-alarm diagnostics, including the three most recently activated alarms that are still active, and the Mega's last firmware-start date.
 - Configurable buzzer behavior and permission to sound during each time-of-day phase.
 
 The Portal and Home Assistant use the same field definitions. All channels of each output/input type share one panel page. Field visibility depends on the selected control mode and enabled hardware.
@@ -319,6 +319,10 @@ The combined alarm status is limited to the UART value payload. When full descri
 Mega rejects a UART text value if allocation or decoding cannot preserve the entire payload, including during configuration restore. Normal LCD refreshes format directly into fixed buffers without temporary Arduino `String` objects; long rows retain the existing trailing-dot indication.
 
 ### Mega reset and RAM diagnostics
+
+Diagnostics includes a read-only **Mega: Last boot** field, shared with Home Assistant/MQTT as `MegaLastBoot`. Before a valid RTC, accepted NTP or manual clock setting is available, it shows e.g. `12345 ms since start`, refreshed approximately every 10 seconds and in snapshots. Once time is established, Mega estimates its firmware-start instant and shows local date/time with the offset at that instant, e.g. `2026-10-25 02:30:00 +02:00`. The offset distinguishes repeated local hours during a daylight-saving transition.
+
+The boot record lives only in Mega RAM. Restarting the ESP does not reset it; restarting Mega clears it and begins the millisecond fallback again. The elapsed counter handles the approximately 49-day `millis()` wrap. Ordinary second-resolution clock jitter does not move the recorded date; a trusted correction greater than two seconds may refine it. The field records the last firmware start, not a persisted reset history or proof of a watchdog reset. Reset-cause information remains in the USB diagnostics described below.
 
 The watchdog timeout remains 8 seconds. The firmware disables an inherited watchdog early during startup, then enables the normal timeout in setup. USB diagnostics include the reset flags (`BOOT MCUSR`), a retained SRAM breadcrumb (`previousStage`) and a periodically reported heap-to-stack gap (`RAM gap` / `minGap`). No reset history is written to EEPROM.
 

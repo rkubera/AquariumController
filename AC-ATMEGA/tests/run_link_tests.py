@@ -91,7 +91,7 @@ def function(file,name):
     return text[at:end]
 texts += [
           (ROOT/'Scheduler.ino').read_text().replace(function('Scheduler.ino','schedulerGetActualPartOfDay'),'').replace(function('Scheduler.ino','schedulerPublishActualPartOfDay'),''),
-          function('Clock.ino','clockReportAll'),function('Clock.ino','clockReportHourDate'),function('Clock.ino','clockReportSyncState'),function('Clock.ino','clockSyncStatusString'),function('Clock.ino','clockNTPSynchronize_cb'),function('Clock.ino','clockSyncEvent')]
+          function('Clock.ino','clockReportBoot'),function('Clock.ino','clockReportAll'),function('Clock.ino','clockReportHourDate'),function('Clock.ino','clockReportSyncState'),function('Clock.ino','clockSyncStatusString'),function('Clock.ino','clockNTPSynchronize_cb'),function('Clock.ino','clockSyncEvent')]
 prototypes=[]
 for text in texts:
     prototypes += [line[:line.index('{')].rstrip()+';' for line in re.findall(
